@@ -328,7 +328,7 @@ GlSphereView::init(Gtk::GLArea *glArea)
 	//m_moonTex = Tex::fromResource(RESOURCE::resource("2k_moon.jpg"));
     // simple fixed view for moon
     glm::vec3 direction(0.0f, 0.0f, -1.0f);
-    glm::vec3 right = glm::vec3(-1.0f, 0.0f, 0.0f);
+    glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
     glm::vec3 up = glm::cross(right, direction);
     Position moonView{0.0f, 0.0f, 70.0f};
     m_moonViewMat = glm::lookAt(
@@ -578,7 +578,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     m_textContext->display(projFix, geos);
     m_textContext->unuse();
 
-    // do the moon at some offset
+    // place the moon at some offset (makes shapes oval... but better than slider)
     Matrix moonProj = glm::translate(projin, glm::vec3{35.0f, 0.0f, 0.0f});
     Matrix moonProjView = moonProj * m_moonViewMat;
     // moon
