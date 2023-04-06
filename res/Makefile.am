@@ -28,3 +28,18 @@ clean-local:
 
 %.desktop: %.desktop.in
 	@regex_cmd@ -e "s,\@APP_ICON\@,$(appdir_icon),g" $? > $@
+
+2k_moon.jpg:
+	curl https://www.solarsystemscope.com/textures/download/$@ -o $@
+
+2k_earth_specular_map.tif:
+	curl https://www.solarsystemscope.com/textures/download/$@ -o $@
+
+2k_earth_normal_map.tif:
+	curl https://www.solarsystemscope.com/textures/download/$@ -o $@
+
+2k_earth_nightmap.jpg:
+	curl https://www.solarsystemscope.com/textures/download/$@ -o $@
+
+2k_earth_daymap.jpg:
+	curl https://www.solarsystemscope.com/textures/download/$@ -o $@
