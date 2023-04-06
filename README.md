@@ -1,11 +1,13 @@
 A nice desktop clock in earth shape.
 
 Additional formats:
-%D earth declination (for northern hemisphere)
-%rise sun rise for the location setup by latitude / longitude
-%set sun set
-\n new line
-%weather for the used weather time
+%D earth declination (for northern hemisphere)  
+%rise sun rise for the location setup by latitude / longitude  
+%set sun set  
+\n new line  
+%weather for the used weather time  
+
+![Glglobe](glglobe.png "glglobe")
 
 configure:
      allow --with-gles using GL ES 3 e.g. useful on Raspi's (requires same use on GenericGlm)
@@ -20,3 +22,11 @@ but as we live on a sphere (almost) that might hide some part of the lines (thes
 and i didn't try to bend the lines as i live in some aged country with "wrinkles" all over).
 
 Build with autotools, requires genericGlm (see there for some basic build infos).
+
+In directory res there are some images required i didn't add here for the possible licence issues: They are available from https://www.solarsystemscope.com/textures/ use the names: 
+
+/res/2k_moon.jpg  
+/res/2k_earth_specular_map.tif  
+/res/2k_earth_normal_map.tif  
+/res/2k_earth_nightmap.jpg  
+/res/2k_earth_daymap.jpg  
