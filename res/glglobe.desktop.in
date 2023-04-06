@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=0.1
+Name=GlGlobe
+Comment=Fancy desktop clock
+Categories=Application;Utility;
+Exec=glglobe
+Icon=@APP_ICON@
