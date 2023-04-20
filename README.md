@@ -1,11 +1,11 @@
 A nice desktop clock in earth shape.
 
 Additional formats:
-%D earth declination (for northern hemisphere)
-%rise sun rise for the location setup by latitude / longitude
-%set sun set
-\n new line
-%weather for the used weather time
+%D earth declination (for northern hemisphere)<br>
+%rise sun rise for the location setup by latitude / longitude<br>
+%set sun set<br>
+\n new line<br>
+%weather for the used weather time<br>
 
 ![Glglobe](glglobe.png "glglobe")
 
@@ -26,3 +26,8 @@ The files are not very portable, if you dont use gnu tools there might be issues
 
 In directory res there are some images required i didn't add here for the possible licence issues.
 They are download when build with curl, so if you are sensitve to licence issue, or want to use a different download-tool see res/Makefile.am.
+
+Build for windows:<br>
+<pre>
+   in src/Makefile.am modify glglobe_LDFLAGS = -mwindows
+</pre>
