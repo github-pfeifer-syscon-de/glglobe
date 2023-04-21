@@ -27,7 +27,7 @@ The files are not very portable, if you dont use gnu tools there might be issues
 In directory res there are some images required i didn't add here for the possible licence issues.
 They are download when build with curl, so if you are sensitve to licence issue, or want to use a different download-tool see res/Makefile.am.
 
-Build for windows:<br>
+Build for windows was integrated at least for msys2<br>
 <pre>
-   in src/Makefile.am modify glglobe_LDFLAGS = -mwindows
+  look for "$host_os" = "mingw32" 
 </pre>
