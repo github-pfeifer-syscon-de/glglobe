@@ -16,6 +16,9 @@ AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
 
 LT_INIT
 
+AC_CANONICAL_HOST
+AC_MSG_NOTICE([host_os $host_os])
+
 PKG_CHECK_MODULES(GTHREAD,gthread-2.0)
 
 PKG_CHECK_MODULES(GENERICGLM,genericglm-0.22)
@@ -37,6 +40,10 @@ else
 fi
 
 AX_CHECK_SED()
+
+if test "$host_os" = "mingw32" ; then
+    AC_SUBST(EXTRA_LDFLAGS, "-mwindows")
+fi
 
 AC_CONFIG_FILES([
 Makefile

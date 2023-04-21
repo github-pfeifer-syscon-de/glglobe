@@ -52,7 +52,8 @@ glglobe_SOURCES = \
 	TimezoneInfo.hpp
 
 
-glglobe_LDFLAGS =
+glglobe_LDFLAGS = @EXTRA_LDFLAGS@
+
 
 glglobe_LDADD = $(GENERICGLM_LIBS) \
 	$(GLIBMM_LIBS) \
