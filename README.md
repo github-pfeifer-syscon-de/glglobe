@@ -21,7 +21,8 @@ The function uses the shortest path between the given points,
 but as we live on a sphere (almost) that might hide some part of the lines (these cases should be rare,
 and i didn't try to bend the lines as i live in some aged country with "wrinkles" all over).
 
-Build with autotools, requires genericGlm (see there for some basic build infos).
+Build with autotools, requires genericGlm and geodata
+(see there for some basic build infos).
 The files are not very portable, if you dont use gnu tools there might be issues.
 
 In directory res there are some images required i didn't add here for the possible licence issues.
@@ -29,5 +30,5 @@ They are download when build with curl, so if you are sensitve to licence issue,
 
 Build for windows was integrated at least for msys2<br>
 <pre>
-  look for "$host_os" = "mingw32" 
+  look for "$host_os" = "mingw32"
 </pre>
