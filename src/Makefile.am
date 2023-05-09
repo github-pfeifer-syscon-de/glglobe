@@ -5,6 +5,7 @@ AM_CPPFLAGS = \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)."\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
 	$(GENERICGLM_CFLAGS) \
+	$(GEODATA_CFLAGS) \
 	$(GTKMM_CFLAGS) \
 	$(GLIBMM_CFLAGS) \
 	$(GTHREAD_CFLAGS) \
@@ -38,14 +39,6 @@ glglobe_SOURCES = \
 	SphereContext.hpp \
 	SunSet.cpp \
 	SunSet.hpp \
-	Spoon.cpp \
-	Spoon.hpp \
-	JsonHelper.cpp \
-	JsonHelper.hpp \
-	Weather.cpp \
-	Weather.hpp \
-	GeoJson.cpp \
-	GeoJson.hpp \
 	ConfigDialog.cpp \
 	ConfigDialog.hpp \
 	TimezoneInfo.cpp \
@@ -56,6 +49,7 @@ glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
 
 glglobe_LDADD = $(GENERICGLM_LIBS) \
+	$(GEODATA_LIBS) \
 	$(GLIBMM_LIBS) \
 	$(GTKMM_LIBS) \
 	$(GTHREAD_LIBS) \
