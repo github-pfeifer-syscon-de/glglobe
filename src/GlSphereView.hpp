@@ -85,6 +85,7 @@ public:
     void set_config_dialog(ConfigDialog* cfgdlg) {
         m_cfgdlg = cfgdlg;
     }
+    void refresh_weather_service();
     void request_weather_product();
 protected:
     void show_error(const std::string& msg);

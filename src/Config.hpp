@@ -57,6 +57,8 @@ public:
     void setPanedPos(int panedPos);
     void setWeatherProductId(const std::string& weatherProduct);
     std::string getWeatherProductId();
+    void setWeatherServiceId(const std::string& weatherServiceId);
+    std::string getWeatherServiceId();
     void setWeatherTransparency(double transp);
     double getWeatherTransparency();
     void setGeoJsonFile(const Glib::ustring& geoJsonFile);
@@ -64,23 +66,24 @@ public:
 protected:
     std::string get_config_name();
 
-    static constexpr const char * const GRP_MAIN = "globe";
-    static constexpr const char * const LATITUDE = "lat";
-    static constexpr const char * const LONGITUDE = "lon";
-    static constexpr const char * const DAYTEX = "dayTex";
-    static constexpr const char * const NIGHTTEX = "nightTex";
-    static constexpr const char * const AMBIENT = "ambient";
-    static constexpr const char * const DIFFUSE = "diffuse";
-    static constexpr const char * const SPECULAR = "specular";
-    static constexpr const char * const TWILIGHT = "twilight";
-    static constexpr const char * const DISTANCE = "distance";
-    static constexpr const char * const SPECULAR_POWER = "specularPower";
-    static constexpr const char * const TIME_FORMAT = "timeFormat";
-    static constexpr const char * const GRP_WIN = "win";
-    static constexpr const char * const SPLIT_POS = "splitPos";
-    static constexpr const char * const WEATHER_PRODUCT = "weatherProduct";
-    static constexpr const char * const WEATHER_TRANSP = "weatherTransparency";
-    static constexpr const char * const GEO_JSON_FILE = "geoJsonFile";
+    static constexpr auto GRP_MAIN{"globe"};
+    static constexpr auto LATITUDE{"lat"};
+    static constexpr auto LONGITUDE{"lon"};
+    static constexpr auto DAYTEX{"dayTex"};
+    static constexpr auto NIGHTTEX{"nightTex"};
+    static constexpr auto AMBIENT{"ambient"};
+    static constexpr auto DIFFUSE{"diffuse"};
+    static constexpr auto SPECULAR{"specular"};
+    static constexpr auto TWILIGHT{"twilight"};
+    static constexpr auto DISTANCE{"distance"};
+    static constexpr auto SPECULAR_POWER{"specularPower"};
+    static constexpr auto TIME_FORMAT{"timeFormat"};
+    static constexpr auto GRP_WIN{"win"};
+    static constexpr auto SPLIT_POS{"splitPos"};
+    static constexpr auto WEATHER_SERVICE{"weatherService"};
+    static constexpr auto WEATHER_PRODUCT{"weatherProduct"};
+    static constexpr auto WEATHER_TRANSP{"weatherTransparency"};
+    static constexpr auto GEO_JSON_FILE{"geoJsonFile"};
 private:
     Glib::KeyFile *m_config;
     int m_lat;
@@ -96,6 +99,7 @@ private:
     std::string m_nightTextureFile;
     std::string m_timeFormat;
     int m_panedPos;
+    std::string m_weatherServiceId;
     std::string m_weatherProductId;
     double m_weatherTransparency;
     Glib::ustring m_geoJsonFile;

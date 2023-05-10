@@ -33,7 +33,8 @@ public:
 protected:
     void geojsonfile_changed();
     void clearGeoFile();
-    void weather_product_changed(Gtk::ComboBox *weather_product);
+    void weather_product_changed();
+    void weather_service_changed();
     void clearNightTextureFile(Gtk::FileChooserButton* nightFcBtn);
     void clearDayTextureFile(Gtk::FileChooserButton* dayFcBtn);
     void daytex_changed(Gtk::FileChooserButton* dayFcBtn);
@@ -44,5 +45,7 @@ private:
     Gtk::Image* m_LegendWeather{nullptr};
     Gtk::TextView* m_DescWeather{nullptr};
     Gtk::FileChooserButton* m_geoJsonButton{nullptr};
+    Gtk::ComboBoxText* m_weatherProductCombo{nullptr};
+    Gtk::ComboBoxText* m_weatherServiceCombo{nullptr};
 };
 

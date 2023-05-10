@@ -34,6 +34,7 @@ Config::Config()
 , m_nightTextureFile{""}
 , m_timeFormat{"%c\\n%D"}
 , m_panedPos{0}
+, m_weatherServiceId{"RealEarth"}
 , m_weatherProductId{""}
 , m_weatherTransparency{1.0}
 , m_geoJsonFile{""}
@@ -80,6 +81,8 @@ Config::read()
                     m_specular_power = m_config->get_double(GRP_MAIN, SPECULAR_POWER);
                 if (m_config->has_key(GRP_MAIN, TIME_FORMAT))
                     m_timeFormat = m_config->get_string(GRP_MAIN, TIME_FORMAT);
+                if (m_config->has_key(GRP_MAIN, WEATHER_SERVICE))
+                    m_weatherServiceId = m_config->get_string(GRP_MAIN, WEATHER_SERVICE);
                 if (m_config->has_key(GRP_MAIN, WEATHER_PRODUCT))
                     m_weatherProductId = m_config->get_string(GRP_MAIN, WEATHER_PRODUCT);
                 if (m_config->has_key(GRP_MAIN, WEATHER_TRANSP))
@@ -115,6 +118,7 @@ Config::save()
         m_config->set_double(GRP_MAIN, SPECULAR_POWER, m_specular_power);
         m_config->set_string(GRP_MAIN, TIME_FORMAT, m_timeFormat);
         m_config->set_integer(GRP_WIN, SPLIT_POS, m_panedPos);
+        m_config->set_string(GRP_MAIN, WEATHER_SERVICE, m_weatherServiceId);
         m_config->set_string(GRP_MAIN, WEATHER_PRODUCT, m_weatherProductId);
         m_config->set_double(GRP_MAIN, WEATHER_TRANSP, m_weatherTransparency);
         m_config->set_string(GRP_MAIN, GEO_JSON_FILE, m_geoJsonFile);
@@ -291,14 +295,28 @@ Config::setPanedPos(int panedPos)
     m_panedPos = panedPos;
 }
 
-void Config::setWeatherProductId(const std::string& weatherProductId)
+void
+Config::setWeatherProductId(const std::string& weatherProductId)
 {
     m_weatherProductId = weatherProductId;
 }
 
-std::string Config::getWeatherProductId()
+std::string
+Config::getWeatherProductId()
 {
     return m_weatherProductId;
+}
+
+void
+Config::setWeatherServiceId(const std::string& weatherServiceId)
+{
+    m_weatherServiceId = weatherServiceId;
+}
+
+std::string
+Config::getWeatherServiceId()
+{
+    return m_weatherServiceId;
 }
 
 void

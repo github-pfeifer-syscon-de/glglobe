@@ -12,9 +12,6 @@ Additional formats:
 configure:
      allow --with-gles using GL ES 3 e.g. useful on Raspi's (requires same use on GenericGlm)
 
-Uses: https://re-d.ssec.wisc.edu/ for weather display
-(some better mercator unmapping was implemented)
-
 Added option to display Geo.json files (presume EPSG:4326 coordinates (based on WGS 84 at the used scale the differences should not matter)).
 As there are many files with a high density of points around there are some limits implemented, just in case your might wonder.
 The function uses the shortest path between the given points,

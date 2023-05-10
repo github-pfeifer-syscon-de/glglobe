@@ -293,8 +293,7 @@ GlSphereView::init(Gtk::GLArea *glArea)
     m_weather_pix->fill(0x00);  // transp. black
     m_weatherTex = new Tex();
     m_weatherTex->create(m_weather_pix);
-    m_weather = std::make_shared<Weather>(this);
-    m_weather->capabilities();
+    refresh_weather_service();
 
     m_font = new Font("sans-serif");    // Css2 name should give use some sans font
     m_text = new Text(GL_QUADS, m_textContext, m_font);
@@ -398,6 +397,19 @@ GlSphereView::unrealize()
     }
 }
 
+void GlSphereView::refresh_weather_service()
+{
+    Glib::ustring serviceId = m_config->getWeatherServiceId();
+    if (!serviceId.empty()) {
+        m_weather = Weather::create_service(serviceId, this);
+        m_weather->capabilities();
+    }
+    else {
+        m_weather = nullptr;
+    }
+    request_weather_product();  // will clear in any case
+}
+
 void
 GlSphereView::weather_products_ready()
 {
@@ -411,10 +423,9 @@ GlSphereView::request_weather_product()
     auto weatherProductId = m_config->getWeatherProductId();
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
-    if (!weatherProductId.empty()) {
+    if (!weatherProductId.empty() && m_weather) {
         m_weather->request(weatherProductId);
     }
-
 }
 
 int

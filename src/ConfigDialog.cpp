@@ -19,6 +19,7 @@
 #include "ConfigDialog.hpp"
 #include "GlSphereView.hpp"
 #include "Config.hpp"
+#include "Weather.hpp"
 
 ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : Gtk::Dialog(cobject)
@@ -170,21 +171,29 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
     refBuilder->get_widget("legendWeather", m_LegendWeather);
     setWeatherDescription();
 
-    Gtk::ComboBoxText* pWeatherCombo = nullptr;
-    refBuilder->get_widget("comboWeather", pWeatherCombo);
-    if (pWeatherCombo) {
+    refBuilder->get_widget("comboWeatherProduct", m_weatherProductCombo);
+    if (m_weatherProductCombo) {
         auto products = m_sphereView->get_weather()->get_products();
-        pWeatherCombo->append("", "");  // allow empty selection
+        m_weatherProductCombo->append("", "");  // allow empty selection
         for (auto product : products) {
             if (product->is_displayable()) {
-                pWeatherCombo->append(product->get_id(), product->get_name());
+                m_weatherProductCombo->append(product->get_id(), product->get_name());
             }
         }
-        pWeatherCombo->set_active_id(config->getWeatherProductId());
-        pWeatherCombo->signal_changed().connect(
-                sigc::bind<Gtk::ComboBox*>(
-                    sigc::mem_fun(*this, &ConfigDialog::weather_product_changed),
-                        pWeatherCombo));
+        m_weatherProductCombo->set_active_id(config->getWeatherProductId());
+        m_weatherProductCombo->signal_changed().connect(
+                sigc::mem_fun(*this, &ConfigDialog::weather_product_changed));
+    }
+    refBuilder->get_widget("comboWeatherService", m_weatherServiceCombo);
+    if (m_weatherServiceCombo) {
+        auto services = Weather::get_services();
+        m_weatherServiceCombo->append("", "");  // allow empty selection
+        for (auto service : services) {
+            m_weatherServiceCombo->append(service, service);
+        }
+        m_weatherServiceCombo->set_active_id(config->getWeatherServiceId());
+        m_weatherServiceCombo->signal_changed().connect(
+                    sigc::mem_fun(*this, &ConfigDialog::weather_service_changed));
     }
     refBuilder->get_widget("geoFileButton", m_geoJsonButton);
     if (m_geoJsonButton) {
@@ -236,7 +245,10 @@ void
 ConfigDialog::setWeatherDescription()
 {
     auto weatherProdId = m_sphereView->get_config()->getWeatherProductId();
-    auto weatherProd = m_sphereView->get_weather()->find_product(weatherProdId);
+    std::shared_ptr<WeatherProduct> weatherProd;
+    if (m_sphereView->get_weather()) {
+        weatherProd = m_sphereView->get_weather()->find_product(weatherProdId);
+    }
     Glib::ustring desc;
     if (weatherProd) {
         desc = weatherProd->get_description();
@@ -278,12 +290,23 @@ ConfigDialog::clearGeoFile()
 }
 
 void
-ConfigDialog::weather_product_changed(Gtk::ComboBox *weather_product)
+ConfigDialog::weather_product_changed()
 {
-    auto id = weather_product->get_active_id();
+    auto id = m_weatherProductCombo->get_active_id();
     m_sphereView->get_config()->setWeatherProductId(id);
     setWeatherDescription();
     m_sphereView->request_weather_product();
+}
+
+void
+ConfigDialog::weather_service_changed()
+{
+    auto id = m_weatherServiceCombo->get_active_id();
+    m_sphereView->get_config()->setWeatherServiceId(id);
+    m_sphereView->get_config()->setWeatherProductId("");
+    m_weatherProductCombo->set_active_id("");
+    m_sphereView->refresh_weather_service();
+    setWeatherDescription();
 }
 
 void
