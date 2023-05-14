@@ -18,12 +18,6 @@ The function uses the shortest path between the given points,
 but as we live on a sphere (almost) that might hide some part of the lines (these cases should be rare,
 and i didn't try to bend the lines as i live in some aged country with "wrinkles" all over).
 
-At the moment two satellite image services are supported:
-<ul>
-  <li>RealEarth, with a excellent global coverage</li>
-  <li>EumetSat, with some close to real time images</li>
-  <li>Deutscher Wetterdienst, with a surprisingly wide coverage</li>
-</ul>
 
 Build with autotools, requires genericGlm and geodata
 (see there for some basic build infos).
