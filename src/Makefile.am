@@ -44,7 +44,6 @@ glglobe_SOURCES = \
 	TimezoneInfo.cpp \
 	TimezoneInfo.hpp
 
-
 glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
 

@@ -465,6 +465,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
+                    <property name="margin-end">10</property>
                     <property name="label" translatable="yes">Legend
 </property>
                   </object>
@@ -489,6 +490,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
+                    <property name="margin-end">10</property>
                     <property name="label" translatable="yes">Description</property>
                   </object>
                   <packing>
@@ -498,9 +500,9 @@
                 </child>
                 <child>
                   <object class="GtkTextView" id="descWeather">
+                    <property name="height-request">200</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="vexpand">True</property>
                     <property name="border-width">1</property>
                     <property name="editable">False</property>
                     <property name="wrap-mode">word-char</property>
@@ -516,6 +518,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
+                    <property name="margin-end">10</property>
                     <property name="label" translatable="yes">Transparency</property>
                   </object>
                   <packing>
@@ -542,6 +545,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
+                    <property name="margin-end">10</property>
                     <property name="label" translatable="yes">Display</property>
                   </object>
                   <packing>
@@ -564,6 +568,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
+                    <property name="margin-end">10</property>
                     <property name="label" translatable="yes">Service</property>
                   </object>
                   <packing>

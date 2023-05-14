@@ -19,6 +19,8 @@
 
 #include <gtkmm.h>
 
+#undef CONFIG_DEBUG
+
 class GlSphereView;
 class Config;
 
@@ -30,6 +32,7 @@ public:
     void setLegendWeather(Glib::RefPtr<Gdk::Pixbuf> legend);
     void setWeatherDescription();
     static ConfigDialog* create(GlSphereView* sphereView);
+    void refreshWeatherProducts();
 protected:
     void geojsonfile_changed();
     void clearGeoFile();
@@ -47,5 +50,6 @@ private:
     Gtk::FileChooserButton* m_geoJsonButton{nullptr};
     Gtk::ComboBoxText* m_weatherProductCombo{nullptr};
     Gtk::ComboBoxText* m_weatherServiceCombo{nullptr};
+    bool m_blockWeatherProductUpdate{false};
 };
 

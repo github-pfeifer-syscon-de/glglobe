@@ -18,9 +18,16 @@ The function uses the shortest path between the given points,
 but as we live on a sphere (almost) that might hide some part of the lines (these cases should be rare,
 and i didn't try to bend the lines as i live in some aged country with "wrinkles" all over).
 
+At the moment two satellite image services are supported:
+<ul>
+  <li>RealEarth, with a excellent global coverage</li>
+  <li>EumetSat, with some close to real time images</li>
+  <li>Deutscher Wetterdienst, with a surprisingly wide coverage</li>
+</ul>
+
 Build with autotools, requires genericGlm and geodata
 (see there for some basic build infos).
-The files are not very portable, if you dont use gnu tools there might be issues.
+The files are not very portable, if you don't use gnu tools there might be issues.
 
 In directory res there are some images required i didn't add here for the possible licence issues.
 They are download when build with curl, so if you are sensitve to licence issue, or want to use a different download-tool see res/Makefile.am.
@@ -29,3 +36,5 @@ Build for windows was integrated at least for msys2<br>
 <pre>
   look for "$host_os" = "mingw32"
 </pre>
+I have no current solution for the adapation of the timezones for windows.
+So no timezone display there (only local time).

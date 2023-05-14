@@ -1,10 +1,9 @@
 ## Process this file with automake to produce Makefile.in
-## Created by Anjuta
 
 SUBDIRS = res src
 
 dist_doc_DATA = \
-	README \
+	README.md \
 	COPYING \
 	AUTHORS \
 	ChangeLog \

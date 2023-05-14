@@ -397,30 +397,33 @@ GlSphereView::unrealize()
     }
 }
 
-void GlSphereView::refresh_weather_service()
+std::shared_ptr<Weather>
+GlSphereView::refresh_weather_service()
 {
     Glib::ustring serviceId = m_config->getWeatherServiceId();
+    #ifdef CONFIG_DEBUG
+    std::cout << "GlSphereView::refresh_weather_service " << serviceId << std::endl;
+    #endif
     if (!serviceId.empty()) {
         m_weather = Weather::create_service(serviceId, this);
+        m_weather->signal_products_completed().connect(
+            sigc::mem_fun(*this, &GlSphereView::request_weather_product));
         m_weather->capabilities();
     }
     else {
-        m_weather = nullptr;
+        m_weather.reset();
     }
-    request_weather_product();  // will clear in any case
-}
-
-void
-GlSphereView::weather_products_ready()
-{
-    request_weather_product();
+    request_weather_product();  // will clear view in any case
+    return m_weather;
 }
 
 void
 GlSphereView::request_weather_product()
 {
-
     auto weatherProductId = m_config->getWeatherProductId();
+    #ifdef CONFIG_DEBUG
+    std::cout << "GlSphereView::request_weather_product " << weatherProductId << std::endl;
+    #endif
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
     if (!weatherProductId.empty() && m_weather) {
@@ -487,8 +490,8 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
             // copy to dest
             if (false) {
             std::cout << "GlSphereView::weatherNotify got"
-                      << " xi " << request.get_pixX()
-                      << " yi " << request.get_pixY()
+                    //  << " xi " << request.get_pixX()
+                    //  << " yi " << request.get_pixY()
                     //  << " width " << width
                     //  << " height " << height
                       << " pixwidth  " << pixwidth

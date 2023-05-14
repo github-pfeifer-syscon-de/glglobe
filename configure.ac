@@ -29,8 +29,8 @@ PKG_CHECK_MODULES(GLIBMM,glibmm-2.4)
 
 PKG_CHECK_MODULES(GTKMM, [gtkmm-3.0 ])
 
-dnl PKG_CHECK_MODULES(LIBSOUP3, [libsoup-3.0])
-dnl PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
+PKG_CHECK_MODULES(LIBSOUP3, [libsoup-3.0])
+PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
 
 AC_ARG_WITH([gles], AS_HELP_STRING([--with-gles], [use glesv3 (e.g. Raspi) otherweise fullgl, requires same use as with GenericGlm]))
 

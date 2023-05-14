@@ -99,6 +99,8 @@ GlGlobeApp::on_startup() {
 }
 
 int main(int argc, char** argv) {
+    g_log_writer_default_set_use_stderr (true);
+
     auto app = GlGlobeApp(argc, argv);
 
     return app.run();

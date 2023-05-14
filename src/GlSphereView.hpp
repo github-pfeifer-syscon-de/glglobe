@@ -77,7 +77,6 @@ public:
     void time_format_changed(Gtk::Entry *time_format);
     //GeoDb *getGeoDb();
     bool on_motion_notify_event(GdkEventMotion* event, float mx, float my) override;
-    void weather_products_ready() override;
     void weather_image_notify(WeatherImageRequest& request) override;
     int get_weather_image_size() override;
     void weather_transparency_changed(Gtk::Scale *weather_transparency);
@@ -85,7 +84,7 @@ public:
     void set_config_dialog(ConfigDialog* cfgdlg) {
         m_cfgdlg = cfgdlg;
     }
-    void refresh_weather_service();
+    std::shared_ptr<Weather> refresh_weather_service();
     void request_weather_product();
 protected:
     void show_error(const std::string& msg);

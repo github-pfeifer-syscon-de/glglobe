@@ -1,1 +1,4 @@
 0.1 inital release
+added RealEarth image overlay
+added geo.json vector files to display country shapes
+added EumetSat image overlay

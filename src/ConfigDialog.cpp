@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 
 #include "ConfigDialog.hpp"
 #include "GlSphereView.hpp"
@@ -173,14 +174,7 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
 
     refBuilder->get_widget("comboWeatherProduct", m_weatherProductCombo);
     if (m_weatherProductCombo) {
-        auto products = m_sphereView->get_weather()->get_products();
-        m_weatherProductCombo->append("", "");  // allow empty selection
-        for (auto product : products) {
-            if (product->is_displayable()) {
-                m_weatherProductCombo->append(product->get_id(), product->get_name());
-            }
-        }
-        m_weatherProductCombo->set_active_id(config->getWeatherProductId());
+        refreshWeatherProducts();
         m_weatherProductCombo->signal_changed().connect(
                 sigc::mem_fun(*this, &ConfigDialog::weather_product_changed));
     }
@@ -256,14 +250,19 @@ ConfigDialog::setWeatherDescription()
     if (m_DescWeather) {
         m_DescWeather->get_buffer()->set_text(desc);
     }
-    if (m_LegendWeather && weatherProd) {
-        auto legend = m_sphereView->get_weather()->get_legend(weatherProd);
-        if (legend) {
-            m_LegendWeather->set(legend);
+    if (m_LegendWeather) {
+        if (weatherProd) {
+            auto legend = m_sphereView->get_weather()->get_legend(weatherProd);
+            if (legend) {
+                m_LegendWeather->set(legend);
+            }
+            else {  // notify if legend becomes available
+                weatherProd->signal_legend().connect(
+                        sigc::mem_fun(*this, &ConfigDialog::setLegendWeather));
+            }
         }
-        else {  // notify if legend becomes available
-            weatherProd->signal_legend().connect(
-                    sigc::mem_fun(*this, &ConfigDialog::setLegendWeather));
+        else {
+            m_LegendWeather->clear();
         }
     }
 }
@@ -292,20 +291,34 @@ ConfigDialog::clearGeoFile()
 void
 ConfigDialog::weather_product_changed()
 {
-    auto id = m_weatherProductCombo->get_active_id();
-    m_sphereView->get_config()->setWeatherProductId(id);
-    setWeatherDescription();
-    m_sphereView->request_weather_product();
+    if (!m_blockWeatherProductUpdate) {
+        #ifdef CONFIG_DEBUG
+        std::cout << "ConfigDialog::weather_product_changed" << std::endl;
+        #endif
+        auto id = m_weatherProductCombo->get_active_id();
+        m_sphereView->get_config()->setWeatherProductId(id);
+        setWeatherDescription();
+        m_sphereView->request_weather_product();
+    }
 }
 
 void
 ConfigDialog::weather_service_changed()
 {
+    #ifdef CONFIG_DEBUG
+    std::cout << "ConfigDialog::weather_product_changed" << std::endl;
+    #endif
     auto id = m_weatherServiceCombo->get_active_id();
     m_sphereView->get_config()->setWeatherServiceId(id);
     m_sphereView->get_config()->setWeatherProductId("");
-    m_weatherProductCombo->set_active_id("");
-    m_sphereView->refresh_weather_service();
+    m_blockWeatherProductUpdate = true;
+    m_weatherProductCombo->remove_all();
+    m_blockWeatherProductUpdate = false;
+    std::shared_ptr<Weather> weather = m_sphereView->refresh_weather_service();
+    if (weather) {
+        weather->signal_products_completed().connect(
+            sigc::mem_fun(*this, &ConfigDialog::refreshWeatherProducts));
+    }
     setWeatherDescription();
 }
 
@@ -337,4 +350,32 @@ ConfigDialog::nighttex_changed(Gtk::FileChooserButton* nightFcBtn)
 {
     std::string file = nightFcBtn->get_filename();
     m_sphereView->setNightTextureFile(file);
+}
+
+void
+ConfigDialog::refreshWeatherProducts()
+{
+    #ifdef CONFIG_DEBUG
+    std::cout << "ConfigDialog::refreshWeatherProducts" << std::endl;
+    #endif
+    m_blockWeatherProductUpdate = true;
+    m_weatherProductCombo->remove_all();
+    m_blockWeatherProductUpdate = false;
+    auto weather = m_sphereView->get_weather();
+    if (weather) {
+        auto products = weather->get_products();
+        #ifdef CONFIG_DEBUG
+        std::cout << "ConfigDialog::refreshWeatherProducts products " << products.size() << std::endl;
+        #endif
+        for (auto product : products) {
+            #ifdef CONFIG_DEBUG
+            std::cout << "ConfigDialog::refreshWeatherProducts check " << product->get_id() << std::endl;
+            #endif
+            if (product->is_displayable()) {
+                m_weatherProductCombo->append(product->get_id(), product->get_name());
+            }
+        }
+        Config* config = m_sphereView->get_config();
+        m_weatherProductCombo->set_active_id(config->getWeatherProductId());
+    }
 }
