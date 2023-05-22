@@ -29,12 +29,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/trigonometric.hpp>  //radians
+#include <RealEarth.hpp>
+#include <WebMapService.hpp>
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
 #include "GeoJson.hpp"
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
+#include "GeoJsonGeometryHandler.hpp"
 
 GlSphereView::GlSphereView(Config *config)
 : Scene()
@@ -404,16 +407,26 @@ GlSphereView::refresh_weather_service()
     #ifdef CONFIG_DEBUG
     std::cout << "GlSphereView::refresh_weather_service " << serviceId << std::endl;
     #endif
-    if (!serviceId.empty()) {
-        m_weather = Weather::create_service(serviceId, this);
+    m_weather.reset();
+    auto service = m_config->getActiveWebMapServiceConf();
+    if (service) {
+        auto type = service->getType();
+        if (type == Config::WEATHER_REAL_EARTH_CONF) {
+            m_weather = std::make_shared<RealEarth>(this, service->getAddress());
+        }
+        else if (type == Config::WEATHER_WMS_CONF) {
+            m_weather = std::make_shared<WebMapService>(this, service->getName(), service->getAddress(), service->getDelaySec(), m_config->getWeatherMinPeriodSec());
+        }
+        else {
+            std::cout << "GlSphereView::refresh_weather_service the requested type " << type << " was not found!" << std::endl;
+        }
+    }
+    if (m_weather) {
         m_weather->signal_products_completed().connect(
             sigc::mem_fun(*this, &GlSphereView::request_weather_product));
         m_weather->capabilities();
     }
-    else {
-        m_weather.reset();
-    }
-    request_weather_product();  // will clear view in any case
+    request_weather_product();  // will clear weather view in any case
     return m_weather;
 }
 
@@ -640,8 +653,9 @@ GlSphereView::customize_time(std::string prepared)
         if (m_weather) {
             auto prod = m_weather->find_product(m_config->getWeatherProductId());
             if (prod) {
+                auto conf = m_config->getActiveWebMapServiceConf();
                 Glib::DateTime dateTime;
-                if (prod->latest(dateTime)) {
+                if (conf && prod->latest(dateTime, conf->isLocalTime())) {
                     info = dateTime.format("%R");
                 }
             }
@@ -836,19 +850,20 @@ GlSphereView::setGeoJsonFile(const Glib::ustring& file)
         else {
             Glib::RefPtr<Gio::Cancellable> cancel = Gio::Cancellable::create();
             Glib::RefPtr<Gio::FileInfo> attr = f->query_info(cancel, "standard::*");
-            if (attr->get_size() > GeoJson::GEO_FILE_SIZE_LIMIT) {
+            if (attr->get_size() > GEO_FILE_SIZE_LIMIT) {
                 auto msg = Glib::ustring::sprintf("The requested file %s exceeds the size limit %d with %d.",
-                                         file, GeoJson::GEO_FILE_SIZE_LIMIT, attr->get_size());
+                                         file, GEO_FILE_SIZE_LIMIT, attr->get_size());
                 show_error(msg);
             }
             else {
                 m_naviGlArea->make_current();
                 geoJsonGeom = m_markContext->createGeometry(GL_LINES);
                 geoJsonGeom->setMarkable(false);
-                GeoJson geoJson;
-                geoJson.set_radius(EARTH_RADIUS);
                 try {
-                    geoJson.read(file, geoJsonGeom);
+                    Color color(0.6f, 0.6f, 0.6f);
+                    GeoJsonGeometryHandler handler(geoJsonGeom, color, EARTH_RADIUS + 0.01);
+                    GeoJson geoJson;
+                    geoJson.read(file, &handler);
                     geoJsonGeom->create_vao();
                     ret = true;
                 }

@@ -86,6 +86,9 @@ public:
     }
     std::shared_ptr<Weather> refresh_weather_service();
     void request_weather_product();
+    // as we have no Gis, so limit the complexity of usable files
+    static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
+
 protected:
     void show_error(const std::string& msg);
     Gdk::EventMask getAddEventMask() override;

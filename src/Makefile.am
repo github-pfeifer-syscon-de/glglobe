@@ -41,6 +41,10 @@ glglobe_SOURCES = \
 	SunSet.hpp \
 	ConfigDialog.cpp \
 	ConfigDialog.hpp \
+	BoundsDisplay.cpp \
+	BoundsDisplay.hpp \
+	GeoJsonGeometryHandler.cpp \
+	GeoJsonGeometryHandler.hpp \
 	TimezoneInfo.cpp \
 	TimezoneInfo.hpp
 

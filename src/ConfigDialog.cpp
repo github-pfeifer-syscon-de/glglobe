@@ -22,9 +22,15 @@
 #include "Config.hpp"
 #include "Weather.hpp"
 
-ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
-: Gtk::Dialog(cobject)
+BaseConfigGrid::BaseConfigGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: Gtk::Grid(cobject)
 , m_sphereView{sphereView}
+{
+
+}
+
+ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: BaseConfigGrid(cobject, refBuilder, sphereView)
 {
     Config* config = m_sphereView->get_config();
     Gtk::SpinButton* pLat = nullptr;
@@ -47,6 +53,20 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::lon_changed),
                                    pLon));
     }
+    Gtk::Entry* pTimeFormat = nullptr;
+    refBuilder->get_widget("time_format", pTimeFormat);
+    if (pTimeFormat) {
+        pTimeFormat->set_text(config->getTimeFormat());
+        pTimeFormat->signal_changed().connect(sigc::bind<Gtk::Entry *>(
+                                   sigc::mem_fun(*m_sphereView, &GlSphereView::time_format_changed),
+                                   pTimeFormat));
+    }
+}
+
+ConfigTextureGrid::ConfigTextureGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: BaseConfigGrid(cobject, refBuilder, sphereView)
+{
+    Config* config = m_sphereView->get_config();
     Gtk::FileChooserButton* dayFcBtn = nullptr;
     refBuilder->get_widget("day", dayFcBtn);
     if (dayFcBtn) {
@@ -57,14 +77,14 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
         //    dayFcBtn->set_current_name(file->get_parse_name());
         //}
         dayFcBtn->signal_file_set().connect(sigc::bind<Gtk::FileChooserButton *>(
-                                   sigc::mem_fun(*this, &ConfigDialog::daytex_changed),
+                                   sigc::mem_fun(*this, &ConfigTextureGrid::daytex_changed),
                                    dayFcBtn));
     }
     Gtk::Button* clearDay = nullptr;
     refBuilder->get_widget("clearDay", clearDay);
     if (clearDay) {
         clearDay->signal_clicked().connect(sigc::bind<Gtk::FileChooserButton *>(
-                                   sigc::mem_fun(*this, &ConfigDialog::clearDayTextureFile),
+                                   sigc::mem_fun(*this, &ConfigTextureGrid::clearDayTextureFile),
                                    dayFcBtn));
     }
     Gtk::FileChooserButton* nightFcBtn = nullptr;
@@ -72,16 +92,52 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
     if (nightFcBtn) {
         nightFcBtn->set_filename(config->getNightTextureFile());
         nightFcBtn->signal_file_set().connect(sigc::bind<Gtk::FileChooserButton *>(
-                                   sigc::mem_fun(*this, &ConfigDialog::nighttex_changed),
+                                   sigc::mem_fun(*this, &ConfigTextureGrid::nighttex_changed),
                                    nightFcBtn));
     }
     Gtk::Button* clearNight = nullptr;
     refBuilder->get_widget("clearNight", clearNight);
     if (clearNight) {
         clearNight->signal_clicked().connect(sigc::bind<Gtk::FileChooserButton *>(
-                                   sigc::mem_fun(*this, &ConfigDialog::clearNightTextureFile),
+                                   sigc::mem_fun(*this, &ConfigTextureGrid::clearNightTextureFile),
                                    nightFcBtn));
     }
+}
+
+void
+ConfigTextureGrid::clearNightTextureFile(Gtk::FileChooserButton* nightFcBtn)
+{
+    std::string cl("");
+    m_sphereView->setNightTextureFile(cl);
+    nightFcBtn->set_filename(cl);
+}
+
+void
+ConfigTextureGrid::clearDayTextureFile(Gtk::FileChooserButton* dayFcBtn)
+{
+    std::string cl("");
+    m_sphereView->setDayTextureFile(cl);
+    dayFcBtn->set_filename(cl);
+}
+
+void
+ConfigTextureGrid::daytex_changed(Gtk::FileChooserButton* dayFcBtn)
+{
+    std::string file = dayFcBtn->get_filename();
+    m_sphereView->setDayTextureFile(file);
+}
+
+void
+ConfigTextureGrid::nighttex_changed(Gtk::FileChooserButton* nightFcBtn)
+{
+    std::string file = nightFcBtn->get_filename();
+    m_sphereView->setNightTextureFile(file);
+}
+
+ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: BaseConfigGrid(cobject, refBuilder, sphereView)
+{
+    Config* config = m_sphereView->get_config();
     Gtk::Scale* pAmbient = nullptr;
     refBuilder->get_widget("ambient", pAmbient);
     if (pAmbient) {
@@ -140,24 +196,22 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::debug_changed),
                                    pDebug));
     }
-    Gtk::Scale* pDistance = nullptr;
-    refBuilder->get_widget("distance", pDistance);
-    if (pDistance) {
-        pDistance->set_increments(1, 10);
-        pDistance->set_range(10, 100);
-        pDistance->set_value(config->getDistance());
-        pDistance->signal_value_changed().connect(sigc::bind<Gtk::Scale *>(
+    Gtk::Scale* pScaleDistance = nullptr;
+    refBuilder->get_widget("distance", pScaleDistance);
+    if (pScaleDistance) {
+        pScaleDistance->set_increments(1, 10);
+        pScaleDistance->set_range(10, 100);
+        pScaleDistance->set_value(config->getDistance());
+        pScaleDistance->signal_value_changed().connect(sigc::bind<Gtk::Scale *>(
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::distance_changed),
-                                   pDistance));
+                                   pScaleDistance));
     }
-    Gtk::Entry* pTimeFormat = nullptr;
-    refBuilder->get_widget("time_format", pTimeFormat);
-    if (pDistance) {
-        pTimeFormat->set_text(config->getTimeFormat());
-        pTimeFormat->signal_changed().connect(sigc::bind<Gtk::Entry *>(
-                                   sigc::mem_fun(*m_sphereView, &GlSphereView::time_format_changed),
-                                   pTimeFormat));
-    }
+}
+
+ConfigWeatherGrid::ConfigWeatherGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: BaseConfigGrid(cobject, refBuilder, sphereView)
+{
+    Config* config = m_sphereView->get_config();
     Gtk::Scale* pWeatherTransp = nullptr;
     refBuilder->get_widget("scaleWeather", pWeatherTransp);
     if (pWeatherTransp) {
@@ -170,37 +224,208 @@ ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Buil
     }
     refBuilder->get_widget("descWeather", m_DescWeather);
     refBuilder->get_widget("legendWeather", m_LegendWeather);
-    setWeatherDescription();
-
     refBuilder->get_widget("comboWeatherProduct", m_weatherProductCombo);
     if (m_weatherProductCombo) {
+        m_weatherProductCombo->append("", "");  // keep empty element
         refreshWeatherProducts();
         m_weatherProductCombo->signal_changed().connect(
-                sigc::mem_fun(*this, &ConfigDialog::weather_product_changed));
+            sigc::mem_fun(*this, &ConfigWeatherGrid::weather_product_changed));
+
     }
     refBuilder->get_widget("comboWeatherService", m_weatherServiceCombo);
     if (m_weatherServiceCombo) {
-        auto services = Weather::get_services();
+        auto confs = config->getWebMapServices();
         m_weatherServiceCombo->append("", "");  // allow empty selection
-        for (auto service : services) {
-            m_weatherServiceCombo->append(service, service);
+        for (auto servConf : confs) {
+            m_weatherServiceCombo->append(servConf->getName(), servConf->getName());
         }
         m_weatherServiceCombo->set_active_id(config->getWeatherServiceId());
         m_weatherServiceCombo->signal_changed().connect(
-                    sigc::mem_fun(*this, &ConfigDialog::weather_service_changed));
+                    sigc::mem_fun(*this, &ConfigWeatherGrid::weather_service_changed));
     }
+    refBuilder->get_widget_derived("weatherBounds", m_boundsDisplay);
+    setWeatherDescription();
+}
+
+void
+ConfigWeatherGrid::setLegendWeather(Glib::RefPtr<Gdk::Pixbuf> legend)
+{
+    if (m_LegendWeather) {
+        m_LegendWeather->set(legend);
+    }
+}
+
+void
+ConfigWeatherGrid::setWeatherDescription()
+{
+    auto weatherProdId = m_sphereView->get_config()->getWeatherProductId();
+    std::shared_ptr<WeatherProduct> weatherProd;
+    if (m_sphereView->get_weather()) {
+        weatherProd = m_sphereView->get_weather()->find_product(weatherProdId);
+    }
+    Glib::ustring desc;
+    if (weatherProd) {
+        desc = weatherProd->get_description();
+    }
+    if (m_DescWeather) {
+        m_DescWeather->get_buffer()->set_text(desc);
+    }
+    if (m_LegendWeather) {
+        if (weatherProd) {
+            auto legend = m_sphereView->get_weather()->get_legend(weatherProd);
+            if (legend) {
+                m_LegendWeather->set(legend);
+            }
+            else {  // notify if legend becomes available
+                weatherProd->signal_legend().connect(
+                        sigc::mem_fun(*this, &ConfigWeatherGrid::setLegendWeather));
+            }
+        }
+        else {
+            m_LegendWeather->clear();
+        }
+    }
+    if (m_boundsDisplay && weatherProd) {
+        m_boundsDisplay->setBounds(weatherProd->getBounds());
+    }
+}
+
+
+void
+ConfigWeatherGrid::weather_product_changed()
+{
+    if (!m_blockWeatherProductUpdate) {
+        #ifdef CONFIG_DEBUG
+        std::cout << "ConfigWeatherGrid::weather_product_changed" << std::endl;
+        #endif
+        auto id = m_weatherProductCombo->get_active_id();
+        m_sphereView->get_config()->setWeatherProductId(id);
+        setWeatherDescription();
+        m_sphereView->request_weather_product();
+    }
+}
+
+void
+ConfigWeatherGrid::weather_service_changed()
+{
+    #ifdef CONFIG_DEBUG
+    std::cout << "ConfigWeatherGrid::weather_service_changed" << std::endl;
+    #endif
+    auto id = m_weatherServiceCombo->get_active_id();
+    m_sphereView->get_config()->setWeatherServiceId(id);
+    m_sphereView->get_config()->setWeatherProductId("");
+    m_blockWeatherProductUpdate = true;
+    m_weatherProductCombo->remove_all();
+    std::shared_ptr<Weather> weather = m_sphereView->refresh_weather_service();
+    if (weather) {
+        weather->signal_products_completed().connect(
+            sigc::mem_fun(*this, &ConfigWeatherGrid::refreshWeatherProducts));
+    }
+    setWeatherDescription();
+    m_blockWeatherProductUpdate = false;
+}
+
+
+void
+ConfigWeatherGrid::refreshWeatherProducts()
+{
+    #ifdef CONFIG_DEBUG
+    std::cout << "ConfigWeatherGrid::refreshWeatherProducts" << std::endl;
+    #endif
+    m_blockWeatherProductUpdate = true;
+    m_weatherProductCombo->unset_active();
+    auto list = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(m_weatherProductCombo->get_model());
+    if (list) {
+        #ifdef CONFIG_DEBUG
+        std::cout << "ConfigWeatherGrid::refreshWeatherProducts got list" << std::endl;
+        #endif
+        auto chlds = list->children();
+        int i = 0;
+        for (auto chld : chlds) {
+            if (i > 0) {
+                list->erase(chld);
+            }
+            ++i;
+        }
+    }
+    else {
+        std::cout << "ConfigWeatherGrid::refreshWeatherProducts got list no!" << std::endl;
+    }
+    auto weather = m_sphereView->get_weather();
+    if (weather) {
+        auto products = weather->get_products();
+        #ifdef CONFIG_DEBUG
+        std::cout << "ConfigWeatherGrid::refreshWeatherProducts products " << products.size() << std::endl;
+        #endif
+
+        for (auto product : products) {
+            if (product->is_displayable()) {
+                m_weatherProductCombo->append(product->get_id(), product->get_name());
+            }
+        }
+    }
+    else {
+        std::cout << "ConfigWeatherGrid::refreshWeatherProducts have no weather." << std::endl;
+    }
+    m_blockWeatherProductUpdate = false;
+    Config* config = m_sphereView->get_config();
+    if (!config->getWeatherProductId().empty()) {
+        m_weatherProductCombo->set_active_id(config->getWeatherProductId());
+    }
+    else {
+        m_weatherProductCombo->set_active(0);
+    }
+}
+
+ConfigGeoJsonGrid::ConfigGeoJsonGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: BaseConfigGrid(cobject, refBuilder, sphereView)
+{
+    Config* config = m_sphereView->get_config();
     refBuilder->get_widget("geoFileButton", m_geoJsonButton);
     if (m_geoJsonButton) {
         m_geoJsonButton->set_filename(config->getGeoJsonFile());
         m_geoJsonButton->signal_file_set().connect(
-                                   sigc::mem_fun(*this, &ConfigDialog::geojsonfile_changed));
+                                   sigc::mem_fun(*this, &ConfigGeoJsonGrid::geojsonfile_changed));
     }
     Gtk::Button* geoClearFile = nullptr;
     refBuilder->get_widget("geoClearFile", geoClearFile);
     if (geoClearFile) {
         geoClearFile->signal_clicked().connect(
-                                   sigc::mem_fun(*this, &ConfigDialog::clearGeoFile));
+                                   sigc::mem_fun(*this, &ConfigGeoJsonGrid::clearGeoFile));
     }
+}
+
+
+
+void
+ConfigGeoJsonGrid::geojsonfile_changed()
+{
+    Glib::ustring file = m_geoJsonButton->get_filename();
+    bool success = m_sphereView->setGeoJsonFile(file);
+    if (!success) {
+        file = "";
+    }
+    m_geoJsonButton->set_filename(file);
+    m_sphereView->get_config()->setGeoJsonFile(file);
+}
+
+void
+ConfigGeoJsonGrid::clearGeoFile()
+{
+    m_sphereView->get_config()->setGeoJsonFile("");
+    m_geoJsonButton->set_filename("");
+    m_sphereView->setGeoJsonFile("");
+}
+
+
+ConfigDialog::ConfigDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
+: Gtk::Dialog(cobject)
+{
+    refBuilder->get_widget_derived("configCoordGrid", m_configCoordGrid, sphereView);
+    refBuilder->get_widget_derived("configTextureGrid", m_configTextureGrid, sphereView);
+    refBuilder->get_widget_derived("configLigthingGrid", m_configLigthingGrid, sphereView);
+    refBuilder->get_widget_derived("configWeatherGrid", m_configWeatherGrid, sphereView);
+    refBuilder->get_widget_derived("configGeoJsonGrid", m_configGeoJsonGrid, sphereView);
 }
 
 
@@ -227,155 +452,3 @@ ConfigDialog::create(GlSphereView* sphereView)
     return nullptr;
 }
 
-void
-ConfigDialog::setLegendWeather(Glib::RefPtr<Gdk::Pixbuf> legend)
-{
-    if (m_LegendWeather) {
-        m_LegendWeather->set(legend);
-    }
-}
-
-void
-ConfigDialog::setWeatherDescription()
-{
-    auto weatherProdId = m_sphereView->get_config()->getWeatherProductId();
-    std::shared_ptr<WeatherProduct> weatherProd;
-    if (m_sphereView->get_weather()) {
-        weatherProd = m_sphereView->get_weather()->find_product(weatherProdId);
-    }
-    Glib::ustring desc;
-    if (weatherProd) {
-        desc = weatherProd->get_description();
-    }
-    if (m_DescWeather) {
-        m_DescWeather->get_buffer()->set_text(desc);
-    }
-    if (m_LegendWeather) {
-        if (weatherProd) {
-            auto legend = m_sphereView->get_weather()->get_legend(weatherProd);
-            if (legend) {
-                m_LegendWeather->set(legend);
-            }
-            else {  // notify if legend becomes available
-                weatherProd->signal_legend().connect(
-                        sigc::mem_fun(*this, &ConfigDialog::setLegendWeather));
-            }
-        }
-        else {
-            m_LegendWeather->clear();
-        }
-    }
-}
-
-
-void
-ConfigDialog::geojsonfile_changed()
-{
-    Glib::ustring file = m_geoJsonButton->get_filename();
-    bool success = m_sphereView->setGeoJsonFile(file);
-    if (!success) {
-        file = "";
-    }
-    m_geoJsonButton->set_filename(file);
-    m_sphereView->get_config()->setGeoJsonFile(file);
-}
-
-void
-ConfigDialog::clearGeoFile()
-{
-    m_sphereView->get_config()->setGeoJsonFile("");
-    m_geoJsonButton->set_filename("");
-    m_sphereView->setGeoJsonFile("");
-}
-
-void
-ConfigDialog::weather_product_changed()
-{
-    if (!m_blockWeatherProductUpdate) {
-        #ifdef CONFIG_DEBUG
-        std::cout << "ConfigDialog::weather_product_changed" << std::endl;
-        #endif
-        auto id = m_weatherProductCombo->get_active_id();
-        m_sphereView->get_config()->setWeatherProductId(id);
-        setWeatherDescription();
-        m_sphereView->request_weather_product();
-    }
-}
-
-void
-ConfigDialog::weather_service_changed()
-{
-    #ifdef CONFIG_DEBUG
-    std::cout << "ConfigDialog::weather_product_changed" << std::endl;
-    #endif
-    auto id = m_weatherServiceCombo->get_active_id();
-    m_sphereView->get_config()->setWeatherServiceId(id);
-    m_sphereView->get_config()->setWeatherProductId("");
-    m_blockWeatherProductUpdate = true;
-    m_weatherProductCombo->remove_all();
-    m_blockWeatherProductUpdate = false;
-    std::shared_ptr<Weather> weather = m_sphereView->refresh_weather_service();
-    if (weather) {
-        weather->signal_products_completed().connect(
-            sigc::mem_fun(*this, &ConfigDialog::refreshWeatherProducts));
-    }
-    setWeatherDescription();
-}
-
-void
-ConfigDialog::clearNightTextureFile(Gtk::FileChooserButton* nightFcBtn)
-{
-    std::string cl("");
-    m_sphereView->setNightTextureFile(cl);
-    nightFcBtn->set_filename(cl);
-}
-
-void
-ConfigDialog::clearDayTextureFile(Gtk::FileChooserButton* dayFcBtn)
-{
-    std::string cl("");
-    m_sphereView->setDayTextureFile(cl);
-    dayFcBtn->set_filename(cl);
-}
-
-void
-ConfigDialog::daytex_changed(Gtk::FileChooserButton* dayFcBtn)
-{
-    std::string file = dayFcBtn->get_filename();
-    m_sphereView->setDayTextureFile(file);
-}
-
-void
-ConfigDialog::nighttex_changed(Gtk::FileChooserButton* nightFcBtn)
-{
-    std::string file = nightFcBtn->get_filename();
-    m_sphereView->setNightTextureFile(file);
-}
-
-void
-ConfigDialog::refreshWeatherProducts()
-{
-    #ifdef CONFIG_DEBUG
-    std::cout << "ConfigDialog::refreshWeatherProducts" << std::endl;
-    #endif
-    m_blockWeatherProductUpdate = true;
-    m_weatherProductCombo->remove_all();
-    m_blockWeatherProductUpdate = false;
-    auto weather = m_sphereView->get_weather();
-    if (weather) {
-        auto products = weather->get_products();
-        #ifdef CONFIG_DEBUG
-        std::cout << "ConfigDialog::refreshWeatherProducts products " << products.size() << std::endl;
-        #endif
-        for (auto product : products) {
-            #ifdef CONFIG_DEBUG
-            std::cout << "ConfigDialog::refreshWeatherProducts check " << product->get_id() << std::endl;
-            #endif
-            if (product->is_displayable()) {
-                m_weatherProductCombo->append(product->get_id(), product->get_name());
-            }
-        }
-        Config* config = m_sphereView->get_config();
-        m_weatherProductCombo->set_active_id(config->getWeatherProductId());
-    }
-}
