@@ -39,13 +39,25 @@ The most obvious option use the dialog.
 For some advanced options use the config file e.g. ~/.config/glglobe.conf
 e.g. if you want to use some diffrent WebMapService (i can't gurantee this will work, but it might be worth trying).
 These services are numberd from 0...9 the following values will be required suffixed with a sequential number:
-<pre>
-weatherAddress the base address for WMS requests
-weatherName a unique name that helps to idenifiy the service
-weatherDelay services usually helpful to use the nearest time for a request, but picky if you get to close to the actual time (this can be estimated from the difference of latest value of dimension time to actual time, for a service with a short period)
-weatherType WMS for WebMapService
-weatherLocalTime usually false (true if the service will not provide a correct timezone with dimension time)
-</pre>
+
+<ul>
+  <li>
+    <pre>weatherAddress</pre> the base address for WMS requests
+  </li>
+  <li>
+    <pre>weatherName</pre> a unique name that helps to idenifiy the service
+  </li>
+  <li>
+    <pre>weatherDelay</pre> services usually helpful to use the nearest time for a request, but picky if you get to close to the actual time (this can be estimated from the difference of latest value of dimension time to actual time, for a service with a short period)
+  </li>
+  <li>
+    <pre>weatherType</pre> WMS for WebMapService, RE for RealEarth (which is non-generic)
+  </li>
+  <li>
+    <pre>weatherLocalTime</pre> usually false (true if the service will not provide a correct timezone with dimension time)
+  </li>
+</ul>
+
 
 ## Troubleshooting
 
