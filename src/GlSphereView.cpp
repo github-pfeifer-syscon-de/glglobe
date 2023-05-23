@@ -408,14 +408,14 @@ GlSphereView::refresh_weather_service()
     std::cout << "GlSphereView::refresh_weather_service " << serviceId << std::endl;
     #endif
     m_weather.reset();
-    auto service = m_config->getActiveWebMapServiceConf();
-    if (service) {
-        auto type = service->getType();
+    auto serviceConf = m_config->getActiveWebMapServiceConf();
+    if (serviceConf) {
+        auto type = serviceConf->getType();
         if (type == Config::WEATHER_REAL_EARTH_CONF) {
-            m_weather = std::make_shared<RealEarth>(this, service->getAddress());
+            m_weather = std::make_shared<RealEarth>(this, serviceConf->getAddress());
         }
         else if (type == Config::WEATHER_WMS_CONF) {
-            m_weather = std::make_shared<WebMapService>(this, service->getName(), service->getAddress(), service->getDelaySec(), m_config->getWeatherMinPeriodSec());
+            m_weather = std::make_shared<WebMapService>(this, serviceConf, m_config->getWeatherMinPeriodSec());
         }
         else {
             std::cout << "GlSphereView::refresh_weather_service the requested type " << type << " was not found!" << std::endl;
@@ -653,9 +653,8 @@ GlSphereView::customize_time(std::string prepared)
         if (m_weather) {
             auto prod = m_weather->find_product(m_config->getWeatherProductId());
             if (prod) {
-                auto conf = m_config->getActiveWebMapServiceConf();
                 Glib::DateTime dateTime;
-                if (conf && prod->latest(dateTime, conf->isLocalTime())) {
+                if (prod->latest(dateTime)) {
                     info = dateTime.format("%R");
                 }
             }

@@ -27,7 +27,7 @@ BoundsDisplay::BoundsDisplay(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Bu
 : Gtk::DrawingArea(cobject)
 {
     m_Dispatcher.connect(sigc::mem_fun(*this, &BoundsDisplay::notify));
-    std::thread t([=] {
+    //std::thread t([=] {
         Glib::ustring file(PACKAGE_DATA_DIR "/2k_earth_daymap.jpg");
         Glib::RefPtr<Gdk::Pixbuf> fullPix = Gdk::Pixbuf::create_from_file(file);
         m_width = fullPix->get_width() / 4;
@@ -35,8 +35,8 @@ BoundsDisplay::BoundsDisplay(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Bu
         m_pixbuf = fullPix->scale_simple(m_width, m_height,  Gdk::InterpType::INTERP_BILINEAR);
         m_pixbufGuard.store(m_pixbuf.operator bool());
         m_Dispatcher.emit();
-    });
-    t.detach();
+    //});
+    //t.detach();
 }
 
 void

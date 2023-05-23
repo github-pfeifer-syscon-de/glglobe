@@ -54,7 +54,7 @@ These services are numberd from 0...9 the following values will be required suff
     <pre>weatherType</pre> WMS for WebMapService, RE for RealEarth (which is non-generic)
   </li>
   <li>
-    <pre>weatherLocalTime</pre> usually false (true if the service will not provide a correct timezone with dimension time)
+    <pre>weatherLocalTime</pre> usually false (true if service offers prognosis but you want to view current time)
   </li>
 </ul>
 

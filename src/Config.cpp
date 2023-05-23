@@ -19,16 +19,6 @@
 
 #include "Config.hpp"
 
-WebMapServiceConf::WebMapServiceConf(const Glib::ustring& name, const Glib::ustring& address, int delay_sec, const Glib::ustring& type, bool localTime)
-: m_name{name}
-, m_address{address}
-, m_delay_sec{delay_sec}
-, m_type{type}
-, m_localTime{localTime}
-{
-}
-
-
 void
 Config::read()
 {
@@ -101,11 +91,11 @@ Config::read()
                             weatherType = m_config->get_string(GRP_MAIN, typeKey);
                         }
                         auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
-                        bool localTime{false};
+                        bool viewCurrentTime{false};
                         if (m_config->has_key(GRP_MAIN, localTimeKey)) {
-                            localTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
+                            viewCurrentTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
                         }
-                        weatherService = std::make_shared<WebMapServiceConf>(weatherName, weatherAddress, delay_sec, weatherType, localTime);
+                        weatherService = std::make_shared<WebMapServiceConf>(weatherName, weatherAddress, delay_sec, weatherType, viewCurrentTime);
                     }
                     else {
                         switch (i) {    // prepare some defaults
@@ -165,7 +155,7 @@ Config::save()
                 auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
                 m_config->set_string(GRP_MAIN, typeKey, weatherService->getType());
                 auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
-                m_config->set_boolean(GRP_MAIN, localTimeKey, weatherService->isLocalTime());
+                m_config->set_boolean(GRP_MAIN, localTimeKey, weatherService->isViewCurrentTime());
             }
         }
         std::string cfg = get_config_name();
@@ -383,7 +373,7 @@ Config::getWebMapServices()
     return m_weatherServices;
 }
 
-uint32_t
+int
 Config::getWeatherMinPeriodSec()
 {
     return m_waether_min_period_sec;

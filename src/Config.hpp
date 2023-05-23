@@ -20,48 +20,8 @@
 
 #include <vector>
 #include <glibmm.h>
+#include <Weather.hpp>
 
-class WebMapServiceConf {
-public:
-    WebMapServiceConf(const Glib::ustring& name, const Glib::ustring& address, int delay_sec, const Glib::ustring& type, bool localTime);
-    explicit WebMapServiceConf(const WebMapServiceConf& oth) = delete;
-    virtual ~WebMapServiceConf() = default;
-
-    Glib::ustring getName() const
-    {
-        return m_name;
-    }
-    Glib::ustring getAddress() const
-    {
-        return m_address;
-    }
-    // beside the document period see WMS doc (the interval between updates)
-    //   there is a delay (the place when this becomes visible is with the time
-    //     dimension the latest values always is some minutes behind the actual time).
-    //   e.g. the precipitation is announced with a interval P which presumably means ask any time, we will give you the nearest value.
-    //     but if you try to ask for now there is a error when requesting the images,
-    //     some fiddeling suggested the use of a 30 minutes delay
-    //     and the use of a minimum interval of 5 minutes.
-    int getDelaySec() const
-    {
-        return m_delay_sec;
-    }
-    Glib::ustring getType() const
-    {
-        return m_type;
-    }
-    // some server report local time
-    bool isLocalTime() const
-    {
-        return m_localTime;
-    }
-private:
-    Glib::ustring m_name;
-    Glib::ustring m_address;
-    int m_delay_sec;
-    Glib::ustring m_type;
-    bool m_localTime;
-};
 
 class Config {
 public:
@@ -105,7 +65,7 @@ public:
     void setGeoJsonFile(const Glib::ustring& geoJsonFile);
     Glib::ustring getGeoJsonFile();
     std::vector<std::shared_ptr<WebMapServiceConf>> getWebMapServices();
-    uint32_t getWeatherMinPeriodSec();
+    int getWeatherMinPeriodSec();
     void setWeatherMinPeriodSec(uint32_t sec);
 
     static constexpr auto WEATHER_REAL_EARTH_CONF{"RE"};
@@ -159,5 +119,5 @@ private:
     double m_weatherTransparency{1.0};
     Glib::ustring m_geoJsonFile;
     std::vector<std::shared_ptr<WebMapServiceConf>> m_weatherServices;
-    uint32_t m_waether_min_period_sec{5*60};
+    int m_waether_min_period_sec{5*60};
 };
