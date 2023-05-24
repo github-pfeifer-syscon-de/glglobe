@@ -78,7 +78,7 @@ Tz::Tz(const std::string &line)
 , line{nullptr}
 , ctext{nullptr}
 {
-    std::vector<std::string> flds;
+    std::vector<Glib::ustring> flds;
     StringUtils::split(line, '\t', flds);
     if (flds.size() >= 3) {
         country = flds[0];        // for the 1970 version this might be a list
