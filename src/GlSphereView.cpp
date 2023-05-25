@@ -626,7 +626,7 @@ GlSphereView::hm(const double& timeM)
 {
 	int h = (int)timeM / 60;
 	int m = (int)timeM % 60;
-	Glib::ustring hm(Glib::ustring::sprintf(u8"%02d:%02d", h, m));
+	Glib::ustring hm(Glib::ustring::sprintf("%02d:%02d", h, m));
 	return hm;
 }
 
@@ -636,7 +636,8 @@ GlSphereView::customize_time(std::string prepared)
 {
     int pos = prepared.find("%D", 0);
     if (pos >= 0) { // use std format with %D for declication
-        Glib::ustring d(Glib::ustring::sprintf(u8"%.1f°", m_earth_declination_deg));
+        Glib::ustring fmt{"%.1f°"};
+        Glib::ustring d(Glib::ustring::sprintf(fmt, m_earth_declination_deg));
         prepared.replace(pos, 2, d);
     }
 	pos = prepared.find("%rise", 0);

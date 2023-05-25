@@ -30,8 +30,6 @@ Build for windows was integrated at least for msys2<br>
 <pre>
   look for "$host_os" = "mingw32"
 </pre>
-I have no current solution for the adapation of the timezones for windows.
-So no timezone display there (only utc).
 
 ## Configuration
 

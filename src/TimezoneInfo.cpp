@@ -26,7 +26,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glm/trigonometric.hpp>  //radians
-
+#include <chrono>
+#include <format>
 
 #include "TimezoneInfo.hpp"
 #include "StringUtils.hpp"
@@ -217,10 +218,10 @@ void Tz::createGeometry(MarkContext *markContext, TextContext *m_textContext, Fo
 void
 Tz::updateTime()
 {
-    // this has issues on win/minGW windows does not understand zone names from msys2...
-    Glib::TimeZone tz = Glib::TimeZone::create(getName());
-    Glib::DateTime dt = Glib::DateTime::create_now(tz);
-    Glib::ustring tm = dt.format("%R");
+    // this is the most portable way, Glib::TimeZone is fixed on windose zones...
+    using namespace std::chrono;
+    auto now = zoned_time{getName(), system_clock::now()};
+    Glib::ustring tm{std::format("{:%R}", now)};
     std::string txt = getName() + " " + tm;
     Glib::ustring wcty = txt;
     ctext->setText(wcty);
