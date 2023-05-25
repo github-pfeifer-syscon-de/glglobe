@@ -31,7 +31,7 @@ Build for windows was integrated at least for msys2<br>
   look for "$host_os" = "mingw32"
 </pre>
 I have no current solution for the adapation of the timezones for windows.
-So no timezone display there (only local time).
+So no timezone display there (only utc).
 
 ## Configuration
 
@@ -42,7 +42,7 @@ These services are numberd from 0...9 the following values will be required suff
 
 <ul>
   <li>
-    <pre>weatherAddress</pre> the base address for WMS requests
+    <pre>weatherAddress</pre> the base address for WMS requests to test add "?service=WMS&version=1.3.0&request=GetCapabilities" and you should get a XML document with the avaialble services.
   </li>
   <li>
     <pre>weatherName</pre> a unique name that helps to idenifiy the service
