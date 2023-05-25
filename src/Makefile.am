@@ -14,10 +14,10 @@ AM_CPPFLAGS = \
 	$(EPOXY_CFLAGS)
 
 AM_CFLAGS= \
-	-Wall
+	-std=c17 -Wall
 
 AM_CXXFLAGS =\
-	-Wall
+	-Wall -pedantic
 
 bin_PROGRAMS = glglobe
 

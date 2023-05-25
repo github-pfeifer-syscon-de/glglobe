@@ -520,6 +520,8 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
     }
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 static void
 showMat(glm::mat4 &proj)
 {
@@ -529,7 +531,7 @@ showMat(glm::mat4 &proj)
                   << std::endl;
     }
 }
-
+#pragma GCC diagnostic pop
 void
 GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
 {
