@@ -40,17 +40,17 @@ Config::read()
                 if (m_config->has_key(GRP_MAIN, NIGHTTEX))
                     m_nightTextureFile = m_config->get_string(GRP_MAIN, NIGHTTEX);
                 if (m_config->has_key(GRP_MAIN, AMBIENT))
-                    m_ambient = m_config->get_double(GRP_MAIN, AMBIENT);
+                    m_ambient = static_cast<float>(m_config->get_double(GRP_MAIN, AMBIENT));
                 if (m_config->has_key(GRP_MAIN, DIFFUSE))
-                    m_diffuse = m_config->get_double(GRP_MAIN, DIFFUSE);
+                    m_diffuse = static_cast<float>(m_config->get_double(GRP_MAIN, DIFFUSE));
                 if (m_config->has_key(GRP_MAIN, SPECULAR))
-                    m_specular = m_config->get_double(GRP_MAIN, SPECULAR);
+                    m_specular = static_cast<float>(m_config->get_double(GRP_MAIN, SPECULAR));
                 if (m_config->has_key(GRP_MAIN, TWILIGHT))
-                    m_twilight = m_config->get_double(GRP_MAIN, TWILIGHT);
+                    m_twilight = static_cast<float>(m_config->get_double(GRP_MAIN, TWILIGHT));
                 if (m_config->has_key(GRP_MAIN, DISTANCE))
-                    m_distance = m_config->get_double(GRP_MAIN, DISTANCE);
+                    m_distance = static_cast<float>(m_config->get_double(GRP_MAIN, DISTANCE));
                 if (m_config->has_key(GRP_MAIN, SPECULAR_POWER))
-                    m_specular_power = m_config->get_double(GRP_MAIN, SPECULAR_POWER);
+                    m_specular_power = static_cast<float>(m_config->get_double(GRP_MAIN, SPECULAR_POWER));
                 if (m_config->has_key(GRP_MAIN, TIME_FORMAT))
                     m_timeFormat = m_config->get_string(GRP_MAIN, TIME_FORMAT);
                 if (m_config->has_key(GRP_MAIN, WEATHER_SERVICE))

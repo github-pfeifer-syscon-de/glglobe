@@ -16,6 +16,8 @@ AM_CPPFLAGS = \
 AM_CFLAGS= \
 	-std=c17 -Wall
 
+## if you really  want to be pedantic use -Wconversion
+
 AM_CXXFLAGS =\
 	-Wall -pedantic
 

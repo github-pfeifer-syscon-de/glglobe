@@ -141,12 +141,12 @@ GlSphereView::calcuateEarthLight()
     //float d = (float)dateUtc.get_day_of_year();   // approximate season
     //std::cout <<  "s: " << s << " t: " << t << std::endl;
     //std::cout <<  "dayOfYear: " << d << " utcHour: " << date.get_hour() << std::endl;
-    float r =  - t * 2.0f * M_PI;
+    float r =  - t * 2.0f * (float)M_PI;
     // https://en.wikipedia.org/wiki/Position_of_the_Sun
     //m_earth_declination_deg = -23.44f * std::cos((2.0f * M_PI) / 365.0f * (d + t + 9.0f));
 	SunSet sunSet(m_config->getLatitude(), m_config->getLongitude(), offsetUtcH);
 	sunSet.setCurrentDate(dateLocal.get_year(), dateLocal.get_month(), dateLocal.get_day_of_month());
-	m_earth_declination_deg = sunSet.calcSunDeclination();
+	m_earth_declination_deg = static_cast<float>(sunSet.calcSunDeclination());
 	m_sunRise = sunSet.calcSunrise();
     m_sunSet = sunSet.calcSunset();
 	//std::cout << "m_earth_declination_deg " << m_earth_declination_deg
@@ -471,7 +471,7 @@ GlSphereView::color_to_alpha(Glib::RefPtr<Gdk::Pixbuf> pix)
                 //guchar *p = pixdata + yp * rowstride + xp * n_channels;
                 // check byte order ???
                 guint alpha = std::max(std::max(p[0], p[1]), p[2]);
-                p[3] = (guint8)std::min((int)(alpha * weatherTransp), 0xff);  // alpha mask white = opaque, black = transparent
+                p[3] = (guint8)std::min((guint)(alpha * weatherTransp), 0xffu);  // alpha mask white = opaque, black = transparent
                 p += n_channels;
             }
         }

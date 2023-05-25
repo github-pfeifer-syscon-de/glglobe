@@ -107,7 +107,7 @@ private:
     float m_ambient{0.67f};
     float m_diffuse{700.0f};
     float m_specular{700.0f};
-    float m_twilight{0.08};
+    float m_twilight{0.08f};
     unsigned int m_debug{0};
     float m_distance{100.0f};
     float m_specular_power{5.0f};

@@ -276,7 +276,7 @@ TimezoneInfo::TimezoneInfo()
             while (!stat.eof()) {
                 std::string str;
                 std::getline(stat, str);
-                int pos = str.find("#");    // these are comments
+                std::string::size_type pos = str.find("#");    // these are comments
                 if (pos != 0) {
                     Tz tz(str);
                     if (tz.isValid()) {
