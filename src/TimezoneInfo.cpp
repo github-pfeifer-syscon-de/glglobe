@@ -26,8 +26,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glm/trigonometric.hpp>  //radians
+#ifdef __GNUC__
+#  include <features.h>
+#  if __GNUC_PREREQ(13,1)
+#  define USE_CHRONO_TZ
 #include <chrono>
 #include <format>
+#  endif
+#endif
 
 #include "TimezoneInfo.hpp"
 #include "StringUtils.hpp"
@@ -218,10 +224,23 @@ void Tz::createGeometry(MarkContext *markContext, TextContext *m_textContext, Fo
 void
 Tz::updateTime()
 {
-    // this is the most portable way, Glib::TimeZone is fixed on windose zones...
-    using namespace std::chrono;
-    auto now = zoned_time{getName(), system_clock::now()};
-    Glib::ustring tm{std::format("{:%R}", now)};
+#ifdef USE_CHRONO_TZ
+    // this works for windows if you use Gcc 13.1+
+    Glib::ustring tm{"??:??"};
+    try {
+        using namespace std::chrono;
+        auto now = zoned_time{getName(), system_clock::now()};
+        tm = std::format("{:%R}", now);
+    }
+    catch (const std::exception& ex) {
+        std::cerr << "std::chrono::zoned_time for " << getName() << "  failed with " << ex.what() << std::endl;
+    }
+#else
+    // for windows Glib::TimeZone is fixed on windose zones...
+    Glib::TimeZone tz = Glib::TimeZone::create(getName());
+    Glib::DateTime dt = Glib::DateTime::create_now(tz);
+    Glib::ustring tm = dt.format("%R");
+#endif
     std::string txt = getName() + " " + tm;
     Glib::ustring wcty = txt;
     ctext->setText(wcty);
