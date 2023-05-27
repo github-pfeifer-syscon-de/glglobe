@@ -108,6 +108,10 @@ Config::read()
                         case 2:
                             weatherService = std::make_shared<WebMapServiceConf>("DeutscherWetterDienst", "https://maps.dwd.de/geoserver/ows", MIN_UPDATE_DELAY_SEC, WEATHER_WMS_CONF, true);
                             break;
+                        // may be on option but wont get caps in browser always straight
+                        //   and less focused on "live" images more on long term evaluation
+                        // qGis might be a better option for this
+                        //    https://neo.gsfc.nasa.gov/about/wms.php
                         }
                     }
                     if (weatherService) {
