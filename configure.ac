@@ -12,8 +12,8 @@ AM_SILENT_RULES([yes])
 
 AX_CHECK_ENABLE_DEBUG([info], [DEBUG], [RELEASE], [IS-RELEASE])
 AC_PROG_CXX
-dnl we do depend on c++20 just here
-dnl (only if you are compiling for a platform with timezone
+dnl we depend on c++20 just here
+dnl (important only if you are compiling for a platform with timezone
 dnl names not like e.g. Europe/Paris (e.g. windose)).
 AX_CXX_COMPILE_STDCXX([20], [noext], [optional])
 
