@@ -59,8 +59,8 @@ These services are numberd from 0...9 the following values will be required suff
 This is target on some near time images provided with regular intervals.
 This is not a GIS (Geo info system) so it will not work with services
 that offer fragmented timelines / historic images
-one example of these https://neo.gsfc.nasa.gov/about/wms.php
-qGis might help you better with these.
+for example (https://neo.gsfc.nasa.gov/about/wms.php
+( QGis might help you better with these)).
 
 ## Troubleshooting
 
