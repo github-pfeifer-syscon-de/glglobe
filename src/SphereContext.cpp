@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glm/gtc/type_ptr.hpp>
 
 #include "SphereContext.hpp"
 
@@ -88,8 +89,6 @@ SphereContext::useNormalMap()
 void
 SphereContext::setLight(Position &light, float ambient, float diffuse, float specular, float twilight, float specular_power, float weather_alpha)
 {
-    //glUniform3fv(m_light_location, 1, &light[0]);
-    //checkError("glUniform3fv (light)");
     glUniform1f(m_ambient, ambient);
     glUniform1f(m_diffuse, diffuse);
     glUniform1f(m_specular, specular);
@@ -109,7 +108,7 @@ SphereContext::setLight(Position &light, float ambient, float diffuse, float spe
     checkError("glUniform1i (m_weather_tex_location)");
 
     //std::cout << "light "  << m_lightPosWorld << " " << lightPos.x << " " << lightPos.y << " " << lightPos[2] << std::endl;
-    glUniform3fv(m_lightPosWorld, 1, &light[0]);
+    glUniform3fv(m_lightPosWorld, 1, glm::value_ptr(light));
     checkError("glUniform3fv (light)");
 }
 
@@ -127,7 +126,7 @@ SphereContext::setModelView(glm::mat3x3 &modelView)
     //std::cout << "modelview[1] " << modelView[0][1] << " " << modelView[1][1] << " " << modelView[2][1] << std::endl;
     //std::cout << "modelview[2] " << modelView[0][2] << " " << modelView[1][2] << " " << modelView[2][2] << std::endl;
     //std::cout << m_modelView3x3MatrixID << std::endl;
-    glUniformMatrix3fv(m_modelView3x3MatrixID, 1, GL_FALSE, &modelView[0][0]);
+    glUniformMatrix3fv(m_modelView3x3MatrixID, 1, GL_FALSE, glm::value_ptr(modelView));
     checkError("glUniformMatrix3fv (ModelView)");
 }
 
@@ -139,7 +138,7 @@ SphereContext::setModel(Matrix &model)
     //std::cout << "model[2] " << model[0][2] << " " << model[1][2] << " " << model[2][2] << " " << model[3][2] << std::endl;
     //std::cout << "model[3] " << model[0][3] << " " << model[1][3] << " " << model[2][3] << " " << model[3][3] << std::endl;
     //std::cout << m_model_location << std::endl;
-    glUniformMatrix4fv(m_model_location, 1, GL_FALSE, &model[0][0]);
+    glUniformMatrix4fv(m_model_location, 1, GL_FALSE, glm::value_ptr(model));
     checkError("glUniformMatrix4fv (Model)");
 }
 
@@ -151,7 +150,7 @@ SphereContext::setView(Matrix &view)
     //std::cout << "view[2] " << view[0][2] << " " << view[1][2] << " " << view[2][2] << " " << view[3][2] << std::endl;
     //std::cout << "view[3] " << view[0][3] << " " << view[1][3] << " " << view[2][3] << " " << view[3][3] << std::endl;
     //std::cout << m_view_location << std::endl;
-    glUniformMatrix4fv(m_view_location, 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(m_view_location, 1, GL_FALSE, glm::value_ptr(view));
     checkError("glUniformMatrix4fv (View)");
 }
 

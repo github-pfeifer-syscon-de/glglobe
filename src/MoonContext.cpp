@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glm/gtc/type_ptr.hpp>
 
 #include "MoonContext.hpp"
 
@@ -63,7 +64,7 @@ MoonContext::setLight(Position &light)
     checkError("glUniform1i (m_texture)");
 
     //std::cout << "light "  << m_lightPosWorld << " " << lightPos.x << " " << lightPos.y << " " << lightPos[2] << std::endl;
-    glUniform3fv(m_moon_light_location, 1, &light[0]);
+    glUniform3fv(m_moon_light_location, 1, glm::value_ptr(light));
     checkError("glUniform3fv (light)");
 }
 
