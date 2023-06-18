@@ -5,6 +5,7 @@ AM_CPPFLAGS = \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)."\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
 	$(GENERICGLM_CFLAGS) \
+	$(GENERICIMG_CFLAGS) \
 	$(GEODATA_CFLAGS) \
 	$(GTKMM_CFLAGS) \
 	$(GLIBMM_CFLAGS) \
@@ -54,6 +55,7 @@ glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
 
 glglobe_LDADD = $(GENERICGLM_LIBS) \
+	$(GENERICIMG_LIBS) \
 	$(GEODATA_LIBS) \
 	$(GLIBMM_LIBS) \
 	$(GTKMM_LIBS) \
