@@ -136,6 +136,9 @@ private:
     Tex *m_moonTex;
     Vector m_moonLight;
     Matrix m_moonViewMat;
+
+    // offs moon to display on single canvas
+    static constexpr auto MOON_OFFS = 35.0f;
 };
 
 struct RESOURCE {

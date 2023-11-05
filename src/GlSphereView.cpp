@@ -608,7 +608,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     m_textContext->unuse();
 
     // place the moon at some offset (makes shapes oval... but better than slider)
-    Matrix moonProj = glm::translate(projin, glm::vec3{35.0f, 0.0f, 0.0f});
+    Matrix moonProj = glm::translate(projin, glm::vec3{MOON_OFFS, 0.0f, 0.0f});
     Matrix moonProjView = moonProj * m_moonViewMat;
     // moon
     m_moonContext->use();
@@ -950,8 +950,17 @@ GlSphereView::moonPhase()
 void
 GlSphereView::calcuateMoonLight()
 {
-    double moonPh = moonPhase();
-    float r = (moonPh * 2.0f * M_PI);
+    double moonPh = moonPhase();    // the simple stuff is sufficient for our display
+    Position pInital = getIntialPosition();
+    float rel = MOON_OFFS / pInital.z;
+    float corrRad = std::acos(rel) / 2.0f; // as we view the moon from side correct angle
+    //std::cout << "initl.z " << pInital.z
+    //          << " moon " << MOON_OFFS
+    //          << " rel " << rel
+    //          << " corr " << corrRad
+    //          << std::endl;
+
+    float r = (moonPh * 2.0f * M_PI) + corrRad;
     float x = -std::sin(r);
     float y = 0.0f;
     float z = std::cos(r);
