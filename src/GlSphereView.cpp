@@ -951,16 +951,17 @@ void
 GlSphereView::calcuateMoonLight()
 {
     double moonPh = moonPhase();    // the simple stuff is sufficient for our display
-    Position pInital = getIntialPosition();
-    float rel = MOON_OFFS / pInital.z;
-    float corrRad = std::acos(rel) / 2.0f; // as we view the moon from side correct angle
+    // try to correct but this will do more than needed...
+    //Position pInital = getIntialPosition();
+    //float rel = MOON_OFFS / pInital.z;
+    //float corrRad = std::acos(rel) / 2.0f; // as we view the moon from side correct angle
     //std::cout << "initl.z " << pInital.z
     //          << " moon " << MOON_OFFS
     //          << " rel " << rel
     //          << " corr " << corrRad
     //          << std::endl;
 
-    float r = (moonPh * 2.0f * M_PI) + corrRad;
+    float r = (moonPh * 2.0f * M_PI);
     float x = -std::sin(r);
     float y = 0.0f;
     float z = std::cos(r);
