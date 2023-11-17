@@ -31,6 +31,7 @@
 #include <glm/trigonometric.hpp>  //radians
 #include <RealEarth.hpp>
 #include <WebMapService.hpp>
+#include <stdio.h>
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
@@ -116,9 +117,9 @@ void
 GlSphereView::updateTimer()
 {
     Glib::DateTime date = Glib::DateTime::create_now_utc();
-    unsigned int ds = (61 - date.get_second());    // try to hit next minute change, with 60 we may hit 59
+    unsigned int ms = (60010u - (unsigned int)(date.get_seconds() * 1000u));    // try to hit next minute change, without the chance of underrun
     sigc::slot<bool> slot = sigc::mem_fun(*this, &GlSphereView::view_update);
-    m_timer = Glib::signal_timeout().connect_seconds(slot, ds);
+    m_timer = Glib::signal_timeout().connect(slot, ms);
     //std::cout << "updateTimer " << date.get_hour() << ":" << date.get_minute() << ":" << date.get_second() << " " << ds << std::endl;
 }
 
@@ -332,10 +333,10 @@ GlSphereView::init(Gtk::GLArea *glArea)
     glm::vec3 direction(0.0f, 0.0f, -1.0f);
     glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
     glm::vec3 up = glm::cross(right, direction);
-    Position moonView{0.0f, 0.0f, 70.0f};
+    Position moonView{0.0f, 0.0f, MOON_VIEW_DIST};
     m_moonViewMat = glm::lookAt(
         glm::length(moonView) * direction,
-        Vector(0.0f),       // fix view on moon
+        Vector(MOON_OFFS, 0.0f, 0.0f),       // fix view on moon
         up);
 
 }
@@ -523,27 +524,30 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 static void
-showMat(glm::mat4 &proj)
+showMat(glm::mat4 &proj, const char* info)
 {
+    std::cout << info << " ----------" << "\n";
     for (int y = 0; y < 4; ++y) {
         std::cout << std::fixed << std::setprecision(2) << std::setw(8)
                   << (proj[y][0]) << "|" << (proj[y][1]) << "|" << (proj[y][2]) << "|" << (proj[y][3])
-                  << std::endl;
+                  << "\n";
     }
+    std::cout << std::endl;
 }
 #pragma GCC diagnostic pop
+
 void
 GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
 {
     glCullFace(GL_BACK);
     checkError("cull back");
     Position viewPos = m_naviGlArea->get_viewpos();
-    float xOffs = -20.0f;
-    if (viewPos.z <= 50.0f) {
+    float xOffs = EARTH_OFFS;
+    if (viewPos.z <= EARTH_DIST_CENTER) {
         xOffs = 0.0f;   // on zoom move to center
     }
-    else if (viewPos.z < 70.0f) {
-        xOffs = (50.0f - viewPos.z);
+    else if (viewPos.z < (EARTH_DIST_CENTER - EARTH_OFFS)) {
+        xOffs = (std::abs(EARTH_DIST_CENTER) - viewPos.z);
     }
     // use a modified transform to display earth with a offset
     Matrix earthProj = glm::translate(projin, glm::vec3{xOffs, 0.0f, 0.0f});
@@ -951,17 +955,16 @@ void
 GlSphereView::calcuateMoonLight()
 {
     double moonPh = moonPhase();    // the simple stuff is sufficient for our display
-    // try to correct but this will do more than needed...
-    //Position pInital = getIntialPosition();
-    //float rel = MOON_OFFS / pInital.z;
-    //float corrRad = std::acos(rel) / 2.0f; // as we view the moon from side correct angle
+    // try to correct the distorted perspective that we got by moving the moon
+    float rel = MOON_OFFS / MOON_VIEW_DIST;
+    float corrRad = std::asin(rel);
     //std::cout << "initl.z " << pInital.z
     //          << " moon " << MOON_OFFS
     //          << " rel " << rel
     //          << " corr " << corrRad
     //          << std::endl;
 
-    float r = (moonPh * 2.0f * M_PI);
+    float r = (moonPh * 2.0f * M_PI) + corrRad;
     float x = -std::sin(r);
     float y = 0.0f;
     float z = std::cos(r);

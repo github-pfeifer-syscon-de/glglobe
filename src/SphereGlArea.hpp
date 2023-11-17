@@ -25,9 +25,8 @@ class SphereGlArea : public NaviGlArea
 public:
     SphereGlArea(Scene* scene);
     SphereGlArea(const SphereGlArea& orig) = delete;
-    virtual ~SphereGlArea();
+    virtual ~SphereGlArea() = default;
     Vector get_viewpos();
-
 private:
 
 };

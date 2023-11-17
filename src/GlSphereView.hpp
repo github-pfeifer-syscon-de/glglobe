@@ -138,7 +138,10 @@ private:
     Matrix m_moonViewMat;
 
     // offs moon to display on single canvas
-    static constexpr auto MOON_OFFS = 35.0f;
+    static constexpr auto MOON_OFFS{20.0f};
+    static constexpr auto MOON_VIEW_DIST{70.0f};
+    static constexpr auto EARTH_OFFS{-20.0f};
+    static constexpr auto EARTH_DIST_CENTER{50.0f};
 };
 
 struct RESOURCE {

@@ -24,11 +24,6 @@ SphereGlArea::SphereGlArea(Scene* scene)
 {
 }
 
-
-SphereGlArea::~SphereGlArea()
-{
-}
-
 Vector
 SphereGlArea::get_viewpos( )
 {
