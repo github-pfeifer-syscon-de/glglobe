@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <gtkmm.h>
 #include "GlSphereView.hpp"
 #include "NaviGlArea.hpp"
 #include "Config.hpp"
@@ -30,8 +31,9 @@ public:
 
     void on_action_preferences();
     void on_action_about();
-    void on_action_import();
+    void on_action_Timer();
     void save_config();
+    Config* getConfig();
 private:
     GlSphereView *m_sphereView;
     Config* m_config;

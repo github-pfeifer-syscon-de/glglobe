@@ -14,17 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <iostream>
 #include <thread>
 #include <future>
 #include <GenericGlmCompat.hpp>
 
-#include <gtkmm.h>
-
 #include "GlGlobeWindow.hpp"
 #include "GlGlobeApp.hpp"
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
+#include "Timer.hpp"
 
 GlGlobeWindow::GlGlobeWindow()
 : Gtk::ApplicationWindow()
@@ -38,6 +38,10 @@ GlGlobeWindow::GlGlobeWindow()
 	naviGlArea->set_use_es(true);
 	#endif
     add(*naviGlArea);
+
+    add_action("timer", sigc::mem_fun(*this, &GlGlobeWindow::on_action_Timer));
+    add_action("preferences", sigc::mem_fun(*this, &GlGlobeWindow::on_action_preferences));
+    add_action("about", sigc::mem_fun(*this, &GlGlobeWindow::on_action_about));
 
     Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create_from_resource(RESOURCE::resource("glglobe.png"));
     set_icon(icon);
@@ -116,23 +120,24 @@ GlGlobeWindow::on_action_about()
 }
 
 void
-GlGlobeWindow::on_action_import()
+GlGlobeWindow::on_action_Timer()
 {
     auto refBuilder = Gtk::Builder::create();
     try {
-        refBuilder->add_from_resource(RESOURCE::resource("import-dlg.ui"));
-        auto object = refBuilder->get_object("import-dlg");
-        auto importdlg = Glib::RefPtr<Gtk::Dialog>::cast_dynamic(object);
-        if (importdlg) {
-            import_dialog_setup(refBuilder, importdlg);
-            importdlg->set_transient_for(*this);
-            importdlg->run();
-            importdlg->hide();
-        } else
-            std::cerr << "GlGlobe::on_action_import(): No \"import-dlg\" object in import-dlg.ui"
-                << std::endl;
-    } catch (const Glib::Error& ex) {
-        std::cerr << "GlGlobe::on_action_import(): " << ex.what() << std::endl;
+        refBuilder->add_from_resource(RESOURCE::resource("timer-dlg.ui"));
+        Timer* timer;
+        refBuilder->get_widget_derived("timer-dlg", timer, m_config);
+        if (timer) {
+            timer->set_transient_for(*this);
+            timer->run();
+            timer->hide();
+            //timer->unreference();     this calls destructor and crashes afterwards...
+        }
+        else {
+            std::cerr << "GlGlobe::on_action_Timer(): No \"timer-dlg\" object in timer-dlg.ui" << std::endl;
+        }
     }
-
+    catch (const Glib::Error& ex) {
+        std::cerr << "GlGlobe::on_action_Timer(): " << ex.what() << std::endl;
+    }
 }

@@ -74,9 +74,6 @@ GlGlobeApp::on_startup() {
     signal_shutdown().connect(sigc::mem_fun(*this, &GlGlobeApp::on_shutdown));
 
     // Add actions and keyboard accelerators for the application menu.
-    add_action("preferences", sigc::mem_fun(*m_glglobeAppWindow, &GlGlobeWindow::on_action_preferences));
-    add_action("about", sigc::mem_fun(*m_glglobeAppWindow, &GlGlobeWindow::on_action_about));
-    //add_action("import", sigc::mem_fun(m_glglobeAppWindow, &GlGlobeWindow::on_action_import));
     add_action("quit", sigc::mem_fun(*this, &GlGlobeApp::on_action_quit));
     set_accel_for_action("app.quit", "<Ctrl>Q");
 

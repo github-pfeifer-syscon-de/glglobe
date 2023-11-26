@@ -48,6 +48,8 @@ glglobe_SOURCES = \
 	BoundsDisplay.hpp \
 	GeoJsonGeometryHandler.cpp \
 	GeoJsonGeometryHandler.hpp \
+	Timer.cpp \
+	Timer.hpp \
 	TimezoneInfo.cpp \
 	TimezoneInfo.hpp
 

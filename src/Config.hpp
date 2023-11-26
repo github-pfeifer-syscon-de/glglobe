@@ -67,6 +67,10 @@ public:
     std::vector<std::shared_ptr<WebMapServiceConf>> getWebMapServices();
     int getWeatherMinPeriodSec();
     void setWeatherMinPeriodSec(uint32_t sec);
+    Glib::ustring getTimerValue();
+    void setTimerValue(const Glib::ustring& timer);
+    Glib::ustring getTimeValue();
+    void setTimeValue(const Glib::ustring& time);
 
     static constexpr auto WEATHER_REAL_EARTH_CONF{"RE"};
     static constexpr auto WEATHER_WMS_CONF{"WMS"};
@@ -97,6 +101,9 @@ protected:
     static constexpr auto WEATHER_SERVICE_TYPE{"weatherType"};
     static constexpr auto WEATHER_SERVICE_LOCAL_TIME{"weatherLocalTime"};
     static constexpr auto GEO_JSON_FILE{"geoJsonFile"};
+    static constexpr auto GRP_TIME{"time"};
+    static constexpr auto TIMER_VALUE{"timerValue"};
+    static constexpr auto TIME_VALUE{"timeValue"};
 
     static constexpr auto MIN_UPDATE_DELAY_SEC{5 * 60};
     static constexpr auto DEF_UPDATE_DELAY_SEC{30 * 60};
@@ -120,4 +127,6 @@ private:
     Glib::ustring m_geoJsonFile;
     std::vector<std::shared_ptr<WebMapServiceConf>> m_weatherServices;
     int m_waether_min_period_sec{5*60};
+    Glib::ustring m_timerValue;
+    Glib::ustring m_timeValue;
 };

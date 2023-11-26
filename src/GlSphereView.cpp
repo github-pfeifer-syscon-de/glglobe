@@ -31,7 +31,6 @@
 #include <glm/trigonometric.hpp>  //radians
 #include <RealEarth.hpp>
 #include <WebMapService.hpp>
-#include <stdio.h>
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
@@ -219,7 +218,7 @@ GlSphereView::init_earth_shaders(Glib::Error &error)
         // unclear the docs say something about  Glib::bytes_unref().
         //   but the Bytes doc says never do this manually...
         if (ret) {
-            m_textContext = new TextContext(GL_QUADS);
+            m_textContext = new TextContext(GL_TRIANGLES);
             ret = m_textContext->createProgram(error);
         }
         if (ret) {
@@ -300,12 +299,10 @@ GlSphereView::init(Gtk::GLArea *glArea)
     refresh_weather_service();
 
     m_font = new Font("sans-serif");    // Css2 name should give use some sans font
-    m_text = new Text(GL_QUADS, m_textContext, m_font);
-    Position pt(15.0f, -20.0f, -30.0f);
-    m_text->setScale(2.07f);
+    m_text = new Text(GL_TRIANGLES, m_textContext, m_font);
+    Position pt(0.0f, 0.0f, 10.0f);
+    m_text->setScale(0.020f);
     m_text->setPosition(pt);
-    Rotational rotT(180.0f, 0.0f, 0.0f);
-    m_text->setRotation(rotT);
 
     m_timezoneInfo = new TimezoneInfo();
     m_timezoneInfo->createGeometry(m_markContext, m_textContext, m_font);
@@ -323,22 +320,12 @@ GlSphereView::init(Gtk::GLArea *glArea)
     m_moon->addSphere(20.0f, 24, 24);
     checkError("add Sphere moon");
     m_moon->create_vao();
-    Position p_moon(0.0f, 0.0f, 0.0f);
+    Position p_moon(MOON_OFFS, 0.0f, 0.0f);
     m_moon->setPosition(p_moon);
-    m_moon->setRotation(getInitalAngleDegree());
+    Rotational rotT(180.0f, 0.0f, 0.0f);        // we build the model for look at, but now we are not using it...
+    m_moon->setRotation(rotT);
     checkError("add createVao moon");
     m_moonTex = Tex::fromFile(PACKAGE_DATA_DIR "/2k_moon.jpg");
-	//m_moonTex = Tex::fromResource(RESOURCE::resource("2k_moon.jpg"));
-    // simple fixed view for moon
-    glm::vec3 direction(0.0f, 0.0f, -1.0f);
-    glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
-    glm::vec3 up = glm::cross(right, direction);
-    Position moonView{0.0f, 0.0f, MOON_VIEW_DIST};
-    m_moonViewMat = glm::lookAt(
-        glm::length(moonView) * direction,
-        Vector(MOON_OFFS, 0.0f, 0.0f),       // fix view on moon
-        up);
-
 }
 
 void
@@ -604,16 +591,28 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     Glib::DateTime date = Glib::DateTime::create_now_local();
     std::string prepared = customize_time(m_config->getTimeFormat());
     Glib::ustring buffer = date.format(prepared);
-    Matrix projFix = projin * m_fixView;
-    m_text->setText(buffer);        // as we use a special transform display separately
+    float width = m_naviGlArea->get_width();
+    float height = m_naviGlArea->get_height();
+    Matrix projFix = glm::orthoLH(-7.0f, 15.0f, -1.0f, height / 20.0f, getZNear(), getZFar());
+    m_text->setText(buffer);        // display as HUD with simple transform
     std::list<Geometry *> geos;
     geos.push_back(m_text);
     m_textContext->display(projFix, geos);
     m_textContext->unuse();
 
-    // place the moon at some offset (makes shapes oval... but better than slider)
-    Matrix moonProj = glm::translate(projin, glm::vec3{MOON_OFFS, 0.0f, 0.0f});
-    Matrix moonProjView = moonProj * m_moonViewMat;
+    // as the perspective approach it not right for the moon
+    //  (which is relative to its size is far away, so perspective is limiting view at sides (matters for phase))
+    //  try to use ortho which represents this situation better.
+    float winSizeMin = std::min(width, height);
+    float winSizeDiv = winSizeMin / 10.0f;
+    Matrix moonProj = glm::orthoLH(-width / 10.0f, width / 10.0f, -winSizeDiv, winSizeDiv, getZNear(), getZFar());
+    auto moonView = Matrix{1.0f};
+    //glm::lookAt(
+    //    glm::length(moonViewPos) * direction,
+    //    Vector(MOON_OFFS, 0.0f, 0.0f),       // fix view on moon
+    //    up);    // place the moon at some offset (makes shapes oval... but better than slider)
+    //Matrix moonProj = glm::translate(moonView, glm::vec3{MOON_OFFS, 0.0f, 0.0f});
+    Matrix moonProjView = moonProj * moonView;    // * m_moonViewMat
     // moon
     m_moonContext->use();
     m_moonTex->use(GL_TEXTURE0);

@@ -203,9 +203,9 @@ void Tz::createGeometry(MarkContext *markContext, TextContext *m_textContext, Fo
     line->addLine(s, e, red);
     line->create_vao();
     line->setVisible(false);
-    ctext = new Text(GL_QUADS, m_textContext, font);
+    ctext = new Text(GL_TRIANGLES, m_textContext, font);
     ctext->setPosition(e);
-    ctext->setScale(1.030f);
+    ctext->setScale(0.030f);
     ctext->setVisible(false);
     Rotational rot(lon, 0.0f, 0.0f);
     ctext->setRotation(rot);

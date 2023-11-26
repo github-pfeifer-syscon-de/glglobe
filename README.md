@@ -62,6 +62,10 @@ that offer fragmented timelines / historic images
 for example (https://neo.gsfc.nasa.gov/about/wms.php
 ( QGis might help you better with these)).
 
+## Prerequisits
+
+C++20 is required as we are doing some crono/timezone stuff.
+
 ## Troubleshooting
 
 First some messages are output to the console if something seems not quite right.

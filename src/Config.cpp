@@ -115,6 +115,12 @@ Config::read()
                     }
                 }
             }
+            if (m_config->has_group(GRP_TIME)) {
+                if (m_config->has_key(GRP_TIME, TIMER_VALUE))
+                    m_timerValue = m_config->get_string(GRP_TIME, TIMER_VALUE);
+                if (m_config->has_key(GRP_TIME, TIME_VALUE))
+                    m_timeValue = m_config->get_string(GRP_TIME, TIME_VALUE);
+            }
         }
     }
     catch (const Glib::FileError& exc) {
@@ -142,6 +148,8 @@ Config::save()
         m_config->set_string(GRP_MAIN, WEATHER_PRODUCT, m_weatherProductId);
         m_config->set_double(GRP_MAIN, WEATHER_TRANSP, m_weatherTransparency);
         m_config->set_string(GRP_MAIN, GEO_JSON_FILE, m_geoJsonFile);
+        m_config->set_string(GRP_TIME, TIMER_VALUE, m_timerValue);
+        m_config->set_string(GRP_TIME, TIME_VALUE, m_timeValue);
         m_config->set_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS, m_waether_min_period_sec);
         for (uint32_t i = 0; i < m_weatherServices.size(); ++i) {
             auto weatherService = m_weatherServices[i];
@@ -383,6 +391,30 @@ void
 Config::setWeatherMinPeriodSec(uint32_t sec)
 {
     m_waether_min_period_sec = sec;
+}
+
+Glib::ustring
+Config::getTimerValue()
+{
+    return m_timerValue;
+}
+
+void
+Config::setTimerValue(const Glib::ustring& timer)
+{
+    m_timerValue = timer;
+}
+
+Glib::ustring
+Config::getTimeValue()
+{
+    return m_timeValue;
+}
+
+void
+Config::setTimeValue(const Glib::ustring& time)
+{
+    m_timeValue = time;
 }
 
 std::shared_ptr<WebMapServiceConf>
