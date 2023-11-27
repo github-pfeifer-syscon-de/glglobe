@@ -596,7 +596,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     m_textContext->display(projFix, geos);
     m_textContext->unuse();
 
-    // as the perspective approach it not right for the moon
+    // as the perspective approach is not right for the moon
     //  (which is relative to its size is far away, so perspective is limiting view at sides (matters for phase))
     //  try to use ortho which represents this situation better.
     float winSizeMin = std::min(width, height);
@@ -932,6 +932,19 @@ GlSphereView::julianDate()
     return JD;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+static double
+constrain(double d)
+{
+	double t = std::fmod(d, 360.0);
+	if (t < 0.0) {
+	    t += 360.0;
+	}
+    return t;
+}
+#pragma GCC diagnostic pop
+
 // 0 new ... 0.5 full ... 1 new
 double
 GlSphereView::moonPhase()
@@ -944,22 +957,28 @@ GlSphereView::moonPhase()
     //double newMoons = daySinceNew / synMoon;
     double phaseMoon = std::fmod(daySinceNew, synMoon);
     return phaseMoon / synMoon;
+
+    // complex algorithm as suggested by Greg Miller see https://celestialprogramming.com/
+    //const double T = JD / 36525.0;  // epoch centuries
+	//const double T2 = T * T;
+	//const double T3 = T2 * T;
+	//const double T4 = T3 * T;
+	//double D = glm::radians(constrain(297.8501921 + 445267.1114034*T - 0.0018819*T2 + 1.0/545868.0*T3 - 1.0/113065000.0*T4)); //47.2
+	//double M = glm::radians(constrain(357.5291092 + 35999.0502909*T - 0.0001536*T2 + 1.0/24490000.0*T3)); //47.3
+	//double Mp = glm::radians(constrain(134.9633964 + 477198.8675055*T + 0.0087414*T2 + 1.0/69699.0*T3 - 1.0/14712000.0*T4)); //47.4
+	//48.4
+	//double i = glm::radians(constrain(180.0 - glm::degrees(D) - 6.289 * std::sin(Mp) + 2.1 * std::sin(M) -1.274 * std::sin(2.0*D - Mp) -0.658 * std::sin(2*D) -0.214 * std::sin(2*Mp) -0.11 * std::sin(D)));
+    //std::cout << __FILE__ << "::moonPhase"
+    //          <<  " i " << i << std::endl;
+    // requires adjusting offset + i / M_PI ....
 }
 
 void
 GlSphereView::calcuateMoonLight()
 {
     double moonPh = moonPhase();    // the simple stuff is sufficient for our display
-    // try to correct the distorted perspective that we got by moving the moon
-    float rel = MOON_OFFS / MOON_VIEW_DIST;
-    float corrRad = std::asin(rel);
-    //std::cout << "initl.z " << pInital.z
-    //          << " moon " << MOON_OFFS
-    //          << " rel " << rel
-    //          << " corr " << corrRad
-    //          << std::endl;
 
-    float r = (moonPh * 2.0f * M_PI) + corrRad;
+    float r = (moonPh * 2.0f * M_PI);
     float x = -std::sin(r);
     float y = 0.0f;
     float z = std::cos(r);
