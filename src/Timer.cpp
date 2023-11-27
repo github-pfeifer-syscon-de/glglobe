@@ -23,7 +23,7 @@
 #include "Config.hpp"
 #include "Timer.hpp"
 
-Timer::Timer(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, Config* config)
+Timer::Timer(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, const std::shared_ptr<Config>& config)
 : Gtk::Dialog(cobject)
 , m_config{config}
 {
@@ -83,10 +83,7 @@ Timer::parseTimerValue()
                 m_config->setTimerValue(m_timerValue->get_text());
                 m_config->save();
             }
-            m_delay = std::chrono::steady_clock::now();
-            m_delay += std::chrono::minutes(minutes);
-            m_delay += std::chrono::seconds(seconds);
-            return true;
+            return updateTimer(minutes, seconds);
         }
     }
     catch (std::invalid_argument const& ex) {
@@ -119,20 +116,7 @@ Timer::parseTimeValue()
                 m_config->setTimeValue(m_timeValue->get_text());
                 m_config->save();
             }
-            using chronoMinutes = std::chrono::duration<uint64_t, std::ratio<60>>;
-            using chronoHours = std::chrono::duration<uint64_t, std::ratio<60*60>>;
-            using chronoDays = std::chrono::duration<uint64_t, std::ratio<24*60*60>>;    // 86400
-            auto last_midnight = std::chrono::time_point_cast<chronoDays>(std::chrono::system_clock::now());
-            //std::cout << __FILE__ << "::parseTimeValue"
-            //          << " midnight " << last_midnight
-            //          << " offs " << localZone->get_info(std::chrono::system_clock::now()).offset
-            //          << std::endl;
-            m_time = std::chrono::time_point<std::chrono::system_clock>(last_midnight);
-            m_time += chronoHours{hour};
-            m_time += chronoMinutes{minutes};
-            auto localZone = std::chrono::current_zone();   // as our input counts as local, need to adjust to utc
-            m_time -= localZone->get_info(std::chrono::system_clock::now()).offset;
-            return true;
+            return updateTime(hour, minutes);
         }
     }
     catch (std::invalid_argument const& ex) {
@@ -153,36 +137,61 @@ Timer::startTimer()
 }
 
 bool
-Timer::timerTimeout()
+Timer::timeout()
 {
-    auto now = std::chrono::steady_clock::now();
-    auto elapsed = m_delay - now;
-    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
-    auto sec{seconds.count()};
-    //std::cout << __FILE__ << "::timerTimeout elapsed " << elapsed
-    //          << " seconds " << seconds
-    //          << " sec " << sec
-    //          << std::endl;
-    Glib::ustring remain;
-    auto minutes{sec / 60};
-    sec -= minutes * 60;
-    if (minutes > 0 || sec > 0) {
-        std::format_to(std::back_inserter(remain), "{:02}:{:02}", minutes, sec);
-        m_timerValue->set_text(remain);
-        return true;
+    if (m_timerRunning) {
+        m_timerRunning = timerTimeout();
+        if (!m_timerRunning) {
+            m_timerValue->set_text(m_config->getTimerValue());
+            get_window()->beep();
+            Gtk::MessageDialog dialog = Gtk::MessageDialog("Timeout", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE);
+            dialog.set_secondary_text("Timer expired!");
+            dialog.run();
+        }
     }
-    else {
-        m_timerValue->set_text(m_config->getTimerValue());
-        get_window()->beep();
-        Gtk::MessageDialog dialog = Gtk::MessageDialog("Timeout", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text("Time expired!");
-        dialog.run();
+    if (m_timeRunning) {
+        m_timeRunning = timeTimeout();
+        if (!m_timeRunning)  {
+            m_timeValue->set_text(m_config->getTimeValue());
+            get_window()->beep();
+            Gtk::MessageDialog dialog = Gtk::MessageDialog("Reminder", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE);
+            dialog.set_secondary_text("Time reached!");
+            dialog.run();
+        }
     }
-    return false;
+    if (m_timerRunning || m_timeRunning) {
+        startTimer();
+    }
+    return false;   // do not repeat was restarted
+}
+
+TimerChrono::TimerChrono(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, const std::shared_ptr<Config>& config)
+: Timer{cobject, refBuilder, config}
+{
 }
 
 bool
-Timer::timeTimeout()
+TimerChrono::updateTime(int hours, int minutes)
+{
+    using chronoMinutes = std::chrono::duration<uint64_t, std::ratio<60>>;
+    using chronoHours = std::chrono::duration<uint64_t, std::ratio<60*60>>;
+    // unsure if this will not create a time that is off by all switch seconds since epoche as not all days have 86400 seconds
+    using chronoDays = std::chrono::duration<uint64_t, std::ratio<24*60*60>>;    // 86400
+    auto last_midnight = std::chrono::time_point_cast<chronoDays>(std::chrono::system_clock::now());
+    //std::cout << __FILE__ << "::parseTimeValue"
+    //          << " midnight " << last_midnight
+    //          << " offs " << localZone->get_info(std::chrono::system_clock::now()).offset
+    //          << std::endl;
+    m_time = std::chrono::time_point<std::chrono::system_clock>(last_midnight);
+    m_time += chronoHours{hours};
+    m_time += chronoMinutes{minutes};
+    auto localZone = std::chrono::current_zone();   // as our input counts as local, need to adjust to utc
+    m_time -= localZone->get_info(std::chrono::system_clock::now()).offset;
+    return true;
+}
+
+bool
+TimerChrono::timeTimeout()
 {
     auto now = std::chrono::system_clock::now();
     auto elapsed = m_time - now;
@@ -204,28 +213,103 @@ Timer::timeTimeout()
         m_timeValue->set_text(remain);
         return true;
     }
-    else {
-        m_timeValue->set_text(m_config->getTimeValue());
-        get_window()->beep();
-        Gtk::MessageDialog dialog = Gtk::MessageDialog("Reminder", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text("Time reached!");
-        dialog.run();
+    return false;
+}
+
+bool
+TimerChrono::updateTimer(int minutes, int seconds)
+{
+    m_delay = std::chrono::steady_clock::now();
+    m_delay += std::chrono::minutes(minutes);
+    m_delay += std::chrono::seconds(seconds);
+    return true;
+}
+
+bool
+TimerChrono::timerTimeout()
+{
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = m_delay - now;
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
+    auto sec{seconds.count()};
+    //std::cout << __FILE__ << "::timerTimeout elapsed " << elapsed
+    //          << " seconds " << seconds
+    //          << " sec " << sec
+    //          << std::endl;
+    Glib::ustring remain;
+    auto minutes{sec / 60};
+    sec -= minutes * 60;
+    if (minutes > 0 || sec > 0) {
+        std::format_to(std::back_inserter(remain), "{:02}:{:02}", minutes, sec);
+        m_timerValue->set_text(remain);
+        return true;
+    }
+    return false;
+}
+
+
+TimerGlib::TimerGlib(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, const std::shared_ptr<Config>& config)
+: Timer{cobject, refBuilder, config}
+{
+}
+
+bool
+TimerGlib::updateTime(int hours, int minutes)
+{
+    auto now = Glib::DateTime::create_now_local();
+    m_time = Glib::DateTime::create_local(now.get_year(), now.get_month(), now.get_day_of_month(), hours, minutes, 0.0);
+    return true;
+}
+
+bool
+TimerGlib::timeTimeout()
+{
+    auto now = Glib::DateTime::create_now_local();
+    auto elapsed = m_time.difference(now);
+    auto hours = elapsed / (60l * 60l * GLIB_USEC);
+    auto minutes = (elapsed / (60l * GLIB_USEC)) % 60l;
+    auto seconds = (elapsed / (GLIB_USEC)) % 60l;
+    //std::cout << __FILE__ << "::timeTimeout"
+    //          << " time " << m_time.format_iso8601()
+    //          << " now " << now.format_iso8601()
+    //          << " elapsed " << elapsed
+    //          << " seconds " << seconds << std::endl;
+    if (hours > 0||minutes > 0 ||seconds > 0) {
+        Glib::ustring remain;
+        std::format_to(std::back_inserter(remain), "{}:{:02}:{:02}", hours, minutes, seconds);
+        m_timeValue->set_text(remain);
+        return true;
     }
     return false;
 }
 
 bool
-Timer::timeout()
+TimerGlib::updateTimer(int minutes, int seconds)
 {
-    if (m_timerRunning) {
-        m_timerRunning = timerTimeout();
-    }
-    if (m_timeRunning) {
-        m_timeRunning = timeTimeout();
-    }
-    if (m_timerRunning || m_timeRunning) {
-        startTimer();
-    }
-    return false;   // do not repeat was restarted
+    m_delay = Glib::DateTime::create_now_local();
+    m_delay = m_delay.add_minutes(minutes);
+    m_delay = m_delay.add_seconds(seconds);
+    return true;
 }
 
+bool
+TimerGlib::timerTimeout()
+{
+    // monotonic would be better, but this matters only daylight switching
+    auto now = Glib::DateTime::create_now_local();
+    auto elapsed = m_delay.difference(now);
+    auto sec{elapsed / GLIB_USEC};
+    //std::cout << __FILE__ << "::timerTimeout elapsed " << elapsed
+    //          << " delay " << m_delay.format_iso8601()
+    //          << " now " << now.format_iso8601()
+    //          << " sec " << sec << std::endl;
+    Glib::ustring remain;
+    auto minutes{sec / 60};
+    sec -= minutes * 60;
+    if (minutes > 0 || sec > 0) {
+        std::format_to(std::back_inserter(remain), "{}:{:02}", minutes, sec);
+        m_timerValue->set_text(remain);
+        return true;
+    }
+    return false;
+}

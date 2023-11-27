@@ -24,11 +24,10 @@
 #include "GlGlobeApp.hpp"
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
-#include "Timer.hpp"
 
 GlGlobeWindow::GlGlobeWindow()
 : Gtk::ApplicationWindow()
-, m_config{new Config()}
+, m_config{std::make_shared<Config>()}
 {
     m_config->read();
     m_sphereView = new GlSphereView(m_config);
@@ -94,6 +93,7 @@ GlGlobeWindow::on_action_preferences()
         cfgdlg->hide();
         m_sphereView->set_config_dialog(nullptr);
         save_config();
+        delete cfgdlg;      // cleanup
     }
 }
 
@@ -112,10 +112,10 @@ GlGlobeWindow::on_action_about()
             abtdlg->run();
             abtdlg->hide();
         } else
-            std::cerr << "GlGlobe::on_action_about(): No \"abt-dlg\" object in abt-dlg.ui"
+            std::cerr << __FILE__ << "::on_action_about(): No \"abt-dlg\" object in abt-dlg.ui"
                 << std::endl;
     } catch (const Glib::Error& ex) {
-        std::cerr << "GlGlobe::on_action_about(): " << ex.what() << std::endl;
+        std::cerr << __FILE__ << "::on_action_about(): " << ex.what() << std::endl;
     }
 }
 
@@ -125,19 +125,20 @@ GlGlobeWindow::on_action_Timer()
     auto refBuilder = Gtk::Builder::create();
     try {
         refBuilder->add_from_resource(RESOURCE::resource("timer-dlg.ui"));
-        Timer* timer;
+        TimerChrono* timer{nullptr};     // may choose other implementaion ... TimerGlib depending of what smell seems preferable for you
         refBuilder->get_widget_derived("timer-dlg", timer, m_config);
         if (timer) {
             timer->set_transient_for(*this);
             timer->run();
             timer->hide();
-            //timer->unreference();     this calls destructor and crashes afterwards...
+            delete timer; // keep running in background will not allow to hide after second show/run
         }
         else {
-            std::cerr << "GlGlobe::on_action_Timer(): No \"timer-dlg\" object in timer-dlg.ui" << std::endl;
+            std::cerr << __FILE__ <<"::on_action_Timer(): No \"timer-dlg\" object in timer-dlg.ui" << std::endl;
         }
     }
     catch (const Glib::Error& ex) {
-        std::cerr << "GlGlobe::on_action_Timer(): " << ex.what() << std::endl;
+        std::cerr << __FILE__ <<"::on_action_Timer(): " << ex.what() << std::endl;
     }
+
 }

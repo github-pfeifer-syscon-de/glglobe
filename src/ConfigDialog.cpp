@@ -32,7 +32,7 @@ BaseConfigGrid::BaseConfigGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::
 ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    Config* config = m_sphereView->get_config();
+    auto config = m_sphereView->get_config();
     Gtk::SpinButton* pLat = nullptr;
     refBuilder->get_widget("lat", pLat);
     if(pLat) {
@@ -66,7 +66,7 @@ ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk
 ConfigTextureGrid::ConfigTextureGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    Config* config = m_sphereView->get_config();
+    auto config = m_sphereView->get_config();
     Gtk::FileChooserButton* dayFcBtn = nullptr;
     refBuilder->get_widget("day", dayFcBtn);
     if (dayFcBtn) {
@@ -137,7 +137,7 @@ ConfigTextureGrid::nighttex_changed(Gtk::FileChooserButton* nightFcBtn)
 ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    Config* config = m_sphereView->get_config();
+    auto config = m_sphereView->get_config();
     Gtk::Scale* pAmbient = nullptr;
     refBuilder->get_widget("ambient", pAmbient);
     if (pAmbient) {
@@ -211,7 +211,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
 ConfigWeatherGrid::ConfigWeatherGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    Config* config = m_sphereView->get_config();
+    auto config = m_sphereView->get_config();
     Gtk::Scale* pWeatherTransp = nullptr;
     refBuilder->get_widget("scaleWeather", pWeatherTransp);
     if (pWeatherTransp) {
@@ -368,7 +368,7 @@ ConfigWeatherGrid::refreshWeatherProducts()
         std::cout << "ConfigWeatherGrid::refreshWeatherProducts have no weather." << std::endl;
     }
     m_blockWeatherProductUpdate = false;
-    Config* config = m_sphereView->get_config();
+    auto config = m_sphereView->get_config();
     if (!config->getWeatherProductId().empty()) {
         m_weatherProductCombo->set_active_id(config->getWeatherProductId());
     }
@@ -380,7 +380,7 @@ ConfigWeatherGrid::refreshWeatherProducts()
 ConfigGeoJsonGrid::ConfigGeoJsonGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    Config* config = m_sphereView->get_config();
+    auto config = m_sphereView->get_config();
     refBuilder->get_widget("geoFileButton", m_geoJsonButton);
     if (m_geoJsonButton) {
         m_geoJsonButton->set_filename(config->getGeoJsonFile());

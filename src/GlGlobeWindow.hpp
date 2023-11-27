@@ -18,9 +18,11 @@
 #pragma once
 
 #include <gtkmm.h>
+#include <memory>
 #include "GlSphereView.hpp"
 #include "NaviGlArea.hpp"
 #include "Config.hpp"
+#include "Timer.hpp"
 
 class GlGlobeWindow : public Gtk::ApplicationWindow {
 public:
@@ -33,9 +35,9 @@ public:
     void on_action_about();
     void on_action_Timer();
     void save_config();
-    Config* getConfig();
+
 private:
     GlSphereView *m_sphereView;
-    Config* m_config;
+    std::shared_ptr<Config> m_config;
 };
 

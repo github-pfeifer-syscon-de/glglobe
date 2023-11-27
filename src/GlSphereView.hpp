@@ -42,7 +42,7 @@ class SphereGlArea;
 
 class GlSphereView : public Scene, public WeatherConsumer {
 public:
-    GlSphereView(Config *config);
+    GlSphereView(const std::shared_ptr<Config>& config);
     virtual ~GlSphereView();
     Matrix getLookAt(Vector &position, Vector &direction, Vector &up) override;
     Position getIntialPosition() override;
@@ -55,7 +55,7 @@ public:
     void draw(Gtk::GLArea *glArea, Matrix &proj, Matrix &view) override;
     std::string customize_time(std::string prepared);
     Geometry *on_click_select(GdkEventButton* event, float mx, float my) override;
-    Config* get_config() {
+    std::shared_ptr<Config> get_config() {
         return m_config;
     }
     std::shared_ptr<Weather> get_weather() {
@@ -100,7 +100,7 @@ protected:
     gboolean init_earth_shaders(Glib::Error &error);
     double moonPhase();
 private:
-    Config *m_config;
+    std::shared_ptr<Config> m_config;
     Rotational get_rotation();
     SphereContext *m_earthContext;
     TextContext *m_textContext;

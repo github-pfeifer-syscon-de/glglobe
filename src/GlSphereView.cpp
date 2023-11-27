@@ -39,7 +39,7 @@
 #include "SphereGlArea.hpp"
 #include "GeoJsonGeometryHandler.hpp"
 
-GlSphereView::GlSphereView(Config *config)
+GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
 : Scene()
 , m_config{config}
 , m_earthContext{nullptr}
@@ -333,10 +333,6 @@ GlSphereView::unrealize()
 {
     if (m_timer.connected()) {
         m_timer.disconnect(); // No more updating
-    }
-    if (m_config) {
-        delete m_config;
-        m_config = nullptr;
     }
     if (m_text != nullptr) {
         delete m_text;
