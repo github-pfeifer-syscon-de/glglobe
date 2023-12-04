@@ -31,6 +31,15 @@ Build for windows was integrated at least for msys2<br>
   look for "$host_os" = "mingw32"
 </pre>
 
+## Navigation
+
+The usual navigation options are a bit reduced here.
+Only the earth can be "moved" by:
+
+Mouse scroll -> change distance
+
+Drag right mouse buttton -> roll
+
 ## Configuration
 
 The most obvious option use the dialog.

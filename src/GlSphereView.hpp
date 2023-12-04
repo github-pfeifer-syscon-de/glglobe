@@ -88,6 +88,7 @@ public:
     void request_weather_product();
     // as we have no Gis, so limit the complexity of usable files
     static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
+    constexpr static auto SYNOD_MOON = 29.530589;
 
 protected:
     void show_error(const std::string& msg);
@@ -98,7 +99,11 @@ protected:
     void calcuateMoonLight();
     gboolean init_moon_shaders(Glib::Error &error);
     gboolean init_earth_shaders(Glib::Error &error);
-    double moonPhase();
+    double moonPhase(double jd);
+    constexpr static auto S_PER_JULIAN_YEAR = 86400.0;
+    constexpr static auto DAYS_PER_CENTURY = 36525.0;
+    constexpr static auto JULIAN_1970_OFFS = 2440587.5;
+    constexpr static auto MOON_J2000 = 2451545.0;
 private:
     std::shared_ptr<Config> m_config;
     Rotational get_rotation();
@@ -137,10 +142,11 @@ private:
     Vector m_moonLight;
 
     // offs moon to display on single canvas
-    static constexpr auto MOON_OFFS{30.0f};
+    static constexpr auto MOON_XOFFS{30.0f};
     static constexpr auto MOON_VIEW_DIST{70.0f};
     static constexpr auto EARTH_OFFS{-20.0f};
     static constexpr auto EARTH_DIST_CENTER{50.0f};
+
 };
 
 struct RESOURCE {

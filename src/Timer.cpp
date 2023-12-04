@@ -17,7 +17,9 @@
  */
 
 #include <iostream>
+#if __GNUC__ >= 13
 #include <format>
+#endif
 #include <ctime>
 
 #include "Config.hpp"
@@ -55,7 +57,7 @@ Timer::Timer(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuild
 
 Timer::~Timer()
 {
-    std::cout << __FILE__ << "::~Timer" << std::endl;
+    //std::cout << __FILE__ << "::~Timer" << std::endl;
     if (m_timer.connected()) {
         m_timer.disconnect(); // No more updating
     }
@@ -88,7 +90,7 @@ Timer::parseTimerValue()
     }
     catch (std::invalid_argument const& ex) {
         Gtk::MessageDialog dialog = Gtk::MessageDialog("Invalid value", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text(std::format("The value {} was not understood, please use 01:23 for a 1 minute and 23 seconds delay!", static_cast<std::string>(timeValue)));
+        dialog.set_secondary_text(Glib::ustring::sprintf("The value %s was not understood, please use 01:23 for a 1 minute and 23 seconds delay!", timeValue));
         dialog.run();
     }
     return false;
@@ -121,7 +123,7 @@ Timer::parseTimeValue()
     }
     catch (std::invalid_argument const& ex) {
         Gtk::MessageDialog dialog = Gtk::MessageDialog("Invalid value", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text(std::format("The value {} was not understood, please use 11:45 for a reminder at 11 o'clock and 45 minutes!", static_cast<std::string>(timeValue)));
+        dialog.set_secondary_text(Glib::ustring::sprintf("The value %s was not understood, please use 11:45 for a reminder at 11 o'clock and 45 minutes!", timeValue));
         dialog.run();
     }
     return false;
@@ -175,7 +177,7 @@ TimerChrono::updateTime(int hours, int minutes)
 {
     using chronoMinutes = std::chrono::duration<uint64_t, std::ratio<60>>;
     using chronoHours = std::chrono::duration<uint64_t, std::ratio<60*60>>;
-    // unsure if this will not create a time that is off by all switch seconds since epoche as not all days have 86400 seconds
+    // this seems to be correct, (even if i expected some leap second issues)
     using chronoDays = std::chrono::duration<uint64_t, std::ratio<24*60*60>>;    // 86400
     auto last_midnight = std::chrono::time_point_cast<chronoDays>(std::chrono::system_clock::now());
     //std::cout << __FILE__ << "::parseTimeValue"
@@ -186,7 +188,11 @@ TimerChrono::updateTime(int hours, int minutes)
     m_time += chronoHours{hours};
     m_time += chronoMinutes{minutes};
     auto localZone = std::chrono::current_zone();   // as our input counts as local, need to adjust to utc
-    m_time -= localZone->get_info(std::chrono::system_clock::now()).offset;
+    m_time -= localZone->get_info(m_time).offset;
+    auto now = std::chrono::system_clock::now();
+    if (now > m_time) {
+        m_time += chronoHours{24};
+    }
     return true;
 }
 
@@ -209,7 +215,12 @@ TimerChrono::timeTimeout()
     auto s = seconds.count() - minutes.count() * 60;
     if (h > 0 || m > 0 ||s > 0) {
         Glib::ustring remain;
+        #if __GNUC__ >= 13
+        // the benefit is, here we get some type safety
         std::format_to(std::back_inserter(remain), "{:02}:{:02}:{:02}", h, m, s);
+        #else
+        remain += Glib::ustring::sprintf("%02d:%02d:%02d", h, m, s);
+        #endif
         m_timeValue->set_text(remain);
         return true;
     }
@@ -240,7 +251,11 @@ TimerChrono::timerTimeout()
     auto minutes{sec / 60};
     sec -= minutes * 60;
     if (minutes > 0 || sec > 0) {
+        #if __GNUC__ >= 13
         std::format_to(std::back_inserter(remain), "{:02}:{:02}", minutes, sec);
+        #else
+        remain += Glib::ustring::sprintf("%02d:%02d", minutes, sec);
+        #endif
         m_timerValue->set_text(remain);
         return true;
     }
@@ -276,7 +291,11 @@ TimerGlib::timeTimeout()
     //          << " seconds " << seconds << std::endl;
     if (hours > 0||minutes > 0 ||seconds > 0) {
         Glib::ustring remain;
+        #if __GNUC__ >= 13
         std::format_to(std::back_inserter(remain), "{}:{:02}:{:02}", hours, minutes, seconds);
+        #else
+        remain += Glib::ustring::sprintf("%d:%02d:%02d", hours, minutes, seconds);
+        #endif
         m_timeValue->set_text(remain);
         return true;
     }
@@ -307,7 +326,11 @@ TimerGlib::timerTimeout()
     auto minutes{sec / 60};
     sec -= minutes * 60;
     if (minutes > 0 || sec > 0) {
+        #if __GNUC__ >= 13
         std::format_to(std::back_inserter(remain), "{}:{:02}", minutes, sec);
+        #else
+        remain += Glib::ustring::sptring("%d:02d", minutes, sec);
+        #endif
         m_timerValue->set_text(remain);
         return true;
     }

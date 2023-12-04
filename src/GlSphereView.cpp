@@ -31,6 +31,9 @@
 #include <glm/trigonometric.hpp>  //radians
 #include <RealEarth.hpp>
 #include <WebMapService.hpp>
+#if __GNUC__ >= 13
+#include <format>
+#endif
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
@@ -119,7 +122,6 @@ GlSphereView::updateTimer()
     unsigned int ms = (60010u - (unsigned int)(date.get_seconds() * 1000u));    // try to hit next minute change, without the chance of underrun
     sigc::slot<bool> slot = sigc::mem_fun(*this, &GlSphereView::view_update);
     m_timer = Glib::signal_timeout().connect(slot, ms);
-    //std::cout << "updateTimer " << date.get_hour() << ":" << date.get_minute() << ":" << date.get_second() << " " << ds << std::endl;
 }
 
 void
@@ -320,7 +322,7 @@ GlSphereView::init(Gtk::GLArea *glArea)
     m_moon->addSphere(20.0f, 24, 24);
     checkError("add Sphere moon");
     m_moon->create_vao();
-    Position p_moon(MOON_OFFS, 0.0f, 0.0f);
+    Position p_moon(MOON_XOFFS, 0.0f, 0.0f);
     m_moon->setPosition(p_moon);
     Rotational rotT(180.0f, 0.0f, 0.0f);        // we build the model for look at, but now we are not using it...
     m_moon->setRotation(rotT);
@@ -511,11 +513,18 @@ showMat(glm::mat4 &proj, const char* info)
 {
     std::cout << info << " ----------" << "\n";
     for (int y = 0; y < 4; ++y) {
-        std::cout << std::fixed << std::setprecision(2) << std::setw(8)
-                  << (proj[y][0]) << "|" << (proj[y][1]) << "|" << (proj[y][2]) << "|" << (proj[y][3])
-                  << "\n";
+        std::cout << std::fixed << std::setprecision(3) << std::setw(8)
+                  << (proj[0][y]) << "|" << (proj[1][y]) << "|" << (proj[2][y]) << "|" << (proj[3][y])
+                  << std::endl;
     }
-    std::cout << std::endl;
+}
+static void
+showVec(glm::vec3 &proj, const char* info)
+{
+    std::cout << info << " ----------" << "\n";
+    std::cout << std::fixed << std::setprecision(3) << std::setw(8)
+              << proj.x << "|" << proj.y << "|" << proj.z
+              << std::endl;
 }
 #pragma GCC diagnostic pop
 
@@ -525,15 +534,21 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     glCullFace(GL_BACK);
     checkError("cull back");
     Position viewPos = m_naviGlArea->get_viewpos();
-    float xOffs = EARTH_OFFS;
+    float xEarthOffs{EARTH_OFFS};
+    float xMoonOffs{0.0f};
     if (viewPos.z <= EARTH_DIST_CENTER) {
-        xOffs = 0.0f;   // on zoom move to center
+        xEarthOffs = 0.0f;   // on zoom move to center
+        xMoonOffs = 160.0f + (EARTH_DIST_CENTER - viewPos.z) * 8.0f;
     }
     else if (viewPos.z < (EARTH_DIST_CENTER - EARTH_OFFS)) {
-        xOffs = (std::abs(EARTH_DIST_CENTER) - viewPos.z);
+        xEarthOffs = (std::abs(EARTH_DIST_CENTER) - viewPos.z);
+        xMoonOffs = ((EARTH_DIST_CENTER - EARTH_OFFS) - viewPos.z) * 8.0f;
     }
-    // use a modified transform to display earth with a offset
-    Matrix earthProj = glm::translate(projin, glm::vec3{xOffs, 0.0f, 0.0f});
+    Position p_moon(MOON_XOFFS + xMoonOffs, 0.0f, 0.0f);    // avoid clipping by moving moon
+    m_moon->setPosition(p_moon);
+
+    // use a modified transform to display earth with a offset, issue: distorted shape ...
+    Matrix earthProj = glm::translate(projin, glm::vec3{xEarthOffs, 0.0f, 0.0f});
     Matrix earthProjView = earthProj * view;
     // earth
     m_earthContext->use();
@@ -589,26 +604,23 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     Glib::ustring buffer = date.format(prepared);
     float width = m_naviGlArea->get_width();
     float height = m_naviGlArea->get_height();
-    Matrix projFix = glm::orthoLH(-7.0f, 15.0f, -1.0f, height / 20.0f, getZNear(), getZFar());
+    Matrix projFix = glm::orthoLH(-7.0f, std::max(width/33.0f, 15.0f), -1.0f, height / 20.0f, getZNear(), getZFar());
     m_text->setText(buffer);        // display as HUD with simple transform
     std::list<Geometry *> geos;
     geos.push_back(m_text);
     m_textContext->display(projFix, geos);
     m_textContext->unuse();
 
-    // as the perspective approach is not right for the moon
-    //  (which is relative to its size is far away, so perspective is limiting view at sides (matters for phase))
-    //  try to use ortho which represents this situation better.
+    // the moon is relative to its size far away, so a perspective will limit our view at the sides (matters for phase))
+    //    use ortho which represents this situation best
     float winSizeMin = std::min(width, height);
     float winSizeDiv = winSizeMin / 10.0f;
-    Matrix moonProj = glm::orthoLH(-width / 10.0f, width / 10.0f, -winSizeDiv, winSizeDiv, getZNear(), getZFar());
-    auto moonView = Matrix{1.0f};
-    //glm::lookAt(
-    //    glm::length(moonViewPos) * direction,
-    //    Vector(MOON_OFFS, 0.0f, 0.0f),       // fix view on moon
-    //    up);    // place the moon at some offset (makes shapes oval... but better than slider)
-    //Matrix moonProj = glm::translate(moonView, glm::vec3{MOON_OFFS, 0.0f, 0.0f});
-    Matrix moonProjView = moonProj * moonView;    // * m_moonViewMat
+    // use LH as this makes out z-clip values get positive
+    Matrix moonProj = glm::ortho(-width / 10.0f, width / 10.0f, -winSizeDiv, winSizeDiv, -50.0f, 50.0f); // -100.0f, 20.0f
+    Matrix moonView{1.0f};
+
+    Matrix moonProjView = moonProj * moonView;
+    // to reach the expected result clip moon not earth needed to modified (as earth is fixed, i know, Galileo will not agree)
     // moon
     m_moonContext->use();
     m_moonTex->use(GL_TEXTURE0);
@@ -932,8 +944,6 @@ GlSphereView::julianDate()
     return JD;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
 static double
 constrain(double d)
 {
@@ -943,42 +953,62 @@ constrain(double d)
 	}
     return t;
 }
-#pragma GCC diagnostic pop
 
-// 0 new ... 0.5 full ... 1 new
-double
-GlSphereView::moonPhase()
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+static double
+moonPhaseLeagacy(double jd)
 {
     // https://www.subsystems.us/uploads/9/8/9/4/98948044/moonphase.pdf
-
-    double synMoon = 29.530589;
-    double JD = julianDate();
-    double daySinceNew = JD - 2451549.5;
+    double daySinceNew = jd - 2451549.5;
     //double newMoons = daySinceNew / synMoon;
-    double phaseMoon = std::fmod(daySinceNew, synMoon);
-    return phaseMoon / synMoon;
+    double phaseMoon = std::fmod(daySinceNew, GlSphereView::SYNOD_MOON);
+    auto phase = (phaseMoon / GlSphereView::SYNOD_MOON) * 2.0f * glm::pi<double>();
+    return phase;
+}
+#pragma GCC diagnostic pop
+
+// 0 new ... PI full ... 2*PI new
+double
+GlSphereView::moonPhase(double jd)
+{
 
     // complex algorithm as suggested by Greg Miller see https://celestialprogramming.com/
-    //const double T = JD / 36525.0;  // epoch centuries
-	//const double T2 = T * T;
-	//const double T3 = T2 * T;
-	//const double T4 = T3 * T;
-	//double D = glm::radians(constrain(297.8501921 + 445267.1114034*T - 0.0018819*T2 + 1.0/545868.0*T3 - 1.0/113065000.0*T4)); //47.2
-	//double M = glm::radians(constrain(357.5291092 + 35999.0502909*T - 0.0001536*T2 + 1.0/24490000.0*T3)); //47.3
-	//double Mp = glm::radians(constrain(134.9633964 + 477198.8675055*T + 0.0087414*T2 + 1.0/69699.0*T3 - 1.0/14712000.0*T4)); //47.4
+    const double T = (jd - MOON_J2000) / DAYS_PER_CENTURY;  // epoch centuries
+	const double T2 = T * T;
+	const double T3 = T2 * T;
+	const double T4 = T3 * T;
+	double D = glm::radians(constrain(297.8501921 + 445267.1114034*T - 0.0018819*T2 + 1.0/545868.0*T3 - 1.0/113065000.0*T4)); //47.2
+	double M = glm::radians(constrain(357.5291092 + 35999.0502909*T - 0.0001536*T2 + 1.0/24490000.0*T3)); //47.3
+	double Mp = glm::radians(constrain(134.9633964 + 477198.8675055*T + 0.0087414*T2 + 1.0/69699.0*T3 - 1.0/14712000.0*T4)); //47.4
 	//48.4
-	//double i = glm::radians(constrain(180.0 - glm::degrees(D) - 6.289 * std::sin(Mp) + 2.1 * std::sin(M) -1.274 * std::sin(2.0*D - Mp) -0.658 * std::sin(2*D) -0.214 * std::sin(2*Mp) -0.11 * std::sin(D)));
-    //std::cout << __FILE__ << "::moonPhase"
-    //          <<  " i " << i << std::endl;
-    // requires adjusting offset + i / M_PI ....
+	double i = glm::radians(constrain(180.0 + glm::degrees(D) - 6.289 * std::sin(Mp) + 2.1 * std::sin(M) -1.274 * std::sin(2.0*D - Mp) -0.658 * std::sin(2*D) -0.214 * std::sin(2*Mp) -0.11 * std::sin(D)));
+    // the default semantic with 180.0 -... was:
+    //  0 -> full
+    // PI -> new
+    // 2PI ->full
+    i = std::fmod(i + glm::pi<double>(), 2.0 * glm::pi<double>());
+    return i;
 }
 
 void
 GlSphereView::calcuateMoonLight()
 {
-    double moonPh = moonPhase();    // the simple stuff is sufficient for our display
+    Glib::DateTime  now = Glib::DateTime::create_now_utc();
+    //double jd = ((static_cast<double>(now.to_unix()) / S_PER_JULIAN_YEAR) + JULIAN_1970_OFFS);
+    //for (int i = 0; i < 30; ++i) {
+    //    auto phase = moonPhase(jd);
+    //    auto phaseLega = moonPhaseLeagacy(jd);
+    //    std::cout << __FILE__ << "::moonPhase"
+    //              << std::format(" i {:4d} jd {:18.3f} moonPh {:6.3f} leagacy {:6.3f} diff {:6.3f}",
+    //                             i, jd, phase, phaseLega, (phaseLega - phase))
+    //              << std::endl;
+    //    jd += 1.0;
+    //}
+    double jd = ((static_cast<double>(now.to_unix()) / S_PER_JULIAN_YEAR) + JULIAN_1970_OFFS);
+    double moonPh = moonPhase(jd);    // the simple stuff is sufficient for our display
 
-    float r = (moonPh * 2.0f * M_PI);
+    float r = (moonPh);
     float x = -std::sin(r);
     float y = 0.0f;
     float z = std::cos(r);
