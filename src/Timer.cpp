@@ -175,20 +175,26 @@ TimerChrono::TimerChrono(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builde
 bool
 TimerChrono::updateTime(int hours, int minutes)
 {
+    using chronoMicroSeconds = std::chrono::duration<uint64_t, std::ratio<1,1000000>>;
     using chronoMinutes = std::chrono::duration<uint64_t, std::ratio<60>>;
     using chronoHours = std::chrono::duration<uint64_t, std::ratio<60*60>>;
     // this seems to be correct, (even if i expected some leap second issues)
     using chronoDays = std::chrono::duration<uint64_t, std::ratio<24*60*60>>;    // 86400
     auto last_midnight = std::chrono::time_point_cast<chronoDays>(std::chrono::system_clock::now());
     //std::cout << __FILE__ << "::parseTimeValue"
-    //          << " midnight " << last_midnight
-    //          << " offs " << localZone->get_info(std::chrono::system_clock::now()).offset
-    //          << std::endl;
+    //          << " midnight " << last_midnight << std::endl;
     m_time = std::chrono::time_point<std::chrono::system_clock>(last_midnight);
     m_time += chronoHours{hours};
     m_time += chronoMinutes{minutes};
+#if ___GNUC__ >= 13
     auto localZone = std::chrono::current_zone();   // as our input counts as local, need to adjust to utc
     m_time -= localZone->get_info(m_time).offset;
+#else
+    auto time = g_date_time_new_now_local();
+    auto offs = g_date_time_get_utc_offset(time);
+    m_time -= chronoMicroSeconds(offs);
+    g_date_time_unref(time);
+#endif
     auto now = std::chrono::system_clock::now();
     if (now > m_time) {
         m_time += chronoHours{24};
@@ -208,18 +214,18 @@ TimerChrono::timeTimeout()
     //          << " time " << m_time
     //          << " now " << now
     //          << " elapsed " << elapsed
-    //          << " seconds " << seconds
-    //          << std::endl;
+    //          << " seconds " << seconds << std::endl;
     auto h = hours.count();
-    auto m = minutes.count() - h * 60;
-    auto s = seconds.count() - minutes.count() * 60;
+    auto m = minutes.count() - h * 60l;
+    auto s = seconds.count() - minutes.count() * 60l;
     if (h > 0 || m > 0 ||s > 0) {
         Glib::ustring remain;
         #if __GNUC__ >= 13
-        // the benefit is, here we get some type safety
+        // the benefit is, here we get some type safety!
         std::format_to(std::back_inserter(remain), "{:02}:{:02}:{:02}", h, m, s);
         #else
-        remain += Glib::ustring::sprintf("%02d:%02d:%02d", h, m, s);
+        remain += Glib::ustring::sprintf("%02d:%02d:%02d"
+            , static_cast<int>(h), static_cast<int>(m), static_cast<int>(s));
         #endif
         m_timeValue->set_text(remain);
         return true;
@@ -245,16 +251,16 @@ TimerChrono::timerTimeout()
     auto sec{seconds.count()};
     //std::cout << __FILE__ << "::timerTimeout elapsed " << elapsed
     //          << " seconds " << seconds
-    //          << " sec " << sec
-    //          << std::endl;
+    //          << " sec " << sec << std::endl;
     Glib::ustring remain;
-    auto minutes{sec / 60};
-    sec -= minutes * 60;
+    auto minutes{sec / 60l};
+    sec -= minutes * 60l;
     if (minutes > 0 || sec > 0) {
         #if __GNUC__ >= 13
         std::format_to(std::back_inserter(remain), "{:02}:{:02}", minutes, sec);
         #else
-        remain += Glib::ustring::sprintf("%02d:%02d", minutes, sec);
+        remain += Glib::ustring::sprintf("%02d:%02d"
+                , static_cast<int>(minutes), static_cast<int>(sec));
         #endif
         m_timerValue->set_text(remain);
         return true;
@@ -281,7 +287,7 @@ TimerGlib::timeTimeout()
 {
     auto now = Glib::DateTime::create_now_local();
     auto elapsed = m_time.difference(now);
-    auto hours = elapsed / (60l * 60l * GLIB_USEC);
+    auto hours = elapsed / (60l * 60l) / GLIB_USEC;
     auto minutes = (elapsed / (60l * GLIB_USEC)) % 60l;
     auto seconds = (elapsed / (GLIB_USEC)) % 60l;
     //std::cout << __FILE__ << "::timeTimeout"
@@ -291,11 +297,8 @@ TimerGlib::timeTimeout()
     //          << " seconds " << seconds << std::endl;
     if (hours > 0||minutes > 0 ||seconds > 0) {
         Glib::ustring remain;
-        #if __GNUC__ >= 13
-        std::format_to(std::back_inserter(remain), "{}:{:02}:{:02}", hours, minutes, seconds);
-        #else
-        remain += Glib::ustring::sprintf("%d:%02d:%02d", hours, minutes, seconds);
-        #endif
+        remain += Glib::ustring::sprintf("%d:%02d:%02d"
+            , static_cast<int>(hours), static_cast<int>(minutes), static_cast<int>(seconds));
         m_timeValue->set_text(remain);
         return true;
     }
@@ -314,7 +317,7 @@ TimerGlib::updateTimer(int minutes, int seconds)
 bool
 TimerGlib::timerTimeout()
 {
-    // monotonic would be better, but this matters only daylight switching
+    // monotonic would be better, but this matters only for daylight switching
     auto now = Glib::DateTime::create_now_local();
     auto elapsed = m_delay.difference(now);
     auto sec{elapsed / GLIB_USEC};
@@ -323,14 +326,11 @@ TimerGlib::timerTimeout()
     //          << " now " << now.format_iso8601()
     //          << " sec " << sec << std::endl;
     Glib::ustring remain;
-    auto minutes{sec / 60};
-    sec -= minutes * 60;
+    auto minutes{sec / 60l};
+    sec -= minutes * 60l;
     if (minutes > 0 || sec > 0) {
-        #if __GNUC__ >= 13
-        std::format_to(std::back_inserter(remain), "{}:{:02}", minutes, sec);
-        #else
-        remain += Glib::ustring::sptring("%d:02d", minutes, sec);
-        #endif
+        remain += Glib::ustring::sprintf("%d:%02d"
+            , static_cast<int>(minutes), static_cast<int>(sec));
         m_timerValue->set_text(remain);
         return true;
     }

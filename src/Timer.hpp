@@ -73,8 +73,6 @@ private:
 
 };
 
-// this looks for some parts a bit more convenient
-//   (at least for someone used to java ...)
 class TimerGlib
 : public Timer
 {
