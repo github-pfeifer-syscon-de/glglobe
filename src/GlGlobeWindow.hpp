@@ -19,6 +19,7 @@
 
 #include <gtkmm.h>
 #include <memory>
+
 #include "GlSphereView.hpp"
 #include "NaviGlArea.hpp"
 #include "Config.hpp"
@@ -40,4 +41,3 @@ private:
     GlSphereView *m_sphereView;
     std::shared_ptr<Config> m_config;
 };
-

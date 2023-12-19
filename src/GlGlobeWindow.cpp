@@ -19,11 +19,13 @@
 #include <thread>
 #include <future>
 #include <GenericGlmCompat.hpp>
+#include <StringUtils.hpp>
 
 #include "GlGlobeWindow.hpp"
 #include "GlGlobeApp.hpp"
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
+
 
 GlGlobeWindow::GlGlobeWindow()
 : Gtk::ApplicationWindow()
@@ -111,11 +113,16 @@ GlGlobeWindow::on_action_about()
             abtdlg->set_transient_for(*this);
             abtdlg->run();
             abtdlg->hide();
-        } else
-            std::cerr << __FILE__ << "::on_action_about(): No \"abt-dlg\" object in abt-dlg.ui"
+        }
+        else
+            std::cerr << std::source_location::current()
+                //<< " trace" << std::stacktract::current()
+                << " No \"abt-dlg\" object in abt-dlg.ui"
                 << std::endl;
-    } catch (const Glib::Error& ex) {
-        std::cerr << __FILE__ << "::on_action_about(): " << ex.what() << std::endl;
+    }
+    catch (const Glib::Error& ex) {
+        std::cerr << std::source_location::current()
+                  << ": " << ex.what() << std::endl;
     }
 }
 
@@ -134,11 +141,13 @@ GlGlobeWindow::on_action_Timer()
             delete timer; // keep running in background will not allow to hide after second show/run
         }
         else {
-            std::cerr << __FILE__ <<"::on_action_Timer(): No \"timer-dlg\" object in timer-dlg.ui" << std::endl;
+            std::cerr << std::source_location::current()
+                      << ": No \"timer-dlg\" object in timer-dlg.ui" << std::endl;
         }
     }
     catch (const Glib::Error& ex) {
-        std::cerr << __FILE__ <<"::on_action_Timer(): " << ex.what() << std::endl;
+        std::cerr << std::source_location::current()
+                  << ": " << ex.what() << std::endl;
     }
 
 }

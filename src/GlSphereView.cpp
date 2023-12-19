@@ -34,6 +34,7 @@
 #if __GNUC__ >= 13
 #include <format>
 #endif
+#include <StringUtils.hpp>
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
@@ -391,7 +392,8 @@ GlSphereView::refresh_weather_service()
 {
     Glib::ustring serviceId = m_config->getWeatherServiceId();
     #ifdef CONFIG_DEBUG
-    std::cout << "GlSphereView::refresh_weather_service " << serviceId << std::endl;
+    std::cout << std::source_location::current()
+              << " serviceId " << serviceId << std::endl;
     #endif
     m_weather.reset();
     auto serviceConf = m_config->getActiveWebMapServiceConf();
@@ -404,7 +406,8 @@ GlSphereView::refresh_weather_service()
             m_weather = std::make_shared<WebMapService>(this, serviceConf, m_config->getWeatherMinPeriodSec());
         }
         else {
-            std::cout << "GlSphereView::refresh_weather_service the requested type " << type << " was not found!" << std::endl;
+            std::cout << std::source_location::current()
+                      << " the requested type " << type << " was not found!" << std::endl;
         }
     }
     if (m_weather) {
@@ -421,7 +424,8 @@ GlSphereView::request_weather_product()
 {
     auto weatherProductId = m_config->getWeatherProductId();
     #ifdef CONFIG_DEBUG
-    std::cout << "GlSphereView::request_weather_product " << weatherProductId << std::endl;
+    std::cout << std::source_location::current()
+              << " weather_product " << weatherProductId << std::endl;
     #endif
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
@@ -463,7 +467,8 @@ GlSphereView::color_to_alpha(Glib::RefPtr<Gdk::Pixbuf> pix)
         }
     }
     else {
-        std::cout << "Try to change alpha on pixmap without alpha!!!" << std::endl;
+        std::cout << std::source_location::current()
+                  << " try to change alpha on pixmap without alpha!!!" << std::endl;
     }
 }
 
@@ -488,7 +493,8 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
             //std::cout << Weather::dump(pixdata, 64u) << std::endl;
             // copy to dest
             if (false) {
-            std::cout << "GlSphereView::weatherNotify got"
+            std::cout  << std::source_location::current()
+                      << " got"
                     //  << " xi " << request.get_pixX()
                     //  << " yi " << request.get_pixY()
                     //  << " width " << width
@@ -502,7 +508,8 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
         }
     }
     else {
-        std::cout << "GlSphereView::weatherNotify no dest pixbuf" << std::endl;
+        std::cout << std::source_location::current()
+                  << " no dest pixbuf" << std::endl;
     }
 }
 
@@ -999,7 +1006,7 @@ GlSphereView::calcuateMoonLight()
     //for (int i = 0; i < 30; ++i) {
     //    auto phase = moonPhase(jd);
     //    auto phaseLega = moonPhaseLeagacy(jd);
-    //    std::cout << __FILE__ << "::moonPhase"
+    //    std::cout << std::source_location::current() << "::moonPhase"
     //              << std::format(" i {:4d} jd {:18.3f} moonPh {:6.3f} leagacy {:6.3f} diff {:6.3f}",
     //                             i, jd, phase, phaseLega, (phaseLega - phase))
     //              << std::endl;
