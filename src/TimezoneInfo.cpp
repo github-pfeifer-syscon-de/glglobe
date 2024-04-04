@@ -52,9 +52,7 @@ void
 Hotspot::setVisible(bool visible)
 {
     // adapted Version set just child elements
-    std::list<Geometry *>::iterator p;
-    for (p = geometries.begin(); p != geometries.end(); ++p) {
-        Geometry *g = *p;
+    for (auto& g : geometries) {
         g->setVisible(visible);
     }
     if (m_text)

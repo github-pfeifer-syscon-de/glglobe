@@ -23,6 +23,7 @@
 #include <string>
 #include <locale>
 #include <memory>
+#include <Log.hpp>
 
 #include "Geometry.hpp"
 #include "Matrix.hpp"
@@ -36,6 +37,7 @@
 #include "MoonContext.hpp"
 #include "Config.hpp"
 #include "Weather.hpp"
+
 
 class ConfigDialog;
 class SphereGlArea;
@@ -147,6 +149,7 @@ private:
     static constexpr auto EARTH_OFFS{-20.0f};
     static constexpr auto EARTH_DIST_CENTER{50.0f};
 
+    std::shared_ptr<psc::log::Log> m_log;
 };
 
 struct RESOURCE {

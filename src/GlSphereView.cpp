@@ -68,6 +68,7 @@ GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
 , m_moonContext{nullptr}
 , m_moon{nullptr}
 , m_moonTex{nullptr}
+, m_log{std::make_shared<psc::log::Log>("glglobe")}
 {
 }
 
@@ -395,6 +396,7 @@ GlSphereView::refresh_weather_service()
     std::cout << std::source_location::current()
               << " serviceId " << serviceId << std::endl;
     #endif
+    m_log->info(Glib::ustring::sprintf("refresh serviceId %s", serviceId));
     m_weather.reset();
     auto serviceConf = m_config->getActiveWebMapServiceConf();
     if (serviceConf) {
@@ -406,11 +408,11 @@ GlSphereView::refresh_weather_service()
             m_weather = std::make_shared<WebMapService>(this, serviceConf, m_config->getWeatherMinPeriodSec());
         }
         else {
-            std::cout << std::source_location::current()
-                      << " the requested type " << type << " was not found!" << std::endl;
+            m_log->warn(Glib::ustring::sprintf("refresh serviceId %s", serviceId));
         }
     }
     if (m_weather) {
+        m_weather->setLog(m_log);
         m_weather->signal_products_completed().connect(
             sigc::mem_fun(*this, &GlSphereView::request_weather_product));
         m_weather->capabilities();
@@ -423,10 +425,7 @@ void
 GlSphereView::request_weather_product()
 {
     auto weatherProductId = m_config->getWeatherProductId();
-    #ifdef CONFIG_DEBUG
-    std::cout << std::source_location::current()
-              << " weather_product " << weatherProductId << std::endl;
-    #endif
+    m_log->info(Glib::ustring::sprintf("request weather_product %s", weatherProductId));
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
     if (!weatherProductId.empty() && m_weather) {
@@ -488,28 +487,18 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
         if (pix) {
             // modify alpha it the provided alpha isn't what you like
             //color_to_alpha(pix);
-            int pixwidth = pix->get_width();    // these will fit into our texture as we created it to fit
-            int pixheight = pix->get_height();
             //std::cout << Weather::dump(pixdata, 64u) << std::endl;
             // copy to dest
-            if (false) {
-            std::cout  << std::source_location::current()
-                      << " got"
-                    //  << " xi " << request.get_pixX()
-                    //  << " yi " << request.get_pixY()
-                    //  << " width " << width
-                    //  << " height " << height
-                      << " pixwidth  " << pixwidth
-                      << " pixheight  " << pixheight
-                      << std::endl;
-            }
+            m_log->info(Glib::ustring::sprintf("weather_image_notify width %d height %d", pix->get_width(), pix->get_height()));
             request.mapping(pix, m_weather_pix);
             update_weather_tex();
         }
+        else {
+            m_log->warn("notify no pixbuf from request");
+        }
     }
     else {
-        std::cout << std::source_location::current()
-                  << " no dest pixbuf" << std::endl;
+        m_log->warn("notify no weather pixbuf");
     }
 }
 
@@ -613,7 +602,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     float height = m_naviGlArea->get_height();
     Matrix projFix = glm::orthoLH(-7.0f, std::max(width/33.0f, 15.0f), -1.0f, height / 20.0f, getZNear(), getZFar());
     m_text->setText(buffer);        // display as HUD with simple transform
-    std::list<Geometry *> geos;
+    std::list<Displayable *> geos;
     geos.push_back(m_text);
     m_textContext->display(projFix, geos);
     m_textContext->unuse();
@@ -960,20 +949,6 @@ constrain(double d)
 	}
     return t;
 }
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-static double
-moonPhaseLeagacy(double jd)
-{
-    // https://www.subsystems.us/uploads/9/8/9/4/98948044/moonphase.pdf
-    double daySinceNew = jd - 2451549.5;
-    //double newMoons = daySinceNew / synMoon;
-    double phaseMoon = std::fmod(daySinceNew, GlSphereView::SYNOD_MOON);
-    auto phase = (phaseMoon / GlSphereView::SYNOD_MOON) * 2.0f * glm::pi<double>();
-    return phase;
-}
-#pragma GCC diagnostic pop
 
 // 0 new ... PI full ... 2*PI new
 double

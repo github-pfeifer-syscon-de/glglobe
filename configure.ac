@@ -24,10 +24,10 @@ AC_MSG_NOTICE([host_os $host_os])
 
 PKG_CHECK_MODULES(GTHREAD,gthread-2.0)
 
-PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.2.4])
-PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.2.2])
+PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.2.6])
+PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.3.0])
 
-PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.2])
+PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.3])
 
 PKG_CHECK_MODULES(GLIBMM,glibmm-2.4)
 
