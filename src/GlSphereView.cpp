@@ -70,6 +70,7 @@ GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
 , m_moonTex{nullptr}
 , m_log{std::make_shared<psc::log::Log>("glglobe")}
 {
+    m_log->setLevel(psc::log::Log::getLevel(m_config->getLogLevel()));
 }
 
 

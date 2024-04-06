@@ -59,6 +59,8 @@ Config::read()
                     m_weatherProductId = m_config->get_string(GRP_MAIN, WEATHER_PRODUCT);
                 if (m_config->has_key(GRP_MAIN, WEATHER_TRANSP))
                     m_weatherTransparency = m_config->get_double(GRP_MAIN, WEATHER_TRANSP);
+                if (m_config->has_key(GRP_MAIN, LOG_LEVEL))
+                    m_logLevel = m_config->get_string(GRP_MAIN, LOG_LEVEL);
                 if (m_config->has_key(GRP_MAIN, GEO_JSON_FILE))
                     m_geoJsonFile = m_config->get_string(GRP_MAIN, GEO_JSON_FILE);
                 if (m_config->has_key(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS))
@@ -148,6 +150,7 @@ Config::save()
         m_config->set_string(GRP_MAIN, WEATHER_PRODUCT, m_weatherProductId);
         m_config->set_double(GRP_MAIN, WEATHER_TRANSP, m_weatherTransparency);
         m_config->set_string(GRP_MAIN, GEO_JSON_FILE, m_geoJsonFile);
+        m_config->set_string(GRP_MAIN, LOG_LEVEL, m_logLevel);
         m_config->set_string(GRP_TIME, TIMER_VALUE, m_timerValue);
         m_config->set_string(GRP_TIME, TIME_VALUE, m_timeValue);
         m_config->set_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS, m_waether_min_period_sec);
@@ -409,6 +412,12 @@ Glib::ustring
 Config::getTimeValue()
 {
     return m_timeValue;
+}
+
+Glib::ustring
+Config::getLogLevel()
+{
+    return m_logLevel;
 }
 
 void
