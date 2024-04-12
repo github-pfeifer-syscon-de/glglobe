@@ -4,14 +4,8 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)."\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
-	$(GENERICGLM_CFLAGS) \
-	$(GENERICIMG_CFLAGS) \
 	$(GEODATA_CFLAGS) \
-	$(GTKMM_CFLAGS) \
-	$(GLIBMM_CFLAGS) \
 	$(GTHREAD_CFLAGS) \
-	$(LIBSOUP3_CFLAGS) \
-	$(JSONGLIB1_CFLAGS) \
 	$(EPOXY_CFLAGS)
 
 AM_CFLAGS= \
@@ -56,14 +50,8 @@ glglobe_SOURCES = \
 glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
 
-glglobe_LDADD = $(GENERICGLM_LIBS) \
-	$(GENERICIMG_LIBS) \
-	$(GEODATA_LIBS) \
-	$(GLIBMM_LIBS) \
-	$(GTKMM_LIBS) \
+glglobe_LDADD = $(GEODATA_LIBS) \
 	$(GTHREAD_LIBS) \
-	$(LIBSOUP3_LIBS) \
-	$(JSONGLIB1_LIBS) \
 	$(EPOXY_LIBS)
 
 # Remove ui directory on uninstall
