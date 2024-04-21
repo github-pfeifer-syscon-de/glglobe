@@ -24,16 +24,17 @@
 #include <locale>
 #include <memory>
 #include <Log.hpp>
+#include <Geom2.hpp>
+#include <Text2.hpp>
+#include <Matrix.hpp>
+#include <SphereContext.hpp>
+#include <TextContext.hpp>
+#include <Font2.hpp>
+#include <NaviGlArea.hpp>
+#include <Scene.hpp>
+#include <MarkContext.hpp>
 
-#include "Geometry.hpp"
-#include "Matrix.hpp"
-#include "SphereContext.hpp"
-#include "TextContext.hpp"
-#include "Font.hpp"
-#include "NaviGlArea.hpp"
-#include "Scene.hpp"
 #include "TimezoneInfo.hpp"
-#include "MarkContext.hpp"
 #include "MoonContext.hpp"
 #include "Config.hpp"
 #include "Weather.hpp"
@@ -42,10 +43,13 @@
 class ConfigDialog;
 class SphereGlArea;
 
-class GlSphereView : public Scene, public WeatherConsumer {
+class GlSphereView
+: public Scene
+, public WeatherConsumer
+{
 public:
     GlSphereView(const std::shared_ptr<Config>& config);
-    virtual ~GlSphereView();
+    virtual ~GlSphereView() = default;
     Matrix getLookAt(Vector &position, Vector &direction, Vector &up) override;
     Position getIntialPosition() override;
     Rotational getInitalAngleDegree() override;
@@ -55,8 +59,8 @@ public:
     void init(Gtk::GLArea *glArea) override;
     void unrealize() override;
     void draw(Gtk::GLArea *glArea, Matrix &proj, Matrix &view) override;
-    std::string customize_time(std::string prepared);
-    Geometry *on_click_select(GdkEventButton* event, float mx, float my) override;
+    Glib::ustring customize_time(Glib::ustring prepared);
+    psc::gl::aptrGeom2 on_click_select(GdkEventButton* event, float mx, float my) override;
     std::shared_ptr<Config> get_config() {
         return m_config;
     }
@@ -102,7 +106,7 @@ protected:
     gboolean init_moon_shaders(Glib::Error &error);
     gboolean init_earth_shaders(Glib::Error &error);
     double moonPhase(double jd);
-    constexpr static auto S_PER_JULIAN_YEAR = 86400.0;
+    constexpr static auto SEC_PER_JULIAN_YEAR = 86400.0;
     constexpr static auto DAYS_PER_CENTURY = 36525.0;
     constexpr static auto JULIAN_1970_OFFS = 2440587.5;
     constexpr static auto MOON_J2000 = 2451545.0;
@@ -113,13 +117,13 @@ private:
     TextContext *m_textContext;
     SphereGlArea *m_naviGlArea;
     Matrix m_fixView;
-    Geometry *m_earth;
-    Tex *m_dayTex;
-    Tex *m_nightTex;
-    Tex *m_normalMapTex;
-    Tex *m_speculatMapTex;
-    Tex *m_weatherTex;
-    Font *m_font;
+    psc::gl::aptrGeom2 m_earth;
+    psc::gl::aptrTex2 m_dayTex;
+    psc::gl::aptrTex2 m_nightTex;
+    psc::gl::aptrTex2 m_normalMapTex;
+    psc::gl::aptrTex2 m_speculatMapTex;
+    psc::gl::aptrTex2 m_weatherTex;
+    psc::gl::ptrFont2 m_font;
     sigc::connection m_timer;               // Timer for regular updates
     Vector m_light;
     float m_earth_declination_deg;
@@ -127,20 +131,20 @@ private:
     Glib::ustring hm(const double& timeM);
     void calcuateLight();
     gboolean view_update();
-    Text *m_text;
-    Geometry *debugGeom;
-    TimezoneInfo *m_timezoneInfo;
+    psc::gl::aptrText2 m_text;
+    psc::gl::aptrGeom2 debugGeom;
+    std::shared_ptr<TimezoneInfo> m_timezoneInfo;
     MarkContext *m_markContext;
     double m_sunRise;
     double m_sunSet;
     std::shared_ptr<Weather> m_weather;
     Glib::RefPtr<Gdk::Pixbuf> m_weather_pix;
-    Geometry *geoJsonGeom;
+    psc::gl::aptrGeom2 geoJsonGeom;
     static constexpr float EARTH_RADIUS{30.0f};
     ConfigDialog *m_cfgdlg{nullptr};
     MoonContext *m_moonContext;
-    Geometry *m_moon;
-    Tex *m_moonTex;
+    psc::gl::aptrGeom2 m_moon;
+    psc::gl::aptrTex2 m_moonTex;
     Vector m_moonLight;
 
     // offs moon to display on single canvas

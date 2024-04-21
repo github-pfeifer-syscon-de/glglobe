@@ -21,7 +21,7 @@
 
 #include "GeoJsonGeometryHandler.hpp"
 
-GeoJsonGeometryHandler::GeoJsonGeometryHandler(Geometry* geometry, const Color& color, double geomRadius)
+GeoJsonGeometryHandler::GeoJsonGeometryHandler(const psc::gl::aptrGeom2& geometry, const Color& color, double geomRadius)
 : GeoJsonHandler()
 , m_geometry{geometry}
 , m_color{color}
@@ -69,9 +69,11 @@ GeoJsonGeometryHandler::addCoord(JsonArray* coord, bool last)
         pnt.x = (cosLat * sinLon) * m_geomRadius;    // match definition of texture at -180° from greenwich and wrap (date border)
         pnt.y = sinLat * m_geomRadius;
         pnt.z = (cosLat * cosLon)* m_geomRadius;
-        m_geometry->addPoint(&pnt, &m_color, nullptr, nullptr, nullptr, nullptr);
-        if (!m_first) {   // start with each poly
-            m_geometry->addIndex(m_count-1, m_count);    // create connected line
+        if (auto lgeo = m_geometry.lease()) {
+            lgeo->addPoint(&pnt, &m_color, nullptr, nullptr, nullptr, nullptr);
+            if (!m_first) {   // start with each poly
+                lgeo->addIndex(m_count-1, m_count);    // create connected line
+            }
         }
         m_first = false;
         ++m_count;

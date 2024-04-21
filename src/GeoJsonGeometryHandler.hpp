@@ -18,13 +18,13 @@
 #pragma once
 
 #include <GeoJson.hpp>
-#include <Geometry.hpp>
+#include <Geom2.hpp>
 
 class GeoJsonGeometryHandler
 : public GeoJsonHandler
 {
 public:
-    GeoJsonGeometryHandler(Geometry* geometry, const Color& color, double geomRadius);
+    GeoJsonGeometryHandler(const psc::gl::aptrGeom2& geometry, const Color& color, double geomRadius);
     virtual ~GeoJsonGeometryHandler() = default;
 
     void addFeature(JsonObject* feat) override {};
@@ -45,7 +45,7 @@ private:
     int m_count{0};
     static constexpr auto DEFAULT_JSON_POINT_LIMIT{65535};  // as we fixed index for geometry to ushort
     int m_pointsLimit{DEFAULT_JSON_POINT_LIMIT};
-    Geometry* m_geometry;
+    psc::gl::aptrGeom2 m_geometry;
     Color m_color;
     double m_geomRadius;
 };

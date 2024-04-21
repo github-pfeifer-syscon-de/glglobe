@@ -9,12 +9,15 @@ AM_CPPFLAGS = \
 	$(EPOXY_CFLAGS)
 
 AM_CFLAGS= \
-	-std=c17 -Wall
+	-Wall
 
-## if you really  want to be pedantic use -Wconversion
-
+## if you really  want to be pedantic use -Wconversion,
+## but i did not included casts when feasible
 AM_CXXFLAGS =\
-	-Wall -pedantic
+	-Wall \
+	-Wextra \
+	-Wno-unused-parameter \
+	-pedantic
 
 bin_PROGRAMS = glglobe
 
@@ -49,8 +52,9 @@ glglobe_SOURCES = \
 
 glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
-
-glglobe_LDADD = $(GEODATA_LIBS) \
+# -lstdc++_libbacktrace using stacktrace
+glglobe_LDADD = \
+	$(GEODATA_LIBS) \
 	$(GTHREAD_LIBS) \
 	$(EPOXY_LIBS)
 

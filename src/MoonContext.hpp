@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include "NaviContext.hpp"
+#include <NaviContext.hpp>
 
 
-class MoonContext : public NaviContext {
+class MoonContext
+: public NaviContext {
 public:
     MoonContext();
     virtual ~MoonContext();

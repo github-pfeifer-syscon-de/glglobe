@@ -31,13 +31,6 @@ GlGlobeApp::GlGlobeApp(int argc, char **argv)
 {
 }
 
-GlGlobeApp::GlGlobeApp(const GlGlobeApp& orig)
-{
-}
-
-GlGlobeApp::~GlGlobeApp()
-{
-}
 
 void
 GlGlobeApp::on_activate()

@@ -18,11 +18,13 @@
 
 #pragma once
 
-class GlGlobeApp : public Gtk::Application {
+class GlGlobeApp
+: public Gtk::Application
+{
 public:
     GlGlobeApp(int arc, char **argv);
-    GlGlobeApp(const GlGlobeApp& orig);
-    virtual ~GlGlobeApp();
+    GlGlobeApp(const GlGlobeApp& orig) = default;
+    virtual ~GlGlobeApp() = default;
 
     void on_activate() override;
     void on_startup() override;

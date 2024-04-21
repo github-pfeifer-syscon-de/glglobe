@@ -16,6 +16,7 @@
  */
 
 #include <glm/gtc/type_ptr.hpp>
+#include <Geom2.hpp>
 
 #include "SphereContext.hpp"
 
@@ -97,26 +98,26 @@ SphereContext::setLight(Position &light, float ambient, float diffuse, float spe
     glUniform1f(weather_alpha_location, weather_alpha);
 
     glUniform1i(m_day_tex_location, 0);     // this matches texture unit 0
-    checkError("glUniform1i (m_day_tex)");
+    psc::gl::checkError("glUniform1i (m_day_tex)");
     glUniform1i(m_night_tex_location, 1);   // this matches texture unit 1
-    checkError("glUniform1i (m_night_tex)");
+    psc::gl::checkError("glUniform1i (m_night_tex)");
     glUniform1i(m_normal_tex_location, 2);   // this matches texture unit 2
-    checkError("glUniform1i (m_normal_tex_location)");
+    psc::gl::checkError("glUniform1i (m_normal_tex_location)");
     glUniform1i(m_specular_tex_location, 3);   // this matches texture unit 3
-    checkError("glUniform1i (m_specular_tex_location)");
+    psc::gl::checkError("glUniform1i (m_specular_tex_location)");
     glUniform1i(m_weather_tex_location, 4);   // this matches texture unit 4
-    checkError("glUniform1i (m_weather_tex_location)");
+    psc::gl::checkError("glUniform1i (m_weather_tex_location)");
 
     //std::cout << "light "  << m_lightPosWorld << " " << lightPos.x << " " << lightPos.y << " " << lightPos[2] << std::endl;
     glUniform3fv(m_lightPosWorld, 1, glm::value_ptr(light));
-    checkError("glUniform3fv (light)");
+    psc::gl::checkError("glUniform3fv (light)");
 }
 
 void
 SphereContext::setDebug(unsigned int debug)
 {
     glUniform1i(m_debug, debug);
-    checkError("glUniform1i (debug)");
+    psc::gl::checkError("glUniform1i (debug)");
 }
 
 void
@@ -127,7 +128,7 @@ SphereContext::setModelView(glm::mat3x3 &modelView)
     //std::cout << "modelview[2] " << modelView[0][2] << " " << modelView[1][2] << " " << modelView[2][2] << std::endl;
     //std::cout << m_modelView3x3MatrixID << std::endl;
     glUniformMatrix3fv(m_modelView3x3MatrixID, 1, GL_FALSE, glm::value_ptr(modelView));
-    checkError("glUniformMatrix3fv (ModelView)");
+    psc::gl::checkError("glUniformMatrix3fv (ModelView)");
 }
 
 void
@@ -139,7 +140,7 @@ SphereContext::setModel(Matrix &model)
     //std::cout << "model[3] " << model[0][3] << " " << model[1][3] << " " << model[2][3] << " " << model[3][3] << std::endl;
     //std::cout << m_model_location << std::endl;
     glUniformMatrix4fv(m_model_location, 1, GL_FALSE, glm::value_ptr(model));
-    checkError("glUniformMatrix4fv (Model)");
+    psc::gl::checkError("glUniformMatrix4fv (Model)");
 }
 
 void
@@ -151,6 +152,6 @@ SphereContext::setView(Matrix &view)
     //std::cout << "view[3] " << view[0][3] << " " << view[1][3] << " " << view[2][3] << " " << view[3][3] << std::endl;
     //std::cout << m_view_location << std::endl;
     glUniformMatrix4fv(m_view_location, 1, GL_FALSE, glm::value_ptr(view));
-    checkError("glUniformMatrix4fv (View)");
+    psc::gl::checkError("glUniformMatrix4fv (View)");
 }
 

@@ -49,39 +49,18 @@ GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
 , m_earthContext{nullptr}
 , m_textContext{nullptr}
 , m_fixView{1.0f}
-, m_earth{nullptr}
-, m_dayTex{nullptr}
-, m_nightTex{nullptr}
-, m_normalMapTex{nullptr}
-, m_speculatMapTex{nullptr}
-, m_weatherTex{nullptr}
-, m_font{nullptr}
 , m_light()
 , m_earth_declination_deg{0.0}
-, m_text{nullptr}
-, debugGeom{nullptr}
 , m_timezoneInfo{nullptr}
 , m_markContext{nullptr}
 , m_sunRise{0.0}
 , m_sunSet{0.0}
-, geoJsonGeom{nullptr}
 , m_moonContext{nullptr}
-, m_moon{nullptr}
-, m_moonTex{nullptr}
 , m_log{psc::log::Log::create("glglobe")}
 {
     m_log->setLevel(psc::log::Log::getLevel(m_config->getLogLevel()));
 }
 
-
-GlSphereView::~GlSphereView()
-{
-    if (m_font != nullptr) {
-        #ifndef __WIN32__   // unclear why this fails for windows
-        delete m_font;
-        #endif
-    }
-}
 
 float
 GlSphereView::getZFar()
@@ -279,37 +258,43 @@ void
 GlSphereView::init(Gtk::GLArea *glArea)
 {
     m_naviGlArea = (SphereGlArea *)glArea;
-    m_earth = m_earthContext->createGeometry(GL_TRIANGLES);
-    //enable this to see normals, tangents and bitangents
-    //debugGeom = m_markContext->createGeometry(GL_LINES);
-    //m_earth->setDebugGeometry(debugGeom);
-    m_earth->addSphere(EARTH_RADIUS, 32, 32);  // with simplified calculation can use more details
-    checkError("add Sphere earth");
-    m_earth->create_vao();
-    Position p(0.0f, 0.0f, 0.0f);
-    m_earth->setPosition(p);
-    checkError("add createVao earth");
-    //std::cout << "geo vert: " << m_earth->getNumVertex()
-    //          << " idx: " << m_earth->getNumIndex()
-    //          << std::endl;
-    setDayTextureFile(m_config->getDayTextureFile());
-    setNightTextureFile(m_config->getNightTextureFile());
-	// take images from file should safe some memory
-    m_normalMapTex = Tex::fromFile(PACKAGE_DATA_DIR "/2k_earth_normal_map.tif");
-    m_speculatMapTex = Tex::fromFile(PACKAGE_DATA_DIR "/2k_earth_specular_map.tif");
-    m_weather_pix = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, true, 8, get_weather_image_size(), get_weather_image_size());
-    m_weather_pix->fill(0x00);  // transp. black
-    m_weatherTex = new Tex();
-    m_weatherTex->create(m_weather_pix);
-    refresh_weather_service();
-
-    m_font = new Font("sans-serif");    // Css2 name should give use some sans font
-    m_text = new Text(GL_TRIANGLES, m_textContext, m_font);
-    Position pt(0.0f, 0.0f, 10.0f);
-    m_text->setScale(0.020f);
-    m_text->setPosition(pt);
-
-    m_timezoneInfo = new TimezoneInfo();
+    m_earth = psc::mem::make_active<psc::gl::Geom2>(GL_TRIANGLES, m_earthContext);
+    m_earthContext->addGeometry(m_earth);
+    if (auto learth = m_earth.lease()) {
+        //enable this to see normals, tangents and bitangents
+        //debugGeom = m_markContext->createGeometry(GL_LINES);
+        //m_earth->setDebugGeometry(debugGeom);
+        learth->addSphere(EARTH_RADIUS, 32, 32);  // with simplified calculation can use more details
+        checkError("add Sphere earth");
+        learth->create_vao();
+        Position p(0.0f, 0.0f, 0.0f);
+        learth->setPosition(p);
+        checkError("add createVao earth");
+        //std::cout << "geo vert: " << m_earth->getNumVertex()
+        //          << " idx: " << m_earth->getNumIndex()
+        //          << std::endl;
+        setDayTextureFile(m_config->getDayTextureFile());
+        setNightTextureFile(m_config->getNightTextureFile());
+        // take images from file should safe some memory
+        m_normalMapTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_normal_map.tif");
+        m_speculatMapTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_specular_map.tif");
+        m_weather_pix = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, true, 8, get_weather_image_size(), get_weather_image_size());
+        m_weather_pix->fill(0x00);  // transp. black
+        m_weatherTex = psc::mem::make_active<psc::gl::Tex2>();
+        if (auto lweatherTex = m_weatherTex.lease()) {
+            lweatherTex->create(m_weather_pix);
+        }
+        refresh_weather_service();
+    }
+    m_font = std::make_shared<psc::gl::Font2>("sans-serif");    // Css2 name should give use some sans font
+    m_text = psc::mem::make_active<psc::gl::Text2>(GL_TRIANGLES, m_textContext, m_font);
+    m_textContext->addGeometry(m_text);
+    if (auto ltext = m_text.lease()) {
+        Position pt(0.0f, 0.0f, 10.0f);
+        ltext->setScale(0.020f);
+        ltext->setPosition(pt);
+    }
+    m_timezoneInfo = std::make_shared<TimezoneInfo>();
     m_timezoneInfo->createGeometry(m_markContext, m_textContext, m_font);
 
     setGeoJsonFile(m_config->getGeoJsonFile());
@@ -320,17 +305,20 @@ GlSphereView::init(Gtk::GLArea *glArea)
     m_naviGlArea->updateView();
     view_update();
 
-    m_moon = m_moonContext->createGeometry(GL_TRIANGLES);
-    // with simplified calculation can use more details
-    m_moon->addSphere(20.0f, 24, 24);
-    checkError("add Sphere moon");
-    m_moon->create_vao();
-    Position p_moon(MOON_XOFFS, 0.0f, 0.0f);
-    m_moon->setPosition(p_moon);
-    Rotational rotT(180.0f, 0.0f, 0.0f);        // we build the model for look at, but now we are not using it...
-    m_moon->setRotation(rotT);
-    checkError("add createVao moon");
-    m_moonTex = Tex::fromFile(PACKAGE_DATA_DIR "/2k_moon.jpg");
+    m_moon = psc::mem::make_active<psc::gl::Geom2>(GL_TRIANGLES, m_moonContext);
+    m_moonContext->addGeometry(m_moon);
+    if (auto lmoon = m_moon.lease()) {
+        // with simplified calculation can use more details
+        lmoon->addSphere(20.0f, 24, 24);
+        checkError("add Sphere moon");
+        lmoon->create_vao();
+        Position p_moon(MOON_XOFFS, 0.0f, 0.0f);
+        lmoon->setPosition(p_moon);
+        Rotational rotT(180.0f, 0.0f, 0.0f);        // we build the model for look at, but now we are not using it...
+        lmoon->setRotation(rotT);
+        checkError("add createVao moon");
+    }
+    m_moonTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_moon.jpg");
 }
 
 void
@@ -339,54 +327,30 @@ GlSphereView::unrealize()
     if (m_timer.connected()) {
         m_timer.disconnect(); // No more updating
     }
-    if (m_text != nullptr) {
-        delete m_text;
-    }
-    if (m_earth != nullptr) {
-        delete m_earth;
-    }
+    m_text.reset();
+    m_earth.reset();
     if (m_earthContext != nullptr) {
         delete m_earthContext;
     }
     if (m_textContext != nullptr) {
         delete m_textContext;
     }
-    if (m_dayTex != nullptr) {
-        delete m_dayTex;
-    }
-    if (m_nightTex != nullptr) {
-        delete m_nightTex;
-    }
-    if (m_normalMapTex != nullptr) {
-        delete m_normalMapTex;
-    }
-    if (m_speculatMapTex != nullptr) {
-        delete m_speculatMapTex;
-    }
-    if (m_weatherTex != nullptr) {
-        delete m_weatherTex;
-    }
-    if (debugGeom != nullptr) {
-        delete debugGeom;
-    }
-    if (m_timezoneInfo != nullptr) {
-        delete m_timezoneInfo;
-    }
+    m_dayTex.reset();
+    m_nightTex.reset();
+    m_normalMapTex.reset();
+    m_speculatMapTex.reset();
+    m_weatherTex.reset();
+    debugGeom.reset();
+    m_timezoneInfo.reset();
     if (m_markContext) {
         delete m_markContext;
     }
-    if (geoJsonGeom) {
-        delete geoJsonGeom;
-    }
-   if (m_moon != nullptr) {
-        delete m_moon;
-    }
+    geoJsonGeom.reset();
+    m_moon.reset();
     if (m_moonContext != nullptr) {
         delete m_moonContext;
     }
-    if (m_moonTex != nullptr) {
-        delete m_moonTex;
-    }
+    m_moonTex.reset();
 }
 
 std::shared_ptr<Weather>
@@ -476,7 +440,9 @@ void
 GlSphereView::update_weather_tex()
 {
     m_naviGlArea->make_current();   // context for gl calls
-    m_weatherTex->create(m_weather_pix);
+    if (auto lweatherTex = m_weatherTex.lease()) {
+        lweatherTex->create(m_weather_pix);
+    }
     m_naviGlArea->queue_draw();     // refresh
 }
 
@@ -541,92 +507,127 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         xEarthOffs = (std::abs(EARTH_DIST_CENTER) - viewPos.z);
         xMoonOffs = ((EARTH_DIST_CENTER - EARTH_OFFS) - viewPos.z) * 8.0f;
     }
-    Position p_moon(MOON_XOFFS + xMoonOffs, 0.0f, 0.0f);    // avoid clipping by moving moon
-    m_moon->setPosition(p_moon);
+    auto learth = m_earth.lease();
+    auto ldayTex = m_dayTex.lease();
+    auto lnightTex = m_nightTex.lease();
+    auto lnormalMapTex = m_normalMapTex.lease();
+    auto lspeculatMapTex = m_speculatMapTex.lease();
+    auto lweatherTex = m_weatherTex.lease();
+    if (learth
+     && ldayTex
+     && lnightTex
+     && lnormalMapTex
+     && lspeculatMapTex) {
+        // use a modified transform to display earth with a offset, issue: distorted shape ...
+        Matrix earthProj = glm::translate(projin, glm::vec3{xEarthOffs, 0.0f, 0.0f});
+        Matrix earthProjView = earthProj * view;
+        // earth
+        m_earthContext->use();
+        checkError("useSpherectx");
+        ldayTex->use(GL_TEXTURE0);
+        lnightTex->use(GL_TEXTURE1);
+        lnormalMapTex->use(GL_TEXTURE2);
+        lspeculatMapTex->use(GL_TEXTURE3);
 
-    // use a modified transform to display earth with a offset, issue: distorted shape ...
-    Matrix earthProj = glm::translate(projin, glm::vec3{xEarthOffs, 0.0f, 0.0f});
-    Matrix earthProjView = earthProj * view;
-    // earth
-    m_earthContext->use();
-    checkError("useSpherectx");
-    m_dayTex->use(GL_TEXTURE0);
-    m_nightTex->use(GL_TEXTURE1);
-    m_normalMapTex->use(GL_TEXTURE2);
-    m_speculatMapTex->use(GL_TEXTURE3);
-    m_weatherTex->use(GL_TEXTURE4);
-    checkError("tex use");
+        if (lweatherTex) {
+            lweatherTex->use(GL_TEXTURE4);
+        }
+        checkError("tex use");
 
-    Position lightPos = m_light * m_config->getDistance();
-    m_earthContext->setLight(lightPos, m_config->getAmbient(), m_config->getDiffuse(),
+        Position lightPos = m_light * m_config->getDistance();
+        m_earthContext->setLight(lightPos, m_config->getAmbient(), m_config->getDiffuse(),
                             m_config->getSpecular(), m_config->getTwilight(),
                             m_config->getSpecularPower(),
                             m_config->getWeatherTransparency());
-    m_earthContext->setDebug(m_config->getDebug());
-    // used for normal map
-    glm::mat4 modelViewMatrix = view * m_earth->getTransform();
-    glm::mat3 modelView3x3Matrix = glm::mat3(modelViewMatrix); // Take the upper-left part of ModelViewMatrix
-    m_earthContext->setModelView(modelView3x3Matrix);
-    m_earthContext->setModel(m_earth->getTransform());
-    m_earthContext->setView(view);
+        m_earthContext->setDebug(m_config->getDebug());
+        // used for normal map
+        glm::mat4 modelViewMatrix = view * learth->getTransform();
+        glm::mat3 modelView3x3Matrix = glm::mat3(modelViewMatrix); // Take the upper-left part of ModelViewMatrix
+        m_earthContext->setModelView(modelView3x3Matrix);
+        m_earthContext->setModel(learth->getTransform());
+        m_earthContext->setView(view);
 
-    m_earthContext->display(earthProjView);
+        //learth->display(m_earthContext, earthProjView);
+        m_earthContext->display(earthProjView);
 
-    m_earthContext->unuse();
-    m_dayTex->unuse();
-    m_nightTex->unuse();
-    m_normalMapTex->unuse();
-    m_speculatMapTex->unuse();
-    m_weatherTex->unuse();
+        m_earthContext->unuse();
+        ldayTex->unuse();
+        lnightTex->unuse();
+        lnormalMapTex->unuse();
+        lspeculatMapTex->unuse();
+        lweatherTex->unuse();
+        //Rotational rinv(rot.getPhi(), rot.getTheta(), rot.getPsi());
+        //m_timezoneInfo->updateRot(rinv);
+        Matrix projViewSphere = earthProjView * learth->getTransform();
+        m_markContext->use();
+        glLineWidth(1.0f);      // 2.0f has deprecated issues win/intel ogl
+        // pointSize set in shader and enabled by glEnable(GL_PROGRAM_POINT_SIZE);
+        m_markContext->display(projViewSphere);
+        m_markContext->unuse();
 
-    //Rotational rinv(rot.getPhi(), rot.getTheta(), rot.getPsi());
-    //m_timezoneInfo->updateRot(rinv);
-    Matrix projViewSphere = earthProjView * m_earth->getTransform();
-    m_markContext->use();
-    glLineWidth(1.0f);      // 2.0f has deprecated issues win/intel ogl
-    // pointSize set in shader and enabled by glEnable(GL_PROGRAM_POINT_SIZE);
-    m_markContext->display(projViewSphere);
-    m_markContext->unuse();
-
-    m_textContext->use();
-    Color cGreen = Color(0.0f, 1.0f, 0.5f);
-    m_textContext->setColor(cGreen);
-    m_textContext->setTexture(0);
-    m_textContext->display(projViewSphere);
-
-    Color cBlue = Color(0.3f, 0.5f, 1.0f);
-    m_textContext->setColor(cBlue);
-    Glib::DateTime date = Glib::DateTime::create_now_local();
-    std::string prepared = customize_time(m_config->getTimeFormat());
-    Glib::ustring buffer = date.format(prepared);
+        m_textContext->use();
+        Color cGreen = Color(0.0f, 1.0f, 0.5f);
+        m_textContext->setColor(cGreen);
+        m_textContext->setTexture(0);
+        m_textContext->display(projViewSphere);
+    }
+    else {
+        m_log->error(Glib::ustring::sprintf("missing resource to display earth earth %s dayTex %s nightTex %s normTex %s spec %s weather %s",
+                    (learth ? "y" : "n")
+                    , (ldayTex ? "y" : "n")
+                    , (lnightTex ? "y" : "n")
+                    , (lnormalMapTex ? "y" : "n")
+                    , (lspeculatMapTex ? "y" : "n")
+                    , (lweatherTex ? "y" : "n")));
+    }
     float width = m_naviGlArea->get_width();
     float height = m_naviGlArea->get_height();
-    Matrix projFix = glm::orthoLH(-7.0f, std::max(width/33.0f, 15.0f), -1.0f, height / 20.0f, getZNear(), getZFar());
-    m_text->setText(buffer);        // display as HUD with simple transform
-    std::list<Displayable *> geos;
-    geos.push_back(m_text);
-    m_textContext->display(projFix, geos);
-    m_textContext->unuse();
+    auto ltext = m_text.lease();
+    if (ltext) {
+        Color cBlue = Color(0.3f, 0.5f, 1.0f);
+        m_textContext->setColor(cBlue);
+        Glib::DateTime date = Glib::DateTime::create_now_local();
+        std::string prepared = customize_time(m_config->getTimeFormat());
+        Glib::ustring buffer = date.format(prepared);
+        Matrix projFix = glm::orthoLH(-7.0f, std::max(width/33.0f, 15.0f), -1.0f, height / 20.0f, getZNear(), getZFar());
+        ltext->setText(buffer);        // display as HUD with simple transform
+        //ltext->display(m_textContext,  projFix);
+        m_textContext->display(projFix);
+        m_textContext->unuse();
+    }
+    auto lmoon = m_moon.lease();
+    auto lmoonTex = m_moonTex.lease();
+    if (lmoon
+     && lmoonTex) {
+        Position p_moon(MOON_XOFFS + xMoonOffs, 0.0f, 0.0f);    // avoid clipping by moving moon
+        lmoon->setPosition(p_moon);
+        // the moon is relative to its size far away, so a perspective will limit our view at the sides (matters for phase))
+        //    use ortho which represents this situation best
+        float winSizeMin = std::min(width, height);
+        float winSizeDiv = winSizeMin / 10.0f;
+        // use LH as this makes out z-clip values get positive
+        Matrix moonProj = glm::ortho(-width / 10.0f, width / 10.0f, -winSizeDiv, winSizeDiv, -50.0f, 50.0f); // -100.0f, 20.0f
+        Matrix moonView{1.0f};
 
-    // the moon is relative to its size far away, so a perspective will limit our view at the sides (matters for phase))
-    //    use ortho which represents this situation best
-    float winSizeMin = std::min(width, height);
-    float winSizeDiv = winSizeMin / 10.0f;
-    // use LH as this makes out z-clip values get positive
-    Matrix moonProj = glm::ortho(-width / 10.0f, width / 10.0f, -winSizeDiv, winSizeDiv, -50.0f, 50.0f); // -100.0f, 20.0f
-    Matrix moonView{1.0f};
+        Matrix moonProjView = moonProj * moonView;
+        // to reach the expected result clip moon not earth needed to modified (as earth is fixed, i know, Galileo will not agree)
+        // moon
+        m_moonContext->use();
+        lmoonTex->use(GL_TEXTURE0);
+        m_moonContext->setLight(m_moonLight);
 
-    Matrix moonProjView = moonProj * moonView;
-    // to reach the expected result clip moon not earth needed to modified (as earth is fixed, i know, Galileo will not agree)
-    // moon
-    m_moonContext->use();
-    m_moonTex->use(GL_TEXTURE0);
-    m_moonContext->setLight(m_moonLight);
+        m_moonContext->display(moonProjView);
+        //lmoon->display(m_moonContext, moonProjView);
 
-    m_moonContext->display(moonProjView);
+        m_moonContext->unuse();
+        lmoonTex->unuse();
+    }
+    else {
+        m_log->error(Glib::ustring::sprintf("missing resource to display moon %s tex %s",
+                    (lmoon ? "y" : "n")
+                    , (lmoonTex ? "y" : "n")));
 
-    m_moonContext->unuse();
-    m_moonTex->unuse();
+    }
 }
 
 Glib::ustring
@@ -639,27 +640,27 @@ GlSphereView::hm(const double& timeM)
 }
 
 // prepare time-format with our extension %rise,%set,%D,%weather and \n
-std::string
-GlSphereView::customize_time(std::string prepared)
+Glib::ustring
+GlSphereView::customize_time(Glib::ustring prepared)
 {
-    int pos = prepared.find("%D", 0);
-    if (pos >= 0) { // use std format with %D for declication
+    auto pos = prepared.find("%D", 0);
+    if (pos != Glib::ustring::npos) { // use std format with %D for declication
         Glib::ustring fmt{"%.1f°"};
         Glib::ustring d(Glib::ustring::sprintf(fmt, m_earth_declination_deg));
         prepared.replace(pos, 2, d);
     }
 	pos = prepared.find("%rise", 0);
-    if (pos >= 0) {
+    if (pos != Glib::ustring::npos) {
         auto shm = hm(m_sunRise);
         prepared.replace(pos, 5, shm);
     }
 	pos = prepared.find("%set", 0);
-    if (pos >= 0) {
+    if (pos != Glib::ustring::npos) {
         auto shm = hm(m_sunSet);
         prepared.replace(pos, 4, shm);
     }
 	pos = prepared.find("%weather", 0);
-    if (pos >= 0) {
+    if (pos != Glib::ustring::npos) {
         Glib::ustring info;
         if (m_weather) {
             auto prod = m_weather->find_product(m_config->getWeatherProductId());
@@ -672,21 +673,14 @@ GlSphereView::customize_time(std::string prepared)
         }
         prepared.replace(pos, 8, info);
     }
-
-    while (true) { // use std format with \n for newline
-        pos = prepared.find("\\n", 0);
-        if (pos < 0) {
-            break;
-        }
-        prepared.replace(pos, 2, "\n");
-    }
+    prepared = StringUtils::replaceAll(prepared, "\\n", "\n");
     return prepared;
 }
 
-Geometry *
+psc::gl::aptrGeom2
 GlSphereView::on_click_select(GdkEventButton* event, float mx, float my)
 {
-    Geometry *selected = m_markContext->hit(mx, my);
+    auto selected = m_markContext->hit2(mx, my);
     return selected;
 }
 
@@ -700,15 +694,17 @@ GlSphereView::on_motion_notify_event(GdkEventMotion* event, float mx, float my)
         if (m_timezoneInfo) {
             m_timezoneInfo->setAllVisible(false);
         }
-        Geometry *globe = m_earthContext->hit(mx, my);
-        if (globe == nullptr) {
+        auto globe = m_earthContext->hit2(mx, my);
+        if (!globe) {
             m_timezoneInfo->setDotVisible(false);
             return false;
         }
         m_timezoneInfo->setDotVisible(true);
-        Geometry *selected = m_markContext->hit(mx, my);
-        if (selected != nullptr) {
-            selected->setVisible(true);
+        auto selected = m_markContext->hit2(mx, my);
+        if (selected) {
+            if (auto lsel = selected.lease()) {
+                lsel->setVisible(true);
+            }
         }
         m_naviGlArea->queue_draw();
     }
@@ -747,11 +743,10 @@ GlSphereView::lat_changed(Gtk::SpinButton* lat_spin)
 void
 GlSphereView::setDayTextureFile(std::string &dayTex)
 {
-    Tex *old = m_dayTex;
     bool def = true;
     if (dayTex.length() > 0) {
         try {
-            m_dayTex = Tex::fromFile(dayTex);
+            m_dayTex = psc::gl::Tex2::fromFile(dayTex);
             def = false;
             m_config->setDayTextureFile(dayTex);
         }
@@ -760,12 +755,10 @@ GlSphereView::setDayTextureFile(std::string &dayTex)
         }
     }
     if (def) {
-        m_dayTex = Tex::fromFile(PACKAGE_DATA_DIR "/2k_earth_daymap.jpg");
+        m_dayTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_daymap.jpg");
 		//m_dayTex = Tex::fromResource(RESOURCE::resource("2k_earth_daymap.jpg"));
         m_config->setDayTextureFile("");
     }
-    if (old != nullptr)
-        delete old;
     m_naviGlArea->queue_draw();
 }
 
@@ -821,11 +814,10 @@ GlSphereView::distance_changed(Gtk::Scale* distance)
 void
 GlSphereView::setNightTextureFile(std::string &nightTex)
 {
-    Tex *old = m_nightTex;
     bool def = true;
     if (nightTex.length() > 0) {
         try {
-            m_nightTex = Tex::fromFile(nightTex);
+            m_nightTex = psc::gl::Tex2::fromFile(nightTex);
             def = false;
             m_config->setNightTexureFile(nightTex);
         }
@@ -834,22 +826,16 @@ GlSphereView::setNightTextureFile(std::string &nightTex)
         }
     }
     if (def) {
-        m_nightTex = Tex::fromFile(PACKAGE_DATA_DIR "/2k_earth_nightmap.jpg");
+        m_nightTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_nightmap.jpg");
 		//m_nightTex = Tex::fromResource(RESOURCE::resource("2k_earth_nightmap.jpg"));
         m_config->setNightTexureFile("");
     }
-    if (old != nullptr)
-        delete old;
     m_naviGlArea->queue_draw();
 }
 
 bool
 GlSphereView::setGeoJsonFile(const Glib::ustring& file)
 {
-    if (geoJsonGeom) {
-        delete geoJsonGeom;
-        geoJsonGeom = nullptr;
-    }
     bool ret = false;
     if (!file.empty()) {
         Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(file);
@@ -867,20 +853,22 @@ GlSphereView::setGeoJsonFile(const Glib::ustring& file)
             }
             else {
                 m_naviGlArea->make_current();
-                geoJsonGeom = m_markContext->createGeometry(GL_LINES);
-                geoJsonGeom->setMarkable(false);
-                try {
-                    Color color(0.6f, 0.6f, 0.6f);
-                    GeoJsonGeometryHandler handler(geoJsonGeom, color, EARTH_RADIUS + 0.01);
-                    GeoJson geoJson;
-                    geoJson.read(file, &handler);
-                    geoJsonGeom->create_vao();
-                    ret = true;
-                }
-                catch (const JsonException& ex) {
-                    delete geoJsonGeom; // this would be unusable
-                    auto msg = ex.what();
-                    show_error(msg);
+                geoJsonGeom = psc::mem::make_active<psc::gl::Geom2>(GL_LINES, m_markContext);
+                m_markContext->addGeometry(geoJsonGeom);
+                if (auto lgeoJson = geoJsonGeom.lease()) {
+                    lgeoJson->setMarkable(false);
+                    try {
+                        Color color(0.6f, 0.6f, 0.6f);
+                        GeoJsonGeometryHandler handler(geoJsonGeom, color, EARTH_RADIUS + 0.01);
+                        GeoJson geoJson;
+                        geoJson.read(file, &handler);
+                        lgeoJson->create_vao();
+                        ret = true;
+                    }
+                    catch (const JsonException& ex) {
+                        auto msg = ex.what();
+                        show_error(msg);
+                    }
                 }
             }
         }
@@ -988,7 +976,7 @@ GlSphereView::calcuateMoonLight()
     //              << std::endl;
     //    jd += 1.0;
     //}
-    double jd = ((static_cast<double>(now.to_unix()) / S_PER_JULIAN_YEAR) + JULIAN_1970_OFFS);
+    double jd = ((static_cast<double>(now.to_unix()) / SEC_PER_JULIAN_YEAR) + JULIAN_1970_OFFS);
     double moonPh = moonPhase(jd);    // the simple stuff is sufficient for our display
 
     float r = (moonPh);

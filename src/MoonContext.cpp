@@ -16,6 +16,7 @@
  */
 
 #include <glm/gtc/type_ptr.hpp>
+#include <Geom2.hpp>
 
 #include "MoonContext.hpp"
 
@@ -61,11 +62,11 @@ MoonContext::setLight(Position &light)
 {
 
     glUniform1i(m_moon_tex_location, 0);     // this matches texture unit 0
-    checkError("glUniform1i (m_texture)");
+    psc::gl::checkError("glUniform1i (m_texture)");
 
     //std::cout << "light "  << m_lightPosWorld << " " << lightPos.x << " " << lightPos.y << " " << lightPos[2] << std::endl;
     glUniform3fv(m_moon_light_location, 1, glm::value_ptr(light));
-    checkError("glUniform3fv (light)");
+    psc::gl::checkError("glUniform3fv (light)");
 }
 
 

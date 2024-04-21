@@ -24,9 +24,10 @@
 
 #include "MarkContext.hpp"
 #include "TextContext.hpp"
-#include "Text.hpp"
+#include "Text2.hpp"
 
-class Hotspot : public Geometry
+class Hotspot
+: public psc::gl::Geom2
 {
 public:
     Hotspot(GeometryContext *_ctx);
@@ -34,15 +35,15 @@ public:
 
     void setVisible(bool visible) override;
     void setSelfVisible(bool visible);
-    void setText(Geometry *text);
+    void setText(const psc::gl::aptrGeom2& text);
 private:
-    Geometry *m_text;
+    psc::gl::aptrGeom2 m_text;
 };
 
 class Tz {
 public:
     Tz(const std::string &line);
-    Tz(const Tz& orig);
+    Tz(const Tz& orig) = default;
     virtual ~Tz();
 
     bool isValid();
@@ -61,7 +62,7 @@ public:
     float getLongitude() {
         return lon;
     }
-    void createGeometry(MarkContext *markContext, TextContext *textContext, Font* font);
+    void createGeometry(MarkContext *markContext, TextContext *textContext, const psc::gl::ptrFont2& font);
     void updateTime();
     void setVisible(bool visible);
     void setDotVisible(bool visible);
@@ -73,9 +74,10 @@ private:
     std::string name;
     std::string info;
     bool valid;
-    Hotspot *point;
-    Geometry *line;
-    Text *ctext;
+    psc::mem::active_ptr<Hotspot> point;
+    psc::gl::aptrGeom2 line;
+    psc::gl::aptrText2 ctext;
+    bool warned{false};
 };
 
 class TimezoneInfo {
@@ -84,7 +86,7 @@ public:
     virtual ~TimezoneInfo();
 
     std::vector<Tz> &getZones();
-    void createGeometry(MarkContext *markContext, TextContext *textContext, Font * font);
+    void createGeometry(MarkContext *markContext, TextContext *textContext, const psc::gl::ptrFont2& font);
     void updateTime();
     void setAllVisible(bool visible);
     void setDotVisible(bool visible);

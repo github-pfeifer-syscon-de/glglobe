@@ -34,13 +34,13 @@
 #include <format>
 #  endif
 #endif
+#include <Log.hpp>
 
 #include "TimezoneInfo.hpp"
 #include "StringUtils.hpp"
 
 Hotspot::Hotspot(GeometryContext *_ctx)
-: Geometry(GL_POINTS, _ctx)
-, m_text{nullptr}
+: psc::gl::Geom2(GL_POINTS, _ctx)
 {
 }
 
@@ -52,11 +52,14 @@ void
 Hotspot::setVisible(bool visible)
 {
     // adapted Version set just child elements
-    for (auto& g : geometries) {
-        g->setVisible(visible);
+    for (auto& geo : geometries) {
+        if (auto lgeo = geo.lease()) {
+            lgeo->setVisible(visible);
+        }
     }
-    if (m_text)
-        m_text->setVisible(visible);
+    if (auto ltext = m_text.lease()) {
+        ltext->setVisible(visible);
+    }
 }
 
 void
@@ -67,7 +70,7 @@ Hotspot::setSelfVisible(bool visible)
 }
 
 void
-Hotspot::setText(Geometry *text)
+Hotspot::setText(const psc::gl::aptrGeom2& text)
 {
     m_text = text;
 }
@@ -108,21 +111,22 @@ Tz::Tz(const std::string &line)
             return;
         }
     }
-    std::cout << "Unusable line " << line << std::endl;
+    psc::log::Log::logNow(psc::log::Level::Notice,
+                          Glib::ustring::sprintf("Parsing Timezones unusable line %s", line));
 }
 
-Tz::Tz(const Tz& orig)
-: country{orig.country}
-, lat{orig.lat}
-, lon{orig.lon}
-, name{orig.name}
-, info{orig.info}
-, valid{orig.valid}
-, point{orig.point}
-, line{orig.line}       // copying these pointers is o.k. as they are nullptr in this stage, so if the logic get changed a additionl logic is needed for freeing these pointers
-, ctext{orig.ctext}
-{
-}
+//Tz::Tz(const Tz& orig)
+//: country{orig.country}
+//, lat{orig.lat}
+//, lon{orig.lon}
+//, name{orig.name}
+//, info{orig.info}
+//, valid{orig.valid}
+//, point{orig.point}
+//, line{orig.line}       // copying these pointers is o.k. as they are nullptr in this stage, so if the logic get changed a additionl logic is needed for freeing these pointers
+//, ctext{orig.ctext}
+//{
+//}
 
 Tz::~Tz()
 {
@@ -130,13 +134,9 @@ Tz::~Tz()
     //if (line) {
     //    delete line;
     //}
-    line = nullptr;
-    if (ctext) {
-        delete ctext;
-    }
-    if (point) {
-        delete point;
-    }
+    line.reset();
+    ctext.reset();
+    point.reset();
 }
 
 
@@ -175,7 +175,7 @@ Tz::isValid()
     return valid;
 }
 
-void Tz::createGeometry(MarkContext *markContext, TextContext *m_textContext, Font* font)
+void Tz::createGeometry(MarkContext *markContext, TextContext *m_textContext, const psc::gl::ptrFont2& font)
 {
     Color red(1.0f, 0.0f, 0.0f);
     float lon = 180.0f + getLongitude();     // sphere aligns with texture which is at 180° so here we wrap again
@@ -197,26 +197,34 @@ void Tz::createGeometry(MarkContext *markContext, TextContext *m_textContext, Fo
     Position s(v * 30.01f);
     Position e(v * 33.0f);
 
-    line = new Geometry(GL_LINES, markContext);
-    line->addLine(s, e, red);
-    line->create_vao();
-    line->setVisible(false);
-    ctext = new Text(GL_TRIANGLES, m_textContext, font);
-    ctext->setPosition(e);
-    ctext->setScale(0.030f);
-    ctext->setVisible(false);
-    Rotational rot(lon, 0.0f, 0.0f);
-    ctext->setRotation(rot);
-    updateTime();
-    point = new Hotspot(markContext);
-    point->setSensitivity(0.03f);   // uses gl_view_coords
-    point->addPoint(&s, &red);
-    point->setSelfVisible(false);
-    m_textContext->addGeometry(ctext);
-    point->addGeometry(line);
-    point->create_vao();
-    point->setText(ctext);
-    markContext->addGeometry(point);
+    line = psc::mem::make_active<psc::gl::Geom2>(GL_LINES, markContext);
+    markContext->addGeometry(line);
+    if (auto lline = line.lease()) {
+        lline->addLine(s, e, red);
+        lline->create_vao();
+        lline->setVisible(false);
+    }
+    ctext = psc::mem::make_active<psc::gl::Text2>(GL_TRIANGLES, m_textContext, font);
+    if (auto ltext = ctext.lease()) {
+        ltext->setPosition(e);
+        ltext->setScale(0.030f);
+        ltext->setVisible(false);
+        Rotational rot(lon, 0.0f, 0.0f);
+        ltext->setRotation(rot);
+        updateTime();
+        m_textContext->addGeometry(ctext);
+    }
+    point = psc::mem::make_active<Hotspot>(markContext);
+    if (auto lpoint = point.lease()) {
+        lpoint->setSensitivity(0.03f);   // uses gl_view_coords
+        lpoint->addPoint(&s, &red);
+        lpoint->setSelfVisible(false);
+        lpoint->addGeometry(line);
+        lpoint->create_vao();
+        lpoint->setText(ctext);
+        markContext->addGeometry(point);
+    }
+
 }
 
 void
@@ -231,7 +239,10 @@ Tz::updateTime()
         tm = std::format("{:%R}", now);
     }
     catch (const std::exception& ex) {
-        std::cerr << "std::chrono::zoned_time for " << getName() << "  failed with " << ex.what() << std::endl;
+        if (!warned) {      // only report once
+            psc::log::Log::logNow(psc::log::Level::Warn, Glib::ustring::sprintf("Updating time %s failed with %s", getName(), ex.what()));
+            warned = true;
+        }
     }
 #else
     // for windows Glib::TimeZone is fixed on windose zones...
@@ -239,25 +250,28 @@ Tz::updateTime()
     Glib::DateTime dt = Glib::DateTime::create_now(tz);
     Glib::ustring tm = dt.format("%R");
 #endif
-    std::string txt = getName() + " " + tm;
-    Glib::ustring wcty = txt;
-    ctext->setText(wcty);
+    auto wcty = Glib::ustring::sprintf("%s %s", getName(), tm);
+    if (auto ltext = ctext.lease()) {
+        ltext->setText(wcty);
+    }
 }
 
 void
 Tz::setVisible(bool visible)
 {
-    if (ctext)
-        ctext->setVisible(visible);
-    if (line)
-        line->setVisible(visible);
+    if (auto ltext = ctext.lease()) {
+        ltext->setVisible(visible);
+    }
+    if (auto lline = line.lease()) {
+        lline->setVisible(visible);
+    }
 }
 
 void
 Tz::setDotVisible(bool visible)
 {
-    if (point)
-        point->setSelfVisible(visible);
+    if (auto lpoint = point.lease())
+        lpoint->setSelfVisible(visible);
 }
 
 TimezoneInfo::TimezoneInfo()
@@ -298,18 +312,21 @@ TimezoneInfo::TimezoneInfo()
                 if (pos != 0) {
                     Tz tz(str);
                     if (tz.isValid()) {
-                        zones.push_back(tz);
+                        zones.emplace_back(std::move(tz));
                     }
                 }
             }
         }
         else {
-            std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
+            psc::log::Log::logNow(psc::log::Level::Warn,
+                                  Glib::ustring::sprintf("Timezone reading %s not opened", name));
+            //std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
         }
     }
     catch (const std::ios_base::failure &e) {
         if (!stat.eof()) {  // as we may hit eof while reading ...
-            std::cerr << name << " what " << e.what() << " val " << e.code().value() << " Err " << e.code().message() << std::endl;
+            psc::log::Log::logNow(psc::log::Level::Warn,
+                                  Glib::ustring::sprintf("Timezone reading %s error %s code %s", name, e.what(), e.code().message() ));
         }
     }
     if (stat.is_open()) {
@@ -329,7 +346,7 @@ TimezoneInfo::getZones()
 }
 
 void
-TimezoneInfo::createGeometry(MarkContext *markContext, TextContext *textContext, Font* font)
+TimezoneInfo::createGeometry(MarkContext *markContext, TextContext *textContext, const psc::gl::ptrFont2& font)
 {
     std::vector<Tz>::iterator t;
     for (t = zones.begin(); t != zones.end(); ++t) {
