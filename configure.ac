@@ -27,7 +27,7 @@ PKG_CHECK_MODULES(GTHREAD,gthread-2.0)
 PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.3])
 
 dnl dont repeat dependencies from geodata
-dnl PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.2.6])
+dnl PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.3.1])
 dnl PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.3.1])
 dnl PKG_CHECK_MODULES(GLIBMM,glibmm-2.4)
 dnl PKG_CHECK_MODULES(GTKMM, [gtkmm-3.0 ])

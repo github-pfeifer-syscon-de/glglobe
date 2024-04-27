@@ -265,11 +265,11 @@ GlSphereView::init(Gtk::GLArea *glArea)
         //debugGeom = m_markContext->createGeometry(GL_LINES);
         //m_earth->setDebugGeometry(debugGeom);
         learth->addSphere(EARTH_RADIUS, 32, 32);  // with simplified calculation can use more details
-        checkError("add Sphere earth");
+        psc::gl::checkError("add Sphere earth");
         learth->create_vao();
         Position p(0.0f, 0.0f, 0.0f);
         learth->setPosition(p);
-        checkError("add createVao earth");
+        psc::gl::checkError("add createVao earth");
         //std::cout << "geo vert: " << m_earth->getNumVertex()
         //          << " idx: " << m_earth->getNumIndex()
         //          << std::endl;
@@ -310,13 +310,13 @@ GlSphereView::init(Gtk::GLArea *glArea)
     if (auto lmoon = m_moon.lease()) {
         // with simplified calculation can use more details
         lmoon->addSphere(20.0f, 24, 24);
-        checkError("add Sphere moon");
+        psc::gl::checkError("add Sphere moon");
         lmoon->create_vao();
         Position p_moon(MOON_XOFFS, 0.0f, 0.0f);
         lmoon->setPosition(p_moon);
         Rotational rotT(180.0f, 0.0f, 0.0f);        // we build the model for look at, but now we are not using it...
         lmoon->setRotation(rotT);
-        checkError("add createVao moon");
+        psc::gl::checkError("add createVao moon");
     }
     m_moonTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_moon.jpg");
 }
@@ -327,30 +327,30 @@ GlSphereView::unrealize()
     if (m_timer.connected()) {
         m_timer.disconnect(); // No more updating
     }
-    m_text.reset();
-    m_earth.reset();
+    m_text.resetAll();
+    m_earth.resetAll();
     if (m_earthContext != nullptr) {
         delete m_earthContext;
     }
     if (m_textContext != nullptr) {
         delete m_textContext;
     }
-    m_dayTex.reset();
-    m_nightTex.reset();
-    m_normalMapTex.reset();
-    m_speculatMapTex.reset();
-    m_weatherTex.reset();
-    debugGeom.reset();
+    m_dayTex.resetAll();
+    m_nightTex.resetAll();
+    m_normalMapTex.resetAll();
+    m_speculatMapTex.resetAll();
+    m_weatherTex.resetAll();
+    debugGeom.resetAll();
     m_timezoneInfo.reset();
     if (m_markContext) {
         delete m_markContext;
     }
-    geoJsonGeom.reset();
-    m_moon.reset();
+    geoJsonGeom.resetAll();
+    m_moon.resetAll();
     if (m_moonContext != nullptr) {
         delete m_moonContext;
     }
-    m_moonTex.reset();
+    m_moonTex.resetAll();
 }
 
 std::shared_ptr<Weather>
@@ -495,7 +495,7 @@ void
 GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
 {
     glCullFace(GL_BACK);
-    checkError("cull back");
+    psc::gl::checkError("cull back");
     Position viewPos = m_naviGlArea->get_viewpos();
     float xEarthOffs{EARTH_OFFS};
     float xMoonOffs{0.0f};
@@ -523,7 +523,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         Matrix earthProjView = earthProj * view;
         // earth
         m_earthContext->use();
-        checkError("useSpherectx");
+        psc::gl::checkError("useSpherectx");
         ldayTex->use(GL_TEXTURE0);
         lnightTex->use(GL_TEXTURE1);
         lnormalMapTex->use(GL_TEXTURE2);
@@ -532,7 +532,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         if (lweatherTex) {
             lweatherTex->use(GL_TEXTURE4);
         }
-        checkError("tex use");
+        psc::gl::checkError("tex use");
 
         Position lightPos = m_light * m_config->getDistance();
         m_earthContext->setLight(lightPos, m_config->getAmbient(), m_config->getDiffuse(),

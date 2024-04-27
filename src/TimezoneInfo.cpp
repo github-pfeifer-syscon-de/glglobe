@@ -111,7 +111,7 @@ Tz::Tz(const std::string &line)
             return;
         }
     }
-    psc::log::Log::logNow(psc::log::Level::Notice,
+    psc::log::Log::logAdd(psc::log::Level::Notice,
                           Glib::ustring::sprintf("Parsing Timezones unusable line %s", line));
 }
 
@@ -134,9 +134,9 @@ Tz::~Tz()
     //if (line) {
     //    delete line;
     //}
-    line.reset();
-    ctext.reset();
-    point.reset();
+    line.resetAll();
+    ctext.resetAll();
+    point.resetAll();
 }
 
 
@@ -240,7 +240,7 @@ Tz::updateTime()
     }
     catch (const std::exception& ex) {
         if (!warned) {      // only report once
-            psc::log::Log::logNow(psc::log::Level::Warn, Glib::ustring::sprintf("Updating time %s failed with %s", getName(), ex.what()));
+            psc::log::Log::logAdd(psc::log::Level::Warn, Glib::ustring::sprintf("Updating time %s failed with %s", getName(), ex.what()));
             warned = true;
         }
     }
@@ -318,14 +318,14 @@ TimezoneInfo::TimezoneInfo()
             }
         }
         else {
-            psc::log::Log::logNow(psc::log::Level::Warn,
+            psc::log::Log::logAdd(psc::log::Level::Warn,
                                   Glib::ustring::sprintf("Timezone reading %s not opened", name));
             //std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
         }
     }
     catch (const std::ios_base::failure &e) {
         if (!stat.eof()) {  // as we may hit eof while reading ...
-            psc::log::Log::logNow(psc::log::Level::Warn,
+            psc::log::Log::logAdd(psc::log::Level::Warn,
                                   Glib::ustring::sprintf("Timezone reading %s error %s code %s", name, e.what(), e.code().message() ));
         }
     }
