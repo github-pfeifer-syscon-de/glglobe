@@ -27,12 +27,11 @@
 #include <unistd.h>
 #include <glm/trigonometric.hpp>  //radians
 #ifdef __GNUC__
-#  include <features.h>
-#  if __GNUC_PREREQ(13,1)
+#  if __GNUC__ >= 13
 #  define USE_CHRONO_TZ
 #include <chrono>
 #include <format>
-#  endif
+#  endif 
 #endif
 #include <Log.hpp>
 
