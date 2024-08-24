@@ -21,6 +21,7 @@
 #include <format>
 #endif
 #include <ctime>
+#include <StringUtils.hpp>
 
 #include "Config.hpp"
 #include "Timer.hpp"
@@ -90,7 +91,7 @@ Timer::parseTimerValue()
     }
     catch (std::invalid_argument const& ex) {
         Gtk::MessageDialog dialog = Gtk::MessageDialog("Invalid value", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text(Glib::ustring::sprintf("The value %s was not understood, please use 01:23 for a 1 minute and 23 seconds delay!", timeValue));
+        dialog.set_secondary_text(std::format("The value {0} was not understood, please use 01:23 for a 1 minute and 23 seconds delay!", timeValue));
         dialog.run();
     }
     return false;
@@ -123,7 +124,7 @@ Timer::parseTimeValue()
     }
     catch (std::invalid_argument const& ex) {
         Gtk::MessageDialog dialog = Gtk::MessageDialog("Invalid value", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text(Glib::ustring::sprintf("The value %s was not understood, please use 11:45 for a reminder at 11 o'clock and 45 minutes!", timeValue));
+        dialog.set_secondary_text(std::format("The value {0} was not understood, please use 11:45 for a reminder at 11 o'clock and 45 minutes!", timeValue));
         dialog.run();
     }
     return false;
@@ -220,13 +221,8 @@ TimerChrono::timeTimeout()
     auto s = seconds.count() - minutes.count() * 60l;
     if (h > 0 || m > 0 ||s > 0) {
         Glib::ustring remain;
-        #if __GNUC__ >= 13
         // the benefit is, here we get some type safety!
         std::format_to(std::back_inserter(remain), "{:02}:{:02}:{:02}", h, m, s);
-        #else
-        remain += Glib::ustring::sprintf("%02d:%02d:%02d"
-            , static_cast<int>(h), static_cast<int>(m), static_cast<int>(s));
-        #endif
         m_timeValue->set_text(remain);
         return true;
     }
@@ -256,12 +252,7 @@ TimerChrono::timerTimeout()
     auto minutes{sec / 60l};
     sec -= minutes * 60l;
     if (minutes > 0 || sec > 0) {
-        #if __GNUC__ >= 13
         std::format_to(std::back_inserter(remain), "{:02}:{:02}", minutes, sec);
-        #else
-        remain += Glib::ustring::sprintf("%02d:%02d"
-                , static_cast<int>(minutes), static_cast<int>(sec));
-        #endif
         m_timerValue->set_text(remain);
         return true;
     }
@@ -297,8 +288,7 @@ TimerGlib::timeTimeout()
     //          << " seconds " << seconds << std::endl;
     if (hours > 0||minutes > 0 ||seconds > 0) {
         Glib::ustring remain;
-        remain += Glib::ustring::sprintf("%d:%02d:%02d"
-            , static_cast<int>(hours), static_cast<int>(minutes), static_cast<int>(seconds));
+        remain += std::format("{0:d}:{1:02d}:{2:02d}", hours, minutes, seconds);
         m_timeValue->set_text(remain);
         return true;
     }
@@ -329,8 +319,7 @@ TimerGlib::timerTimeout()
     auto minutes{sec / 60l};
     sec -= minutes * 60l;
     if (minutes > 0 || sec > 0) {
-        remain += Glib::ustring::sprintf("%d:%02d"
-            , static_cast<int>(minutes), static_cast<int>(sec));
+        remain += std::format("{0:d}:{1:02d}", minutes, sec);
         m_timerValue->set_text(remain);
         return true;
     }

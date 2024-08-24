@@ -44,7 +44,7 @@ Drag right mouse buttton -> roll
 
 The most obvious option use the dialog.
 For some advanced options use the config file e.g. ~/.config/glglobe.conf
-e.g. if you want to use some diffrent WebMapService (i can't gurantee this will work, but it might be worth trying).
+e.g. if you want to use some different WebMapService (i can't gurantee this will work, but it might be worth trying).
 These services are numberd from 0...9 the following values will be required suffixed with a sequential number:
 
 <ul>
@@ -61,7 +61,7 @@ These services are numberd from 0...9 the following values will be required suff
     <pre>weatherType</pre> WMS for WebMapService, RE for RealEarth (which is non-generic)
   </li>
   <li>
-    <pre>weatherLocalTime</pre> usually false (true if service offers prognosis but you want to view current time)
+    <pre>weatherLocalTime</pre> usually false (true if service offers some prognosis but you want to view current time)
   </li>
 </ul>
 
@@ -77,5 +77,6 @@ C++20 is required as we are doing some crono/timezone stuff.
 
 ## Troubleshooting
 
-First some messages are output to the console if something seems not quite right.
+This application supports logging see configure option for genericImg (at the moment either $home/log or systemd-log),
+but still some messages might get spilled to the console if something seems not quite right.
 For advanced issues there are some defines e.g. CONFIG_DEBUG that might help in identifying more specific issues.

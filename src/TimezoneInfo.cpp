@@ -31,9 +31,10 @@
 #  define USE_CHRONO_TZ
 #include <chrono>
 #include <format>
-#  endif 
+#  endif
 #endif
 #include <Log.hpp>
+#include <StringUtils.hpp>
 
 #include "TimezoneInfo.hpp"
 #include "StringUtils.hpp"
@@ -111,7 +112,7 @@ Tz::Tz(const std::string &line)
         }
     }
     psc::log::Log::logAdd(psc::log::Level::Notice,
-                          Glib::ustring::sprintf("Parsing Timezones unusable line %s", line));
+                          std::format("Parsing Timezones unusable line {0}", line));
 }
 
 //Tz::Tz(const Tz& orig)
@@ -239,7 +240,7 @@ Tz::updateTime()
     }
     catch (const std::exception& ex) {
         if (!warned) {      // only report once
-            psc::log::Log::logAdd(psc::log::Level::Warn, Glib::ustring::sprintf("Updating time %s failed with %s", getName(), ex.what()));
+            psc::log::Log::logAdd(psc::log::Level::Warn, std::format("Updating time {0} failed with {1}", getName(), ex.what()));
             warned = true;
         }
     }
@@ -249,7 +250,7 @@ Tz::updateTime()
     Glib::DateTime dt = Glib::DateTime::create_now(tz);
     Glib::ustring tm = dt.format("%R");
 #endif
-    auto wcty = Glib::ustring::sprintf("%s %s", getName(), tm);
+    auto wcty = std::format("{0} {1}", getName(), tm);
     if (auto ltext = ctext.lease()) {
         ltext->setText(wcty);
     }
@@ -318,14 +319,14 @@ TimezoneInfo::TimezoneInfo()
         }
         else {
             psc::log::Log::logAdd(psc::log::Level::Warn,
-                                  Glib::ustring::sprintf("Timezone reading %s not opened", name));
+                                  std::format("Timezone reading {0} not opened", name));
             //std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
         }
     }
     catch (const std::ios_base::failure &e) {
         if (!stat.eof()) {  // as we may hit eof while reading ...
             psc::log::Log::logAdd(psc::log::Level::Warn,
-                                  Glib::ustring::sprintf("Timezone reading %s error %s code %s", name, e.what(), e.code().message() ));
+                                  std::format("Timezone reading {0} error {1} code {2}", name, e.what(), e.code().message() ));
         }
     }
     if (stat.is_open()) {

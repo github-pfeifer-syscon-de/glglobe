@@ -16,6 +16,7 @@
  */
 
 #include <iostream>
+#include <StringUtils.hpp>
 
 #include "Config.hpp"
 
@@ -73,13 +74,13 @@ Config::read()
                 }
                 for (uint32_t i = 0; i < 10; ++i) {
                     std::shared_ptr<WebMapServiceConf> weatherService;
-                    auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
-                    auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
+                    auto addressKey = std::format("{0}{1}", WEATHER_SERVICE_ADDRESS, i);
+                    auto nameKey = std::format("{0}{1}", WEATHER_SERVICE_NAME, i);
                     if (m_config->has_key(GRP_MAIN, addressKey)
                      && m_config->has_key(GRP_MAIN, nameKey)) {
                         auto weatherAddress = m_config->get_string(GRP_MAIN, addressKey);
                         auto weatherName = m_config->get_string(GRP_MAIN, nameKey);
-                        auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
+                        auto delayKey = std::format("{0}{1}", WEATHER_SERVICE_DELAY, i);
                         int delay_sec = DEF_UPDATE_DELAY_SEC;
                         if (m_config->has_key(GRP_MAIN, delayKey)) {
                             delay_sec = m_config->get_integer(GRP_MAIN, delayKey);
@@ -88,11 +89,11 @@ Config::read()
                             }
                         }
                         Glib::ustring weatherType{WEATHER_WMS_CONF};
-                        auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
+                        auto typeKey = std::format("{0}{1}", WEATHER_SERVICE_TYPE, i);
                         if (m_config->has_key(GRP_MAIN, delayKey)) {
                             weatherType = m_config->get_string(GRP_MAIN, typeKey);
                         }
-                        auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
+                        auto localTimeKey = std::format("{0}{1}", WEATHER_SERVICE_LOCAL_TIME, i);
                         bool viewCurrentTime{false};
                         if (m_config->has_key(GRP_MAIN, localTimeKey)) {
                             viewCurrentTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
@@ -157,15 +158,15 @@ Config::save()
         for (uint32_t i = 0; i < m_weatherServices.size(); ++i) {
             auto weatherService = m_weatherServices[i];
             if (weatherService) {
-                auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
+                auto addressKey = std::format("{0}{1}", WEATHER_SERVICE_ADDRESS, i);
                 m_config->set_string(GRP_MAIN, addressKey, weatherService->getAddress());
-                auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
+                auto nameKey = std::format("{0}{1}", WEATHER_SERVICE_NAME, i);
                 m_config->set_string(GRP_MAIN, nameKey, weatherService->getName());
-                auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
+                auto delayKey = std::format("{0}{1}", WEATHER_SERVICE_DELAY, i);
                 m_config->set_integer(GRP_MAIN, delayKey, weatherService->getDelaySec());
-                auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
+                auto typeKey = std::format("{0}{1}", WEATHER_SERVICE_TYPE, i);
                 m_config->set_string(GRP_MAIN, typeKey, weatherService->getType());
-                auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
+                auto localTimeKey = std::format("{0}{1}", WEATHER_SERVICE_LOCAL_TIME, i);
                 m_config->set_boolean(GRP_MAIN, localTimeKey, weatherService->isViewCurrentTime());
             }
         }

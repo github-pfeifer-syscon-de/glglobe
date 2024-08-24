@@ -361,7 +361,7 @@ GlSphereView::refresh_weather_service()
     std::cout << std::source_location::current()
               << " serviceId " << serviceId << std::endl;
     #endif
-    m_log->info(Glib::ustring::sprintf("refresh serviceId %s", serviceId));
+    m_log->info(std::format("refresh serviceId {0}", serviceId));
     m_weather.reset();
     auto serviceConf = m_config->getActiveWebMapServiceConf();
     if (serviceConf) {
@@ -373,7 +373,7 @@ GlSphereView::refresh_weather_service()
             m_weather = std::make_shared<WebMapService>(this, serviceConf, m_config->getWeatherMinPeriodSec());
         }
         else {
-            m_log->warn(Glib::ustring::sprintf("refresh serviceId %s", serviceId));
+            m_log->warn(std::format("refresh serviceId {0}", serviceId));
         }
     }
     if (m_weather) {
@@ -390,7 +390,7 @@ void
 GlSphereView::request_weather_product()
 {
     auto weatherProductId = m_config->getWeatherProductId();
-    m_log->info(Glib::ustring::sprintf("request weather_product %s", weatherProductId));
+    m_log->info(std::format("request weather_product {0}", weatherProductId));
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
     if (!weatherProductId.empty() && m_weather) {
@@ -456,7 +456,7 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
             //color_to_alpha(pix);
             //std::cout << Weather::dump(pixdata, 64u) << std::endl;
             // copy to dest
-            m_log->info(Glib::ustring::sprintf("weather_image_notify width %d height %d", pix->get_width(), pix->get_height()));
+            m_log->info(std::format("weather_image_notify width {0} height {1}", pix->get_width(), pix->get_height()));
             request.mapping(pix, m_weather_pix);
             update_weather_tex();
         }
@@ -572,8 +572,8 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         m_textContext->display(projViewSphere);
     }
     else {
-        m_log->error(Glib::ustring::sprintf("missing resource to display earth earth %s dayTex %s nightTex %s normTex %s spec %s weather %s",
-                    (learth ? "y" : "n")
+        m_log->error(std::format("missing resource to display earth earth {} dayTex {} nightTex {} normTex {} spec {} weather {}",
+                      (learth ? "y" : "n")
                     , (ldayTex ? "y" : "n")
                     , (lnightTex ? "y" : "n")
                     , (lnormalMapTex ? "y" : "n")
@@ -623,10 +623,9 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         lmoonTex->unuse();
     }
     else {
-        m_log->error(Glib::ustring::sprintf("missing resource to display moon %s tex %s",
-                    (lmoon ? "y" : "n")
+        m_log->error(std::format("missing resource to display moon {} tex {}",
+                      (lmoon ? "y" : "n")
                     , (lmoonTex ? "y" : "n")));
-
     }
 }
 
@@ -635,7 +634,7 @@ GlSphereView::hm(const double& timeM)
 {
 	int h = (int)timeM / 60;
 	int m = (int)timeM % 60;
-	Glib::ustring hm(Glib::ustring::sprintf("%02d:%02d", h, m));
+	Glib::ustring hm(std::format("{0:02d}:{1:02d}", h, m));
 	return hm;
 }
 
@@ -645,8 +644,7 @@ GlSphereView::customize_time(Glib::ustring prepared)
 {
     auto pos = prepared.find("%D", 0);
     if (pos != Glib::ustring::npos) { // use std format with %D for declication
-        Glib::ustring fmt{"%.1f°"};
-        Glib::ustring d(Glib::ustring::sprintf(fmt, m_earth_declination_deg));
+        Glib::ustring d(std::format("{0:.1f}°", m_earth_declination_deg));
         prepared.replace(pos, 2, d);
     }
 	pos = prepared.find("%rise", 0);
@@ -840,14 +838,14 @@ GlSphereView::setGeoJsonFile(const Glib::ustring& file)
     if (!file.empty()) {
         Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(file);
         if (!f->query_exists()) {
-            auto msg = Glib::ustring::sprintf("The requested file %s does not exist.", file);
+            auto msg = std::format("The requested file {0} does not exist.", file);
             show_error(msg);
         }
         else {
             Glib::RefPtr<Gio::Cancellable> cancel = Gio::Cancellable::create();
             Glib::RefPtr<Gio::FileInfo> attr = f->query_info(cancel, "standard::*");
             if (attr->get_size() > GEO_FILE_SIZE_LIMIT) {
-                auto msg = Glib::ustring::sprintf("The requested file %s exceeds the size limit %d with %d.",
+                auto msg = std::format("The requested file {0} exceeds the size limit {1} with {2}.",
                                          file, GEO_FILE_SIZE_LIMIT, attr->get_size());
                 show_error(msg);
             }
