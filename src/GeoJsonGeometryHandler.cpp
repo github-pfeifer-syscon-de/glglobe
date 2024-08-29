@@ -78,7 +78,7 @@ GeoJsonGeometryHandler::addCoord(JsonArray* coord, bool last)
         m_first = false;
         ++m_count;
         if (m_count > m_pointsLimit) {
-            throw JsonException(std::format("The file contains more points {0}, than the allowed {1}", m_count, m_pointsLimit));
+            throw JsonException(Glib::ustring::sprintf("The file contains more points %d (allowed %d) as we can handle", m_count, m_pointsLimit));
         }
     }
     else {

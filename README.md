@@ -77,6 +77,5 @@ C++20 is required as we are doing some crono/timezone stuff.
 
 ## Troubleshooting
 
-This application supports logging see configure option for genericImg (at the moment either $home/log or systemd-log),
-but still some messages might get spilled to the console if something seems not quite right.
+First some messages are output to the console if something seems not quite right.
 For advanced issues there are some defines e.g. CONFIG_DEBUG that might help in identifying more specific issues.
