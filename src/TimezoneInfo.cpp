@@ -28,15 +28,28 @@
 #include <glm/trigonometric.hpp>  //radians
 #ifdef __GNUC__
 #  if __GNUC__ >= 13
+#    ifdef __WIN32__
 #  define USE_CHRONO_TZ
 #include <chrono>
 #include <format>
-#  endif 
+#    endif
+#  endif
 #endif
 #include <Log.hpp>
 
 #include "TimezoneInfo.hpp"
 #include "StringUtils.hpp"
+
+#ifdef __WIN32__   // as the glibc++ with the tzdata 2024b seems broken keep this windows only see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=116657
+namespace __gnu_cxx {
+    const char*
+    zoneinfo_dir_override()
+    {
+        // may give path and provide the tzdata.zi
+        return nullptr;     // this loads the last know good 2024a (internal?)
+    }
+} /* end __gnu_cxx */
+#endif
 
 Hotspot::Hotspot(GeometryContext *_ctx)
 : psc::gl::Geom2(GL_POINTS, _ctx)
@@ -292,8 +305,10 @@ TimezoneInfo::TimezoneInfo()
             //  see https://github.com/GNOME/glib/blob/master/glib/gtimezone.c
             //  but this has no position info?
             const char *msyshome = getenv("MSYS_HOME");
-            snprintf(name, sizeof(name), "%s/share/zoneinfo/zone1970.tab", msyshome);
-            ret = stat(name, &sb);
+            if (msyshome != nullptr) {
+                snprintf(name, sizeof(name), "%s/share/zoneinfo/zone1970.tab", msyshome);
+                ret = stat(name, &sb);
+            }
             //std::cout << name << " ret: " << ret << " mode: " << sb.st_mode << std::endl;
         }
     }
