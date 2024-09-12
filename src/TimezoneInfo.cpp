@@ -40,16 +40,17 @@
 #include "TimezoneInfo.hpp"
 #include "StringUtils.hpp"
 
-#ifdef __WIN32__   // as the glibc++ with the tzdata 2024b seems broken keep this windows only see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=116657
-namespace __gnu_cxx {
-    const char*
-    zoneinfo_dir_override()
-    {
-        // may give path and provide the tzdata.zi
-        return nullptr;     // this loads the last know good 2024a (internal?)
-    }
-} /* end __gnu_cxx */
-#endif
+// if your system and glibc++ disagree on tzdata-format this might help
+//#ifdef USE_CHRONO_TZ   // as the glibc++ with the tzdata 2024b seems broken keep this windows only see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=116657
+//namespace __gnu_cxx {
+//    const char*
+//    zoneinfo_dir_override()
+//    {
+//        // may give path and provide the tzdata.zi
+//        return nullptr;     // this loads the last know good 2024a (internal?)
+//    }
+//} /* end __gnu_cxx */
+//#endif
 
 Hotspot::Hotspot(GeometryContext *_ctx)
 : psc::gl::Geom2(GL_POINTS, _ctx)
