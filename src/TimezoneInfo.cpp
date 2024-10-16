@@ -36,9 +36,9 @@
 #  endif
 #endif
 #include <Log.hpp>
+#include <StringUtils.hpp>
 
 #include "TimezoneInfo.hpp"
-#include "StringUtils.hpp"
 
 // if your system and glibc++ disagree on tzdata-format this might help
 //#ifdef USE_CHRONO_TZ   // as the glibc++ with the tzdata 2024b seems broken keep this windows only see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=116657
@@ -124,8 +124,9 @@ Tz::Tz(const std::string &line)
             return;
         }
     }
-    psc::log::Log::logAdd(psc::log::Level::Notice,
-                          Glib::ustring::sprintf("Parsing Timezones unusable line %s", line));
+    psc::log::Log::logAdd(psc::log::Level::Notice, [&] {
+        return std::format("Parsing Timezones unusable line \"{}\"", line);
+    });
 }
 
 //Tz::Tz(const Tz& orig)
@@ -333,15 +334,17 @@ TimezoneInfo::TimezoneInfo()
             }
         }
         else {
-            psc::log::Log::logAdd(psc::log::Level::Warn,
-                                  Glib::ustring::sprintf("Timezone reading %s not opened", name));
+            psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
+                return std::format("Timezone reading {} not opened", name);
+            });
             //std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
         }
     }
     catch (const std::ios_base::failure &e) {
         if (!stat.eof()) {  // as we may hit eof while reading ...
-            psc::log::Log::logAdd(psc::log::Level::Warn,
-                                  Glib::ustring::sprintf("Timezone reading %s error %s code %s", name, e.what(), e.code().message() ));
+            psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
+                return std::format("Timezone reading {} {}", name, e);
+            });
         }
     }
     if (stat.is_open()) {
