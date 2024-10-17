@@ -361,7 +361,9 @@ GlSphereView::refresh_weather_service()
     std::cout << std::source_location::current()
               << " serviceId " << serviceId << std::endl;
     #endif
-    m_log->info(Glib::ustring::sprintf("refresh serviceId %s", serviceId));
+    m_log->log(psc::log::Level::Info, [&] {
+        return std::format("refresh serviceId {}", serviceId);
+    });
     m_weather.reset();
     auto serviceConf = m_config->getActiveWebMapServiceConf();
     if (serviceConf) {
@@ -373,7 +375,9 @@ GlSphereView::refresh_weather_service()
             m_weather = std::make_shared<WebMapService>(this, serviceConf, m_config->getWeatherMinPeriodSec());
         }
         else {
-            m_log->warn(Glib::ustring::sprintf("refresh serviceId %s", serviceId));
+            m_log->log(psc::log::Level::Warn, [&] {
+                return std::format("refresh serviceId {}", serviceId);
+            });
         }
     }
     if (m_weather) {
@@ -390,7 +394,9 @@ void
 GlSphereView::request_weather_product()
 {
     auto weatherProductId = m_config->getWeatherProductId();
-    m_log->info(Glib::ustring::sprintf("request weather_product %s", weatherProductId));
+    m_log->log(psc::log::Level::Info, [&] {
+        return std::format("request weather_product {}", weatherProductId);
+    });
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
     if (!weatherProductId.empty() && m_weather) {
@@ -456,7 +462,9 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
             //color_to_alpha(pix);
             //std::cout << Weather::dump(pixdata, 64u) << std::endl;
             // copy to dest
-            m_log->info(Glib::ustring::sprintf("weather_image_notify width %d height %d", pix->get_width(), pix->get_height()));
+            m_log->log(psc::log::Level::Info, [&] {
+                return std::format("weather_image_notify width {} height {} n_chan {} sampl {}", pix->get_width(), pix->get_height(), pix->get_n_channels(), pix->get_bits_per_sample());
+            });
             request.mapping(pix, m_weather_pix);
             update_weather_tex();
         }
@@ -572,13 +580,10 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         m_textContext->display(projViewSphere);
     }
     else {
-        m_log->error(Glib::ustring::sprintf("missing resource to display earth earth %s dayTex %s nightTex %s normTex %s spec %s weather %s",
-                    (learth ? "y" : "n")
-                    , (ldayTex ? "y" : "n")
-                    , (lnightTex ? "y" : "n")
-                    , (lnormalMapTex ? "y" : "n")
-                    , (lspeculatMapTex ? "y" : "n")
-                    , (lweatherTex ? "y" : "n")));
+        m_log->log(psc::log::Level::Error, [&] {
+            return std::format("missing resource to display earth earth {} dayTex {} nightTex {} normTex {} spec {} weather {}"
+                    , learth.operator bool(), ldayTex.operator bool(), lnightTex.operator bool(), lnormalMapTex.operator bool(), lspeculatMapTex.operator bool(), lweatherTex.operator bool());
+        });
     }
     float width = m_naviGlArea->get_width();
     float height = m_naviGlArea->get_height();
@@ -623,10 +628,10 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
         lmoonTex->unuse();
     }
     else {
-        m_log->error(Glib::ustring::sprintf("missing resource to display moon %s tex %s",
-                    (lmoon ? "y" : "n")
-                    , (lmoonTex ? "y" : "n")));
-
+        m_log->log(psc::log::Level::Error, [&] {
+            return std::format("missing resource to display moon {} tex {}"
+                    , lmoon.operator bool(), lmoonTex.operator bool());
+        });
     }
 }
 
