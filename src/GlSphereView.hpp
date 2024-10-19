@@ -49,7 +49,7 @@ class GlSphereView
 {
 public:
     GlSphereView(const std::shared_ptr<Config>& config);
-    virtual ~GlSphereView() = default;
+    virtual ~GlSphereView();
     Matrix getLookAt(Vector &position, Vector &direction, Vector &up) override;
     Position getIntialPosition() override;
     Rotational getInitalAngleDegree() override;

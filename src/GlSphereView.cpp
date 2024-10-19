@@ -61,6 +61,10 @@ GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
     m_log->setLevel(psc::log::Log::getLevel(m_config->getLogLevel()));
 }
 
+GlSphereView::~GlSphereView()
+{
+    m_log->close();
+}
 
 float
 GlSphereView::getZFar()
