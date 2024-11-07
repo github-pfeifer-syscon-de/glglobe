@@ -23,137 +23,74 @@ void
 Config::read()
 {
     m_config = new Glib::KeyFile();
-
     std::string cfg = get_config_name();
     try {
         if (!m_config->load_from_file(cfg, Glib::KEY_FILE_NONE)) {
             std::cerr << "Error loading " << cfg << std::endl;
-        }
-        else {
-            if (m_config->has_group(GRP_MAIN)) {
-                if (m_config->has_key(GRP_MAIN, LATITUDE))
-                    m_lat = m_config->get_integer(GRP_MAIN, LATITUDE);
-                if (m_config->has_key(GRP_MAIN, LONGITUDE))
-                    m_lon = m_config->get_integer(GRP_MAIN, LONGITUDE);
-                if (m_config->has_key(GRP_MAIN, DAYTEX))
-                    m_dayTextureFile = m_config->get_string(GRP_MAIN, DAYTEX);
-                if (m_config->has_key(GRP_MAIN, NIGHTTEX))
-                    m_nightTextureFile = m_config->get_string(GRP_MAIN, NIGHTTEX);
-                if (m_config->has_key(GRP_MAIN, AMBIENT))
-                    m_ambient = static_cast<float>(m_config->get_double(GRP_MAIN, AMBIENT));
-                if (m_config->has_key(GRP_MAIN, DIFFUSE))
-                    m_diffuse = static_cast<float>(m_config->get_double(GRP_MAIN, DIFFUSE));
-                if (m_config->has_key(GRP_MAIN, SPECULAR))
-                    m_specular = static_cast<float>(m_config->get_double(GRP_MAIN, SPECULAR));
-                if (m_config->has_key(GRP_MAIN, TWILIGHT))
-                    m_twilight = static_cast<float>(m_config->get_double(GRP_MAIN, TWILIGHT));
-                if (m_config->has_key(GRP_MAIN, DISTANCE))
-                    m_distance = static_cast<float>(m_config->get_double(GRP_MAIN, DISTANCE));
-                if (m_config->has_key(GRP_MAIN, SPECULAR_POWER))
-                    m_specular_power = static_cast<float>(m_config->get_double(GRP_MAIN, SPECULAR_POWER));
-                if (m_config->has_key(GRP_MAIN, TIME_FORMAT))
-                    m_timeFormat = m_config->get_string(GRP_MAIN, TIME_FORMAT);
-                if (m_config->has_key(GRP_MAIN, WEATHER_SERVICE))
-                    m_weatherServiceId = m_config->get_string(GRP_MAIN, WEATHER_SERVICE);
-                if (m_config->has_key(GRP_MAIN, WEATHER_PRODUCT))
-                    m_weatherProductId = m_config->get_string(GRP_MAIN, WEATHER_PRODUCT);
-                if (m_config->has_key(GRP_MAIN, WEATHER_TRANSP))
-                    m_weatherTransparency = m_config->get_double(GRP_MAIN, WEATHER_TRANSP);
-                if (m_config->has_key(GRP_MAIN, LOG_LEVEL))
-                    m_logLevel = m_config->get_string(GRP_MAIN, LOG_LEVEL);
-                if (m_config->has_key(GRP_MAIN, GEO_JSON_FILE))
-                    m_geoJsonFile = m_config->get_string(GRP_MAIN, GEO_JSON_FILE);
-                if (m_config->has_key(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS))
-                    m_waether_min_period_sec = m_config->get_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS);
-                if (m_waether_min_period_sec < 60) {
-                    m_waether_min_period_sec = 60;
-                }
-                if (m_waether_min_period_sec > 24 * 60 * 60) {
-                    m_waether_min_period_sec = 24 * 60 * 60;
-                }
-                for (uint32_t i = 0; i < 10; ++i) {
-                    std::shared_ptr<WebMapServiceConf> weatherService;
-                    auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
-                    auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
-                    if (m_config->has_key(GRP_MAIN, addressKey)
-                     && m_config->has_key(GRP_MAIN, nameKey)) {
-                        auto weatherAddress = m_config->get_string(GRP_MAIN, addressKey);
-                        auto weatherName = m_config->get_string(GRP_MAIN, nameKey);
-                        auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
-                        int delay_sec = DEF_UPDATE_DELAY_SEC;
-                        if (m_config->has_key(GRP_MAIN, delayKey)) {
-                            delay_sec = m_config->get_integer(GRP_MAIN, delayKey);
-                            if (delay_sec < MIN_UPDATE_DELAY_SEC) {
-                                delay_sec = MIN_UPDATE_DELAY_SEC;
-                            }
-                        }
-                        Glib::ustring weatherType{WEATHER_WMS_CONF};
-                        auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
-                        if (m_config->has_key(GRP_MAIN, delayKey)) {
-                            weatherType = m_config->get_string(GRP_MAIN, typeKey);
-                        }
-                        auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
-                        bool viewCurrentTime{false};
-                        if (m_config->has_key(GRP_MAIN, localTimeKey)) {
-                            viewCurrentTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
-                        }
-                        weatherService = std::make_shared<WebMapServiceConf>(weatherName, weatherAddress, delay_sec, weatherType, viewCurrentTime);
-                    }
-                    else {
-                        switch (i) {    // prepare some defaults
-                        case 0:
-                            weatherService = std::make_shared<WebMapServiceConf>("RealEarth", "https://realearth.ssec.wisc.edu/", MIN_UPDATE_DELAY_SEC, WEATHER_REAL_EARTH_CONF, false);
-                            break;
-                        case 1:
-                            weatherService = std::make_shared<WebMapServiceConf>("EumetSat", "https://view.eumetsat.int/geoserver/wms", DEF_UPDATE_DELAY_SEC, WEATHER_WMS_CONF, false);
-                            break;
-                        case 2:
-                            weatherService = std::make_shared<WebMapServiceConf>("DeutscherWetterDienst", "https://maps.dwd.de/geoserver/ows", MIN_UPDATE_DELAY_SEC, WEATHER_WMS_CONF, true);
-                            break;
-                        }
-                    }
-                    if (weatherService) {
-                        m_weatherServices.push_back(weatherService);
-                    }
-                }
-            }
-            if (m_config->has_group(GRP_TIME)) {
-                if (m_config->has_key(GRP_TIME, TIMER_VALUE))
-                    m_timerValue = m_config->get_string(GRP_TIME, TIMER_VALUE);
-                if (m_config->has_key(GRP_TIME, TIME_VALUE))
-                    m_timeValue = m_config->get_string(GRP_TIME, TIME_VALUE);
-            }
         }
     }
     catch (const Glib::FileError& exc) {
         // may happen if didn't create a file (yet) but we can go on
         std::cerr << "File Error loading " << cfg << " if its missing, it will be created?" << std::endl;
     }
+    if (!m_config->has_group(GRP_MAIN)) {   // create group
+        m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
+    }
+    for (uint32_t i = 0; i < 10; ++i) {
+        std::shared_ptr<WebMapServiceConf> weatherService;
+        auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
+        auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
+        if (m_config->has_key(GRP_MAIN, addressKey)
+         && m_config->has_key(GRP_MAIN, nameKey)) {
+            auto weatherAddress = m_config->get_string(GRP_MAIN, addressKey);
+            auto weatherName = m_config->get_string(GRP_MAIN, nameKey);
+            auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
+            int delay_sec = DEF_UPDATE_DELAY_SEC;
+            if (m_config->has_key(GRP_MAIN, delayKey)) {
+                delay_sec = m_config->get_integer(GRP_MAIN, delayKey);
+                if (delay_sec < MIN_UPDATE_DELAY_SEC) {
+                    delay_sec = MIN_UPDATE_DELAY_SEC;
+                }
+            }
+            Glib::ustring weatherType{WEATHER_WMS_CONF};
+            auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
+            if (m_config->has_key(GRP_MAIN, delayKey)) {
+                weatherType = m_config->get_string(GRP_MAIN, typeKey);
+            }
+            auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
+            bool viewCurrentTime{false};
+            if (m_config->has_key(GRP_MAIN, localTimeKey)) {
+                viewCurrentTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
+            }
+            weatherService = std::make_shared<WebMapServiceConf>(weatherName, weatherAddress, delay_sec, weatherType, viewCurrentTime);
+        }
+        else {
+            switch (i) {    // prepare some defaults
+            case 0:
+                weatherService = std::make_shared<WebMapServiceConf>("RealEarth", "https://realearth.ssec.wisc.edu/", MIN_UPDATE_DELAY_SEC, WEATHER_REAL_EARTH_CONF, false);
+                break;
+            case 1:
+                weatherService = std::make_shared<WebMapServiceConf>("EumetSat", "https://view.eumetsat.int/geoserver/wms", DEF_UPDATE_DELAY_SEC, WEATHER_WMS_CONF, false);
+                break;
+            case 2:
+                weatherService = std::make_shared<WebMapServiceConf>("DeutscherWetterDienst", "https://maps.dwd.de/geoserver/ows", MIN_UPDATE_DELAY_SEC, WEATHER_WMS_CONF, true);
+                break;
+            }
+        }
+        if (weatherService) {
+            m_weatherServices.push_back(weatherService);
+        }
+    }
+
 }
 
 void
 Config::save()
 {
     if (m_config) {
-        m_config->set_integer(GRP_MAIN, LATITUDE, m_lat);
-        m_config->set_integer(GRP_MAIN, LONGITUDE, m_lon);
-        m_config->set_string(GRP_MAIN, DAYTEX, m_dayTextureFile);
-        m_config->set_string(GRP_MAIN, NIGHTTEX, m_nightTextureFile);
-        m_config->set_double(GRP_MAIN, AMBIENT, m_ambient);
-        m_config->set_double(GRP_MAIN, DIFFUSE, m_diffuse);
-        m_config->set_double(GRP_MAIN, SPECULAR, m_specular);
-        m_config->set_double(GRP_MAIN, TWILIGHT, m_twilight);
-        m_config->set_double(GRP_MAIN, DISTANCE, m_distance);
-        m_config->set_double(GRP_MAIN, SPECULAR_POWER, m_specular_power);
-        m_config->set_string(GRP_MAIN, TIME_FORMAT, m_timeFormat);
-        m_config->set_string(GRP_MAIN, WEATHER_SERVICE, m_weatherServiceId);
-        m_config->set_string(GRP_MAIN, WEATHER_PRODUCT, m_weatherProductId);
-        m_config->set_double(GRP_MAIN, WEATHER_TRANSP, m_weatherTransparency);
-        m_config->set_string(GRP_MAIN, GEO_JSON_FILE, m_geoJsonFile);
-        m_config->set_string(GRP_MAIN, LOG_LEVEL, m_logLevel);
-        m_config->set_string(GRP_TIME, TIMER_VALUE, m_timerValue);
-        m_config->set_string(GRP_TIME, TIME_VALUE, m_timeValue);
-        m_config->set_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS, m_waether_min_period_sec);
+        if (!m_config->has_group(GRP_MAIN)) {   // create group
+            m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
+        }
         for (uint32_t i = 0; i < m_weatherServices.size(); ++i) {
             auto weatherService = m_weatherServices[i];
             if (weatherService) {
@@ -187,49 +124,61 @@ Config::get_config_name()
 int
 Config::getLatitude()
 {
-    return m_lat;
+    int lat{0};
+    if (m_config->has_key(GRP_MAIN, LATITUDE))
+        lat = m_config->get_integer(GRP_MAIN, LATITUDE);
+    return lat;
 }
 
 void
 Config::setLatitude(int lat)
 {
-    m_lat = lat;
+    m_config->set_integer(GRP_MAIN, LATITUDE, lat);
 }
 
 int
 Config::getLongitude()
 {
-    return m_lon;
+    int lon{0};
+    if (m_config->has_key(GRP_MAIN, LONGITUDE))
+        lon = m_config->get_integer(GRP_MAIN, LONGITUDE);
+    return lon;
 }
 
 void
 Config::setLongitude(int lon)
 {
-    m_lon = lon;
+    m_config->set_integer(GRP_MAIN, LONGITUDE, lon);
 }
 
-std::string &
+std::string
 Config::getDayTextureFile()
 {
-    return m_dayTextureFile;
+    std::string dayTextureFile;
+    if (m_config->has_key(GRP_MAIN, DAYTEX))
+        dayTextureFile = m_config->get_string(GRP_MAIN, DAYTEX);
+    return dayTextureFile;
 }
 
 void
-Config::setDayTextureFile(std::string dayTex)
+Config::setDayTextureFile(std::string dayTextureFile)
 {
-    m_dayTextureFile = dayTex;
+    m_config->set_string(GRP_MAIN, DAYTEX, dayTextureFile);
 }
 
-std::string &
+std::string
 Config::getNightTextureFile()
 {
-    return m_nightTextureFile;
+    std::string nightTextureFile;
+    if (m_config->has_key(GRP_MAIN, NIGHTTEX))
+        nightTextureFile = m_config->get_string(GRP_MAIN, NIGHTTEX);
+    return nightTextureFile;
 }
 
 void
-Config::setNightTexureFile(std::string nightTex)
+Config::setNightTexureFile(std::string nightTextureFile)
 {
-    m_nightTextureFile = nightTex;
+    m_config->set_string(GRP_MAIN, NIGHTTEX, nightTextureFile);
 }
 
 
@@ -248,134 +197,168 @@ Config::setDebug(unsigned int debug)
 float
 Config::getAmbient()
 {
-    return m_ambient;
+    float ambient{0.67f};
+    if (m_config->has_key(GRP_MAIN, AMBIENT))
+        ambient = static_cast<float>(m_config->get_double(GRP_MAIN, AMBIENT));
+    return ambient;
 }
 
 void
 Config::setAmbient(float ambient)
 {
-    m_ambient = ambient;
+    m_config->set_double(GRP_MAIN, AMBIENT, ambient);
 }
 
 float
 Config::getDiffuse()
 {
-    return m_diffuse;
+    float diffuse{700.0f};
+    if (m_config->has_key(GRP_MAIN, DIFFUSE))
+        diffuse = static_cast<float>(m_config->get_double(GRP_MAIN, DIFFUSE));
+    return diffuse;
 }
 
 void
 Config::setDiffuse(float diffuse)
 {
-    m_diffuse = diffuse;
+    m_config->set_double(GRP_MAIN, DIFFUSE, diffuse);
 }
 
 float
 Config::getSpecular()
 {
-    return m_specular;
+    float specular{700.0f};
+    if (m_config->has_key(GRP_MAIN, SPECULAR))
+        specular = static_cast<float>(m_config->get_double(GRP_MAIN, SPECULAR));
+
+    return specular;
 }
 
 void
 Config::setSpecular(float specular)
 {
-    m_specular = specular;
+    m_config->set_double(GRP_MAIN, SPECULAR, specular);
 }
 
 float
 Config::getTwilight()
 {
-    return m_twilight;
+    float twilight{0.08f};
+    if (m_config->has_key(GRP_MAIN, TWILIGHT))
+        twilight = static_cast<float>(m_config->get_double(GRP_MAIN, TWILIGHT));
+    return twilight;
 }
 
 void
 Config::setTwilight(float twilight)
 {
-    m_twilight = twilight;
+    m_config->set_double(GRP_MAIN, TWILIGHT, twilight);
 }
 
 float
 Config::getSpecularPower()
 {
-    return m_specular_power;
+    float specular_power{5.0f};
+    if (m_config->has_key(GRP_MAIN, SPECULAR_POWER))
+        specular_power = static_cast<float>(m_config->get_double(GRP_MAIN, SPECULAR_POWER));
+    return specular_power;
 }
 
 void
 Config::setSpecularPower(float specular_power)
 {
-    m_specular_power = specular_power;
+    m_config->set_double(GRP_MAIN, SPECULAR_POWER, specular_power);
 }
 
 float
 Config::getDistance()
 {
-     return m_distance;
+    float distance{100.0f};
+    if (m_config->has_key(GRP_MAIN, DISTANCE))
+        distance = static_cast<float>(m_config->get_double(GRP_MAIN, DISTANCE));
+     return distance;
 }
 
 void
-Config::setDistance(float dist)
+Config::setDistance(float distance)
 {
-    m_distance = dist;
+    m_config->set_double(GRP_MAIN, DISTANCE, distance);
 }
 
-const std::string &
+const std::string
 Config::getTimeFormat()
 {
-    return m_timeFormat;
+    std::string timeFormat{"%c\\n%D"};
+    if (m_config->has_key(GRP_MAIN, TIME_FORMAT))
+        timeFormat = m_config->get_string(GRP_MAIN, TIME_FORMAT);
+    return timeFormat;
 }
 
 void
-Config::setTimeFormat(std::string tmFormat)
+Config::setTimeFormat(const std::string& timeFormat)
 {
-    m_timeFormat = tmFormat;
+    m_config->set_string(GRP_MAIN, TIME_FORMAT, timeFormat);
 }
 
 void
 Config::setWeatherProductId(const std::string& weatherProductId)
 {
-    m_weatherProductId = weatherProductId;
+    m_config->set_string(GRP_MAIN, WEATHER_PRODUCT, weatherProductId);
 }
 
 std::string
 Config::getWeatherProductId()
 {
-    return m_weatherProductId;
+    std::string weatherProductId;
+    if (m_config->has_key(GRP_MAIN, WEATHER_PRODUCT))
+        weatherProductId = m_config->get_string(GRP_MAIN, WEATHER_PRODUCT);
+    return weatherProductId;
 }
 
 void
 Config::setWeatherServiceId(const std::string& weatherServiceId)
 {
-    m_weatherServiceId = weatherServiceId;
+    m_config->set_string(GRP_MAIN, WEATHER_SERVICE, weatherServiceId);
 }
 
 std::string
 Config::getWeatherServiceId()
 {
-    return m_weatherServiceId;
+    std::string weatherServiceId;
+    if (m_config->has_key(GRP_MAIN, WEATHER_SERVICE))
+        weatherServiceId = m_config->get_string(GRP_MAIN, WEATHER_SERVICE);
+    return weatherServiceId;
 }
 
 void
 Config::setWeatherTransparency(double transp)
 {
-    m_weatherTransparency = transp;
+    m_config->set_double(GRP_MAIN, WEATHER_TRANSP, transp);
 }
 
 double
 Config::getWeatherTransparency()
 {
-    return m_weatherTransparency;
+    double weatherTransparency{1.0};
+    if (m_config->has_key(GRP_MAIN, WEATHER_TRANSP))
+        weatherTransparency = m_config->get_double(GRP_MAIN, WEATHER_TRANSP);
+    return weatherTransparency;
 }
 
 void
 Config::setGeoJsonFile(const Glib::ustring& geoJsonFile)
 {
-    m_geoJsonFile = geoJsonFile;
+    m_config->set_string(GRP_MAIN, GEO_JSON_FILE, geoJsonFile);
 }
 
 
 Glib::ustring
 Config::getGeoJsonFile()
 {
-    return m_geoJsonFile;
+    Glib::ustring geoJsonFile;
+    if (m_config->has_key(GRP_MAIN, GEO_JSON_FILE))
+        geoJsonFile = m_config->get_string(GRP_MAIN, GEO_JSON_FILE);
+    return geoJsonFile;
 }
 
 std::vector<std::shared_ptr<WebMapServiceConf>>
@@ -387,43 +370,63 @@ Config::getWebMapServices()
 int
 Config::getWeatherMinPeriodSec()
 {
-    return m_waether_min_period_sec;
+    int waether_min_period_sec{5*60};
+    if (m_config->has_key(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS))
+        waether_min_period_sec = m_config->get_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS);
+    if (waether_min_period_sec < 60) {
+        waether_min_period_sec = 60;
+    }
+    if (waether_min_period_sec > 24 * 60 * 60) {
+        waether_min_period_sec = 24 * 60 * 60;
+    }
+    return waether_min_period_sec;
 }
 
 void
 Config::setWeatherMinPeriodSec(uint32_t sec)
 {
-    m_waether_min_period_sec = sec;
+    m_config->set_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS, sec);
 }
 
 Glib::ustring
 Config::getTimerValue()
 {
-    return m_timerValue;
+    Glib::ustring timerValue;
+    if (m_config->has_group(GRP_TIME)
+     && m_config->has_key(GRP_TIME, TIMER_VALUE))
+        timerValue = m_config->get_string(GRP_TIME, TIMER_VALUE);
+    return timerValue;
 }
 
 void
 Config::setTimerValue(const Glib::ustring& timer)
 {
-    m_timerValue = timer;
+    m_config->set_string(GRP_TIME, TIMER_VALUE, timer);
 }
 
 Glib::ustring
 Config::getTimeValue()
 {
-    return m_timeValue;
-}
-
-Glib::ustring
-Config::getLogLevel()
-{
-    return m_logLevel;
+    Glib::ustring timeValue;
+    if (m_config->has_group(GRP_TIME)
+     && m_config->has_key(GRP_TIME, TIME_VALUE))
+        timeValue = m_config->get_string(GRP_TIME, TIME_VALUE);
+    return timeValue;
 }
 
 void
 Config::setTimeValue(const Glib::ustring& time)
 {
-    m_timeValue = time;
+    m_config->set_string(GRP_TIME, TIME_VALUE, time);
+}
+
+Glib::ustring
+Config::getLogLevel()
+{
+    Glib::ustring logLevel{DEFAULT_LOG_LEVEL};
+    if (m_config->has_key(GRP_MAIN, LOG_LEVEL))
+        logLevel = m_config->get_string(GRP_MAIN, LOG_LEVEL);
+    return logLevel;
 }
 
 std::shared_ptr<WebMapServiceConf>

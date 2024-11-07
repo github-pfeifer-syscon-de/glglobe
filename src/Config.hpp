@@ -31,9 +31,9 @@ public:
     void read();
     void save();
 
-    std::string &getDayTextureFile();
+    std::string getDayTextureFile();
     void setDayTextureFile(std::string dayTex);
-    std::string &getNightTextureFile();
+    std::string getNightTextureFile();
     void setNightTexureFile(std::string nightText);
     int getLatitude();
     void setLatitude(int lat);
@@ -53,8 +53,8 @@ public:
     void setDistance(float dist);
     unsigned int getDebug();
     void setDebug(unsigned int  debug);
-    const std::string &getTimeFormat();
-    void setTimeFormat(std::string tmFormat);
+    const std::string getTimeFormat();
+    void setTimeFormat(const std::string& tmFormat);
     void setWeatherProductId(const std::string& weatherProduct);
     std::string getWeatherProductId();
     void setWeatherServiceId(const std::string& weatherServiceId);
@@ -106,30 +106,13 @@ protected:
     static constexpr auto TIMER_VALUE{"timerValue"};
     static constexpr auto TIME_VALUE{"timeValue"};
     static constexpr auto LOG_LEVEL{"logLevel"};
+    static constexpr auto DEFAULT_LOG_LEVEL{"Info"};
 
     static constexpr auto MIN_UPDATE_DELAY_SEC{5 * 60};
     static constexpr auto DEF_UPDATE_DELAY_SEC{30 * 60};
 private:
     Glib::KeyFile *m_config{nullptr};
-    int m_lat{0};   // default to equator
-    int m_lon{0};   // default to greenwich
-    float m_ambient{0.67f};
-    float m_diffuse{700.0f};
-    float m_specular{700.0f};
-    float m_twilight{0.08f};
     unsigned int m_debug{0};
-    float m_distance{100.0f};
-    float m_specular_power{5.0f};
-    std::string m_dayTextureFile;
-    std::string m_nightTextureFile;
-    std::string m_timeFormat{"%c\\n%D"};
-    std::string m_weatherServiceId;
-    std::string m_weatherProductId;
-    double m_weatherTransparency{1.0};
-    Glib::ustring m_geoJsonFile;
     std::vector<std::shared_ptr<WebMapServiceConf>> m_weatherServices;
-    int m_waether_min_period_sec{5*60};
-    Glib::ustring m_timerValue;
-    Glib::ustring m_timeValue;
-    Glib::ustring m_logLevel;
+
 };

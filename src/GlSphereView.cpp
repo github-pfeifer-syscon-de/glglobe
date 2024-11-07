@@ -277,8 +277,10 @@ GlSphereView::init(Gtk::GLArea *glArea)
         //std::cout << "geo vert: " << m_earth->getNumVertex()
         //          << " idx: " << m_earth->getNumIndex()
         //          << std::endl;
-        setDayTextureFile(m_config->getDayTextureFile());
-        setNightTextureFile(m_config->getNightTextureFile());
+        auto dayTex = m_config->getDayTextureFile();
+        setDayTextureFile(dayTex);
+        auto nightTex = m_config->getNightTextureFile();
+        setNightTextureFile(nightTex);
         // take images from file should safe some memory
         m_normalMapTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_normal_map.tif");
         m_speculatMapTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_specular_map.tif");
