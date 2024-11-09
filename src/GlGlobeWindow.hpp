@@ -30,12 +30,11 @@ public:
     GlGlobeWindow();
     virtual ~GlGlobeWindow();
 
-    void import_dialog_setup(Glib::RefPtr<Gtk::Builder> refBuilder, Glib::RefPtr<Gtk::Dialog> importdlg);
-
     void on_action_preferences();
     void on_action_about();
     void on_action_Timer();
     void save_config();
+    void showMessage(const Glib::ustring& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
 
 private:
     GlSphereView *m_sphereView;

@@ -16,6 +16,9 @@
  */
 
 #include <iostream>
+#include <format>
+#include <Log.hpp>
+#include <StringUtils.hpp>
 
 #include "Config.hpp"
 
@@ -24,14 +27,17 @@ Config::read()
 {
     m_config = new Glib::KeyFile();
     std::string cfg = get_config_name();
-    try {
-        if (!m_config->load_from_file(cfg, Glib::KEY_FILE_NONE)) {
-            std::cerr << "Error loading " << cfg << std::endl;
+    auto file = Gio::File::create_for_path(cfg);
+    if (file->query_exists()) {  // it is not a error, if the file doesn't exists
+        try {
+            if (!m_config->load_from_file(cfg, Glib::KEY_FILE_NONE)) {
+                std::cerr << "Error loading " << cfg << std::endl;
+            }
         }
-    }
-    catch (const Glib::FileError& exc) {
-        // may happen if didn't create a file (yet) but we can go on
-        std::cerr << "File Error loading " << cfg << " if its missing, it will be created?" << std::endl;
+        catch (const Glib::FileError& exc) {
+            Glib::ustring msg{std::format("Error {} loading config {}", exc.what(), cfg)};
+            psc::log::Log::logAdd(psc::log::Level::Error, msg);
+        }
     }
     if (!m_config->has_group(GRP_MAIN)) {   // create group
         m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
@@ -84,9 +90,10 @@ Config::read()
 
 }
 
-void
+bool
 Config::save()
 {
+    bool ret{false};
     if (m_config) {
         if (!m_config->has_group(GRP_MAIN)) {   // create group
             m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
@@ -106,11 +113,16 @@ Config::save()
                 m_config->set_boolean(GRP_MAIN, localTimeKey, weatherService->isViewCurrentTime());
             }
         }
-        std::string cfg = get_config_name();
-        if (!m_config->save_to_file(cfg)) {
-             std::cerr << "Error saving " << cfg << std::endl;
+        auto cfg = get_config_name();
+        try {
+            ret = m_config->save_to_file(cfg);
+        }
+        catch (const Glib::FileError& exc) {
+            Glib::ustring msg{std::format("Error {} saving config {}", exc.what(), cfg)};
+            psc::log::Log::logAdd(psc::log::Level::Error, msg);
         }
     }
+    return ret;
 }
 
 std::string

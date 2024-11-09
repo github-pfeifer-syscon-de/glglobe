@@ -59,30 +59,18 @@ GlGlobeWindow::~GlGlobeWindow()
 void
 GlGlobeWindow::save_config()
 {
-    m_config->save();
+    if (!m_config->save()) {
+        showMessage("Error saving config", Gtk::MessageType::MESSAGE_ERROR);
+    }
 }
 
 void
-GlGlobeWindow::import_dialog_setup(Glib::RefPtr<Gtk::Builder> refBuilder, Glib::RefPtr<Gtk::Dialog> importdlg)
+GlGlobeWindow::showMessage(const Glib::ustring& msg, Gtk::MessageType msgType)
 {
-    Gtk::FileChooserButton* fileFcBtn = nullptr;
-    refBuilder->get_widget("file", fileFcBtn);
-    if (fileFcBtn) {
-    }
-
-    Gtk::ProgressBar *progress = nullptr;
-    refBuilder->get_widget("progress", progress);
-
-    Gtk::Button* import = nullptr;
-    refBuilder->get_widget("import", import);
-    if (import) {
-        //GeoDb *geoDb = m_sphereView.getGeoDb();
-        //import->signal_clicked().connect(sigc::bind<Gtk::FileChooserButton *, Gtk::ProgressBar *, Glib::RefPtr<Gtk::Dialog>, Gtk::Button*>(
-        //                           sigc::mem_fun(geoDb, &GeoDb::import),
-        //                           fileFcBtn, progress, importdlg, import));
-    }
+    Gtk::MessageDialog messagedialog(*this, msg, false, msgType);
+    messagedialog.run();
+    messagedialog.hide();
 }
-
 
 void
 GlGlobeWindow::on_action_preferences()
@@ -121,8 +109,7 @@ GlGlobeWindow::on_action_about()
                 << std::endl;
     }
     catch (const Glib::Error& ex) {
-        std::cerr << std::source_location::current()
-                  << ": " << ex.what() << std::endl;
+        showMessage(Glib::ustring::sprintf("Error %s loading about-dlg", ex.what()), Gtk::MessageType::MESSAGE_ERROR);
     }
 }
 
@@ -146,8 +133,7 @@ GlGlobeWindow::on_action_Timer()
         }
     }
     catch (const Glib::Error& ex) {
-        std::cerr << std::source_location::current()
-                  << ": " << ex.what() << std::endl;
+        showMessage(Glib::ustring::sprintf("Error %s loading timer-dlg", ex.what()), Gtk::MessageType::MESSAGE_ERROR);
     }
 
 }

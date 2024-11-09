@@ -29,7 +29,7 @@ public:
     virtual ~Config() = default;
 
     void read();
-    void save();
+    bool save();
 
     std::string getDayTextureFile();
     void setDayTextureFile(std::string dayTex);

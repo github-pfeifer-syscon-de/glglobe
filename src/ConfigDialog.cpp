@@ -39,7 +39,7 @@ ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk
         pLat->set_increments(1, 10);
         pLat->set_range(-90, 90);
         pLat->set_value(config->getLatitude());
-        pLat->signal_changed().connect(sigc::bind<Gtk::SpinButton *>(
+        pLat->signal_value_changed().connect(sigc::bind<Gtk::SpinButton *>(
                                   sigc::mem_fun(*m_sphereView, &GlSphereView::lat_changed),
                                   pLat));
     }
@@ -49,7 +49,7 @@ ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk
         pLon->set_increments(1, 10);
         pLon->set_range(-180, 180);
         pLon->set_value(config->getLongitude());
-        pLon->signal_changed().connect(sigc::bind<Gtk::SpinButton *>(
+        pLon->signal_value_changed().connect(sigc::bind<Gtk::SpinButton *>(
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::lon_changed),
                                    pLon));
     }
