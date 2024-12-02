@@ -402,7 +402,7 @@ GlSphereView::request_weather_product()
 int
 GlSphereView::get_weather_image_size()
 {
-    return 1024;    // used for texture so requires power of two, higher values (e.g. 2048) lead to size limit exceeded...
+    return m_config->getWeatherImageSize();
 }
 
 /**

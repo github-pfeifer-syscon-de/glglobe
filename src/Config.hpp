@@ -74,12 +74,16 @@ public:
     Glib::ustring getLogLevel();
     std::shared_ptr<Weather> getService(WeatherConsumer* consumer,const std::shared_ptr<WebMapServiceConf>& serviceConf);
     std::shared_ptr<WebMapServiceConf> addWebMapService(const Glib::ustring& newName);
+    int getWeatherImageSize();
 
     static constexpr auto WEATHER_REAL_EARTH_CONF{"RE"};
     static constexpr auto WEATHER_WMS_CONF{"WMS"};
     static constexpr auto MAX_WEATHER_SERVICES{20};
     static constexpr auto SECS_PER_MINUTE{60};
     static constexpr auto SECS_PER_DAY{24 * 60 * SECS_PER_MINUTE};
+    static constexpr auto DEFAULT_WEATHER_IMAGE_SIZE{1024}; // used for texture so requires power of two
+    static constexpr auto MIN_WEATHER_IMAGE_SIZE{256};      // as above
+    static constexpr auto MAX_WEATHER_IMAGE_SIZE{4096};     // as above, higher values (e.g. 2048) lead to size limit exceeded so check with your prefered service
 protected:
     std::string get_config_name();
 
@@ -95,6 +99,7 @@ protected:
     static constexpr auto DISTANCE{"distance"};
     static constexpr auto SPECULAR_POWER{"specularPower"};
     static constexpr auto TIME_FORMAT{"timeFormat"};
+    static constexpr auto WEATHER_IMAGE_SIZE{"weatherImageSize"};
     static constexpr auto GRP_WIN{"win"};
     static constexpr auto WEATHER_SERVICE{"weatherService"};
     static constexpr auto WEATHER_PRODUCT{"weatherProduct"};
@@ -117,6 +122,7 @@ protected:
 private:
     Glib::KeyFile *m_config{nullptr};
     unsigned int m_debug{0};
+    int m_weatherImageSize{0};
     std::vector<std::shared_ptr<WebMapServiceConf>> m_weatherServices;
 
 };

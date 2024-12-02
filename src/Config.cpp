@@ -22,6 +22,7 @@
 #include <Weather.hpp>
 #include <RealEarth.hpp>
 #include <WebMapService.hpp>
+#include <cmath>
 
 #include "Config.hpp"
 
@@ -100,6 +101,9 @@ Config::save()
     if (m_config) {
         if (!m_config->has_group(GRP_MAIN)) {   // create group
             m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
+        }
+        if (m_weatherImageSize > 0) {
+            m_config->set_integer(GRP_MAIN, WEATHER_IMAGE_SIZE, m_weatherImageSize);
         }
         for (uint32_t i = 0; i < m_weatherServices.size(); ++i) {
             auto weatherService = m_weatherServices[i];
@@ -452,6 +456,31 @@ Config::getLogLevel()
     if (m_config->has_key(GRP_MAIN, LOG_LEVEL))
         logLevel = m_config->get_string(GRP_MAIN, LOG_LEVEL);
     return logLevel;
+}
+
+int
+Config::getWeatherImageSize()
+{
+    if (m_weatherImageSize > 0) {   // only do computation once
+        return m_weatherImageSize;
+    }
+    if (m_config->has_key(GRP_MAIN, WEATHER_IMAGE_SIZE)) {
+        m_weatherImageSize = m_config->get_integer(GRP_MAIN, WEATHER_IMAGE_SIZE);
+        // check if it is power of two, as it will be used as OpenGL texture
+        double pow2 = std::log2(m_weatherImageSize);
+        double integral;
+        double rem = std::modf(pow2, &integral);
+        if (rem > 0.0001) {
+            uint32_t shift = static_cast<uint32_t>(integral);
+            m_weatherImageSize = 1u << shift;
+        }
+        // limit to useful range
+        m_weatherImageSize = std::max(std::min(m_weatherImageSize, MAX_WEATHER_IMAGE_SIZE), MIN_WEATHER_IMAGE_SIZE);
+    }
+    else {
+        m_weatherImageSize = DEFAULT_WEATHER_IMAGE_SIZE;
+    }
+    return m_weatherImageSize;
 }
 
 std::shared_ptr<WebMapServiceConf>
