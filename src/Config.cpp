@@ -19,6 +19,9 @@
 #include <format>
 #include <Log.hpp>
 #include <StringUtils.hpp>
+#include <Weather.hpp>
+#include <RealEarth.hpp>
+#include <WebMapService.hpp>
 
 #include "Config.hpp"
 
@@ -42,7 +45,7 @@ Config::read()
     if (!m_config->has_group(GRP_MAIN)) {   // create group
         m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
     }
-    for (uint32_t i = 0; i < 10; ++i) {
+    for (uint32_t i = 0; i < MAX_WEATHER_SERVICES; ++i) {
         std::shared_ptr<WebMapServiceConf> weatherService;
         auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
         auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
@@ -379,17 +382,27 @@ Config::getWebMapServices()
     return m_weatherServices;
 }
 
+// as the vector is copied on return, need this to add entries
+std::shared_ptr<WebMapServiceConf>
+Config::addWebMapService(const Glib::ustring& newName)
+{
+    auto service = std::make_shared<WebMapServiceConf>(newName, "", 0, "", false);
+    m_weatherServices.push_back(service);
+    return service;
+}
+
+
 int
 Config::getWeatherMinPeriodSec()
 {
-    int waether_min_period_sec{5*60};
+    int waether_min_period_sec{5*SECS_PER_MINUTE};
     if (m_config->has_key(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS))
         waether_min_period_sec = m_config->get_integer(GRP_MAIN, WEATHER_MIN_PERIOD_SECONDS);
-    if (waether_min_period_sec < 60) {
-        waether_min_period_sec = 60;
+    if (waether_min_period_sec < SECS_PER_MINUTE) {
+        waether_min_period_sec = SECS_PER_MINUTE;
     }
-    if (waether_min_period_sec > 24 * 60 * 60) {
-        waether_min_period_sec = 24 * 60 * 60;
+    if (waether_min_period_sec > SECS_PER_DAY) {
+        waether_min_period_sec = SECS_PER_DAY;
     }
     return waether_min_period_sec;
 }
@@ -455,4 +468,22 @@ Config::getActiveWebMapServiceConf()
         }
     }
     return conf;
+}
+
+std::shared_ptr<Weather>
+Config::getService(WeatherConsumer* consumer,const std::shared_ptr<WebMapServiceConf>& serviceConf)
+{
+    Glib::ustring typeStr = serviceConf->getType();
+    if (typeStr == Config::WEATHER_REAL_EARTH_CONF) {
+        return std::make_shared<RealEarth>(consumer, serviceConf->getAddress());
+    }
+    else if (typeStr == Config::WEATHER_WMS_CONF) {
+        return std::make_shared<WebMapService>(consumer, serviceConf, getWeatherMinPeriodSec());
+    }
+    else {
+        psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
+            return std::format("refresh serviceId typeStr {}", typeStr);
+        });
+    }
+    return std::shared_ptr<Weather>();
 }

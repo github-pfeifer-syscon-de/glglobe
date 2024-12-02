@@ -76,6 +76,7 @@ public:
     void setLegendWeather(Glib::RefPtr<Gdk::Pixbuf> legend);
     void setWeatherDescription();
     void refreshWeatherProducts();
+    void on_action_weater(bool add);
 
 protected:
     void weather_product_changed();
@@ -87,6 +88,9 @@ private:
     Gtk::ComboBoxText* m_weatherServiceCombo{nullptr};
     bool m_blockWeatherProductUpdate{false};
     BoundsDisplay *m_boundsDisplay{nullptr};
+    std::shared_ptr<Config> m_config;
+    Gtk::Button* m_weatherEdit{nullptr};
+    Gtk::Button* m_weatherAdd{nullptr};
 };
 
 class ConfigGeoJsonGrid

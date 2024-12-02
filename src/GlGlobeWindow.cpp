@@ -25,6 +25,7 @@
 #include "GlGlobeApp.hpp"
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
+#include "WeatherDialog.hpp"
 
 
 GlGlobeWindow::GlGlobeWindow()
@@ -40,9 +41,16 @@ GlGlobeWindow::GlGlobeWindow()
 	#endif
     add(*naviGlArea);
 
-    add_action("timer", sigc::mem_fun(*this, &GlGlobeWindow::on_action_Timer));
+    add_action("timer", sigc::mem_fun(*this, &GlGlobeWindow::on_action_timer));
     add_action("preferences", sigc::mem_fun(*this, &GlGlobeWindow::on_action_preferences));
     add_action("about", sigc::mem_fun(*this, &GlGlobeWindow::on_action_about));
+    // radio actions are the best way to get a string parameter action, no radio involved
+    add_action_radio_string("weatherEdit",
+                    sigc::bind(
+                        sigc::mem_fun(*this, &GlGlobeWindow::on_action_weather), false), "");
+    add_action_radio_string("weatherAdd",
+                    sigc::bind(
+                        sigc::mem_fun(*this, &GlGlobeWindow::on_action_weather), true), "");
 
     Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create_from_resource(RESOURCE::resource("glglobe.png"));
     set_icon(icon);
@@ -51,10 +59,6 @@ GlGlobeWindow::GlGlobeWindow()
     show_all_children();
 }
 
-
-GlGlobeWindow::~GlGlobeWindow()
-{
-}
 
 void
 GlGlobeWindow::save_config()
@@ -75,15 +79,22 @@ GlGlobeWindow::showMessage(const Glib::ustring& msg, Gtk::MessageType msgType)
 void
 GlGlobeWindow::on_action_preferences()
 {
-    ConfigDialog *cfgdlg = ConfigDialog::create(m_sphereView);
-    if (cfgdlg) {
-        m_sphereView->set_config_dialog(cfgdlg);
-        cfgdlg->set_transient_for(*this);
-        cfgdlg->run();
-        cfgdlg->hide();
-        m_sphereView->set_config_dialog(nullptr);
+    m_cfgdlg = ConfigDialog::create(m_sphereView);
+    if (m_cfgdlg) {
+        m_cfgdlg->set_transient_for(*this);
+        m_cfgdlg->run();
+        closeConfigDlg();
+    }
+}
+
+void
+GlGlobeWindow::closeConfigDlg()
+{
+    if (m_cfgdlg) {
+        m_cfgdlg->hide();
         save_config();
-        delete cfgdlg;      // cleanup
+        delete m_cfgdlg;      // cleanup
+        m_cfgdlg = nullptr;
     }
 }
 
@@ -114,7 +125,27 @@ GlGlobeWindow::on_action_about()
 }
 
 void
-GlGlobeWindow::on_action_Timer()
+GlGlobeWindow::on_action_weather(const Glib::ustring& idStr, bool add)
+{
+    //std::cout << "GlGlobeWindow::on_action_weather id" << idStr << std::endl;
+    // to simplify the overall handling
+    //   close weather dialog here and reopen when weather setup is done
+    closeConfigDlg();
+    auto weatherDlg = WeatherDialog::create(m_config, idStr, add);
+    if (weatherDlg) {
+        weatherDlg->set_transient_for(*this);
+        int ret = weatherDlg->run();
+        weatherDlg->hide();
+        if (ret == Gtk::RESPONSE_OK) {
+            save_config();
+            on_action_preferences();    // reopen config
+        }
+        delete weatherDlg;      // cleanup
+    }
+}
+
+void
+GlGlobeWindow::on_action_timer()
 {
     auto refBuilder = Gtk::Builder::create();
     try {

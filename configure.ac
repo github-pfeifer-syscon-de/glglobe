@@ -24,7 +24,7 @@ AC_MSG_NOTICE([host_os $host_os])
 
 PKG_CHECK_MODULES(GTHREAD,gthread-2.0)
 
-PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.3])
+PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.4])
 
 dnl spec this as the version will most likely differ
 PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.3.1])

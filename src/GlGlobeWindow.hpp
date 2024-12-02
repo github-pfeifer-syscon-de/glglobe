@@ -28,15 +28,18 @@
 class GlGlobeWindow : public Gtk::ApplicationWindow {
 public:
     GlGlobeWindow();
-    virtual ~GlGlobeWindow();
+    virtual ~GlGlobeWindow() = default;
 
     void on_action_preferences();
     void on_action_about();
-    void on_action_Timer();
+    void on_action_weather(const Glib::ustring& id, bool add);
+    void on_action_timer();
     void save_config();
     void showMessage(const Glib::ustring& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
 
 private:
+    void closeConfigDlg();
     GlSphereView *m_sphereView;
     std::shared_ptr<Config> m_config;
+    ConfigDialog *m_cfgdlg{nullptr};
 };

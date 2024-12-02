@@ -373,18 +373,7 @@ GlSphereView::refresh_weather_service()
     m_weather.reset();
     auto serviceConf = m_config->getActiveWebMapServiceConf();
     if (serviceConf) {
-        auto type = serviceConf->getType();
-        if (type == Config::WEATHER_REAL_EARTH_CONF) {
-            m_weather = std::make_shared<RealEarth>(this, serviceConf->getAddress());
-        }
-        else if (type == Config::WEATHER_WMS_CONF) {
-            m_weather = std::make_shared<WebMapService>(this, serviceConf, m_config->getWeatherMinPeriodSec());
-        }
-        else {
-            m_log->log(psc::log::Level::Warn, [&] {
-                return std::format("refresh serviceId {}", serviceId);
-            });
-        }
+        m_weather = m_config->getService(this, serviceConf);
     }
     if (m_weather) {
         m_weather->setLog(m_log);

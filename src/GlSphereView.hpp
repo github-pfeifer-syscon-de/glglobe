@@ -87,15 +87,11 @@ public:
     int get_weather_image_size() override;
     void weather_transparency_changed(Gtk::Scale *weather_transparency);
     bool setGeoJsonFile(const Glib::ustring& file);
-    void set_config_dialog(ConfigDialog* cfgdlg) {
-        m_cfgdlg = cfgdlg;
-    }
     std::shared_ptr<Weather> refresh_weather_service();
     void request_weather_product();
     // as we have no Gis, so limit the complexity of usable files
     static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
-    constexpr static auto SYNOD_MOON = 29.530589;
-
+    static constexpr auto SYNOD_MOON{29.530589};
 protected:
     void show_error(const std::string& msg);
     Gdk::EventMask getAddEventMask() override;
@@ -141,7 +137,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> m_weather_pix;
     psc::gl::aptrGeom2 geoJsonGeom;
     static constexpr float EARTH_RADIUS{30.0f};
-    ConfigDialog *m_cfgdlg{nullptr};
     MoonContext *m_moonContext;
     psc::gl::aptrGeom2 m_moon;
     psc::gl::aptrTex2 m_moonTex;

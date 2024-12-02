@@ -33,7 +33,7 @@ ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
     auto config = m_sphereView->get_config();
-    Gtk::SpinButton* pLat = nullptr;
+    Gtk::SpinButton* pLat{nullptr};
     refBuilder->get_widget("lat", pLat);
     if(pLat) {
         pLat->set_increments(1, 10);
@@ -43,7 +43,7 @@ ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk
                                   sigc::mem_fun(*m_sphereView, &GlSphereView::lat_changed),
                                   pLat));
     }
-    Gtk::SpinButton* pLon = nullptr;
+    Gtk::SpinButton* pLon{nullptr};
     refBuilder->get_widget("lon", pLon);
     if(pLon) {
         pLon->set_increments(1, 10);
@@ -53,7 +53,7 @@ ConfigCoordGrid::ConfigCoordGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::lon_changed),
                                    pLon));
     }
-    Gtk::Entry* pTimeFormat = nullptr;
+    Gtk::Entry* pTimeFormat{nullptr};
     refBuilder->get_widget("time_format", pTimeFormat);
     if (pTimeFormat) {
         pTimeFormat->set_text(config->getTimeFormat());
@@ -67,7 +67,7 @@ ConfigTextureGrid::ConfigTextureGrid(BaseObjectType* cobject, const Glib::RefPtr
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
     auto config = m_sphereView->get_config();
-    Gtk::FileChooserButton* dayFcBtn = nullptr;
+    Gtk::FileChooserButton* dayFcBtn{nullptr};
     refBuilder->get_widget("day", dayFcBtn);
     if (dayFcBtn) {
         //std::cout << "day " << this.getDayTexureFile() << std::endl;
@@ -80,14 +80,14 @@ ConfigTextureGrid::ConfigTextureGrid(BaseObjectType* cobject, const Glib::RefPtr
                                    sigc::mem_fun(*this, &ConfigTextureGrid::daytex_changed),
                                    dayFcBtn));
     }
-    Gtk::Button* clearDay = nullptr;
+    Gtk::Button* clearDay{nullptr};
     refBuilder->get_widget("clearDay", clearDay);
     if (clearDay) {
         clearDay->signal_clicked().connect(sigc::bind<Gtk::FileChooserButton *>(
                                    sigc::mem_fun(*this, &ConfigTextureGrid::clearDayTextureFile),
                                    dayFcBtn));
     }
-    Gtk::FileChooserButton* nightFcBtn = nullptr;
+    Gtk::FileChooserButton* nightFcBtn{nullptr};
     refBuilder->get_widget("night", nightFcBtn);
     if (nightFcBtn) {
         nightFcBtn->set_filename(config->getNightTextureFile());
@@ -95,7 +95,7 @@ ConfigTextureGrid::ConfigTextureGrid(BaseObjectType* cobject, const Glib::RefPtr
                                    sigc::mem_fun(*this, &ConfigTextureGrid::nighttex_changed),
                                    nightFcBtn));
     }
-    Gtk::Button* clearNight = nullptr;
+    Gtk::Button* clearNight{nullptr};
     refBuilder->get_widget("clearNight", clearNight);
     if (clearNight) {
         clearNight->signal_clicked().connect(sigc::bind<Gtk::FileChooserButton *>(
@@ -138,7 +138,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
     auto config = m_sphereView->get_config();
-    Gtk::Scale* pAmbient = nullptr;
+    Gtk::Scale* pAmbient{nullptr};
     refBuilder->get_widget("ambient", pAmbient);
     if (pAmbient) {
         pAmbient->set_increments(0.01, 0.1);
@@ -148,7 +148,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::ambient_changed),
                                    pAmbient));
     }
-    Gtk::Scale* pDiffuse = nullptr;
+    Gtk::Scale* pDiffuse{nullptr};
     refBuilder->get_widget("diffuse", pDiffuse);
     if (pDiffuse) {
         pDiffuse->set_increments(10, 50);
@@ -158,7 +158,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::diffuse_changed),
                                    pDiffuse));
     }
-    Gtk::Scale* pSpecular = nullptr;
+    Gtk::Scale* pSpecular{nullptr};
     refBuilder->get_widget("specular", pSpecular);
     if (pSpecular) {
         pSpecular->set_increments(10, 50);
@@ -168,7 +168,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::specular_changed),
                                    pSpecular));
     }
-    Gtk::Scale* pSpecularPower = nullptr;
+    Gtk::Scale* pSpecularPower{nullptr};
     refBuilder->get_widget("specular_power", pSpecularPower);
     if (pSpecularPower) {
         pSpecularPower->set_increments(1, 10);
@@ -178,7 +178,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::specular_power_changed),
                                    pSpecularPower));
     }
-    Gtk::Scale* pTwilight = nullptr;
+    Gtk::Scale* pTwilight{nullptr};
     refBuilder->get_widget("twilight", pTwilight);
     if (pTwilight) {
         pTwilight->set_increments(1, 10);
@@ -188,7 +188,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::twilight_changed),
                                    pTwilight));
     }
-    Gtk::CheckButton* pDebug = nullptr;
+    Gtk::CheckButton* pDebug{nullptr};
     refBuilder->get_widget("debug", pDebug);
     if (pDebug) {
         pDebug->set_active(config->getDebug() != 0);
@@ -196,7 +196,7 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::debug_changed),
                                    pDebug));
     }
-    Gtk::Scale* pScaleDistance = nullptr;
+    Gtk::Scale* pScaleDistance{nullptr};
     refBuilder->get_widget("distance", pScaleDistance);
     if (pScaleDistance) {
         pScaleDistance->set_increments(1, 10);
@@ -211,13 +211,13 @@ ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefP
 ConfigWeatherGrid::ConfigWeatherGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    auto config = m_sphereView->get_config();
-    Gtk::Scale* pWeatherTransp = nullptr;
+    m_config = m_sphereView->get_config();
+    Gtk::Scale* pWeatherTransp{nullptr};
     refBuilder->get_widget("scaleWeather", pWeatherTransp);
     if (pWeatherTransp) {
         pWeatherTransp->set_increments(0.01, 0.1);
         pWeatherTransp->set_range(0.1, 2.0);
-        pWeatherTransp->set_value(config->getWeatherTransparency());
+        pWeatherTransp->set_value(m_config->getWeatherTransparency());
         pWeatherTransp->signal_value_changed().connect(sigc::bind<Gtk::Scale *>(
                                    sigc::mem_fun(*m_sphereView, &GlSphereView::weather_transparency_changed),
                                    pWeatherTransp));
@@ -234,16 +234,38 @@ ConfigWeatherGrid::ConfigWeatherGrid(BaseObjectType* cobject, const Glib::RefPtr
     }
     refBuilder->get_widget("comboWeatherService", m_weatherServiceCombo);
     if (m_weatherServiceCombo) {
-        auto confs = config->getWebMapServices();
+        auto confs = m_config->getWebMapServices();
         m_weatherServiceCombo->append("", "");  // allow empty selection
         for (auto servConf : confs) {
             m_weatherServiceCombo->append(servConf->getName(), servConf->getName());
         }
-        m_weatherServiceCombo->set_active_id(config->getWeatherServiceId());
+        m_weatherServiceCombo->set_active_id(m_config->getWeatherServiceId());
         m_weatherServiceCombo->signal_changed().connect(
                     sigc::mem_fun(*this, &ConfigWeatherGrid::weather_service_changed));
     }
     refBuilder->get_widget_derived("weatherBounds", m_boundsDisplay);
+    refBuilder->get_widget("weatherEdit", m_weatherEdit);
+    m_weatherEdit->signal_clicked().connect([&] {
+        auto appl = Glib::RefPtr<Gtk::Application>::cast_dynamic(Gtk::Application::get_default());
+        auto win = dynamic_cast<Gtk::ApplicationWindow*>(appl->get_active_window());
+        if (win) {
+            auto selected = m_weatherServiceCombo->get_active_id();
+            auto var = Glib::Variant<Glib::ustring>::create(selected);
+            win->activate_action("weatherEdit", var);
+        }
+    });
+    refBuilder->get_widget("weatherAdd", m_weatherAdd);
+    m_weatherAdd->signal_clicked().connect([&] {
+        auto appl = Glib::RefPtr<Gtk::Application>::cast_dynamic(Gtk::Application::get_default());
+        auto win = dynamic_cast<Gtk::ApplicationWindow*>(appl->get_active_window());
+        if (win) {
+            auto selected = m_weatherServiceCombo->get_active_id();
+            auto var = Glib::Variant<Glib::ustring>::create(selected);
+            win->activate_action("weatherAdd", var);
+        }
+    });
+    m_weatherAdd->set_sensitive(m_config->getWebMapServices().size() < Config::MAX_WEATHER_SERVICES);
+
     setWeatherDescription();
 }
 
@@ -312,6 +334,7 @@ ConfigWeatherGrid::weather_service_changed()
     std::cout << "ConfigWeatherGrid::weather_service_changed" << std::endl;
     #endif
     auto id = m_weatherServiceCombo->get_active_id();
+    m_weatherEdit->set_sensitive(!id.empty());
     m_sphereView->get_config()->setWeatherServiceId(id);
     m_sphereView->get_config()->setWeatherProductId("");
     m_blockWeatherProductUpdate = true;
@@ -384,14 +407,14 @@ ConfigGeoJsonGrid::ConfigGeoJsonGrid(BaseObjectType* cobject, const Glib::RefPtr
     refBuilder->get_widget("geoFileButton", m_geoJsonButton);
     if (m_geoJsonButton) {
         m_geoJsonButton->set_filename(config->getGeoJsonFile());
-        m_geoJsonButton->signal_file_set().connect(
-                                   sigc::mem_fun(*this, &ConfigGeoJsonGrid::geojsonfile_changed));
+        m_geoJsonButton->signal_file_set()
+                .connect(sigc::mem_fun(*this, &ConfigGeoJsonGrid::geojsonfile_changed));
     }
-    Gtk::Button* geoClearFile = nullptr;
+    Gtk::Button* geoClearFile{nullptr};
     refBuilder->get_widget("geoClearFile", geoClearFile);
     if (geoClearFile) {
-        geoClearFile->signal_clicked().connect(
-                                   sigc::mem_fun(*this, &ConfigGeoJsonGrid::clearGeoFile));
+        geoClearFile->signal_clicked()
+                .connect(sigc::mem_fun(*this, &ConfigGeoJsonGrid::clearGeoFile));
     }
 }
 

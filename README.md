@@ -26,7 +26,7 @@ Build for windows was integrated at least for msys2<br>
   look for "$host_os" = "mingw32"
 </pre>
 
-## Costumizing
+## Costomizing
 
 Additional formats:
 %D earth declination (for northern hemisphere)<br>
@@ -62,33 +62,7 @@ for windows user-home/appData/Local.
 ## Configuration
 
 The most obvious option use the dialog.
-For some advanced options use the config-file (see above)
-e.g. if you want to use some different WebMapService (i can't gurantee this will work, but it might be worth trying).
-These services are numberd from 0...9 the following values will be required suffixed with a sequential number:
-
-<ul>
-  <li>
-    <pre>weatherAddress</pre> the base address for WMS requests to test add "?service=WMS&version=1.3.0&request=GetCapabilities" and you should get a XML document with the avaialble services.
-  </li>
-  <li>
-    <pre>weatherName</pre> a unique name that helps to idenifiy the service
-  </li>
-  <li>
-    <pre>weatherDelay</pre> services usually helpful to use the nearest time for a request, but picky if you get to close to the actual time (this can be estimated from the difference of latest value of dimension time to actual time, for a service with a short period)
-  </li>
-  <li>
-    <pre>weatherType</pre> WMS for WebMapService, RE for RealEarth (which is non-generic)
-  </li>
-  <li>
-    <pre>weatherLocalTime</pre> usually false (true if service offers some prognosis but you want to view current time)
-  </li>
-</ul>
-
-This is target on some near time images provided with regular intervals.
-This is not a GIS (Geo info system) so it will not work with services
-that offer fragmented timelines / historic images
-for example (https://neo.gsfc.nasa.gov/about/wms.php
-( QGis might help you better with these)).
+For some advanced options use the config-file (see above).
 
 ## Troubleshooting
 

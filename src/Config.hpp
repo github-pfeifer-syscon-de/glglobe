@@ -72,10 +72,14 @@ public:
     Glib::ustring getTimeValue();
     void setTimeValue(const Glib::ustring& time);
     Glib::ustring getLogLevel();
+    std::shared_ptr<Weather> getService(WeatherConsumer* consumer,const std::shared_ptr<WebMapServiceConf>& serviceConf);
+    std::shared_ptr<WebMapServiceConf> addWebMapService(const Glib::ustring& newName);
 
     static constexpr auto WEATHER_REAL_EARTH_CONF{"RE"};
     static constexpr auto WEATHER_WMS_CONF{"WMS"};
-
+    static constexpr auto MAX_WEATHER_SERVICES{20};
+    static constexpr auto SECS_PER_MINUTE{60};
+    static constexpr auto SECS_PER_DAY{24 * 60 * SECS_PER_MINUTE};
 protected:
     std::string get_config_name();
 

@@ -36,6 +36,8 @@
               <object class="GtkGrid" id="configCoordGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="row-spacing">3</property>
+                <property name="column-spacing">3</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
@@ -143,6 +145,8 @@
               <object class="GtkGrid" id="configTextureGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="row-spacing">3</property>
+                <property name="column-spacing">3</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
@@ -263,6 +267,8 @@
               <object class="GtkGrid" id="configLigthingGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="row-spacing">3</property>
+                <property name="column-spacing">3</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
@@ -460,6 +466,8 @@
               <object class="GtkGrid" id="configWeatherGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="row-spacing">3</property>
+                <property name="column-spacing">3</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
@@ -567,16 +575,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText" id="comboWeatherService">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -610,6 +608,58 @@
                     <property name="top-attach">1</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="spacing">3</property>
+                    <child>
+                      <object class="GtkComboBoxText" id="comboWeatherService">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="hexpand">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="weatherEdit">
+                        <property name="label">gtk-edit</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="use-stock">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="weatherAdd">
+                        <property name="label">gtk-add</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="use-stock">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="position">3</property>
@@ -631,6 +681,8 @@
               <object class="GtkGrid" id="configGeoJsonGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="row-spacing">3</property>
+                <property name="column-spacing">3</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
