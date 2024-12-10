@@ -153,9 +153,13 @@ WeatherDialog::on_action_help()
     Glib::RefPtr<const Glib::Bytes> refHelp;
     std::string localeMsg = std::setlocale(LC_MESSAGES, nullptr);
     if (localeMsg.length() >= 2) {  // try to find language
-        auto testName = "help_" + localeMsg.substr(0, 2) + ".txt";
-        std::string testRes = RESOURCE::resource(testName.c_str());
-        refHelp = Gio::Resource::lookup_data_global(testRes);
+        try {
+            auto testName = "help_" + localeMsg.substr(0, 2) + ".txt";
+            std::string testRes = RESOURCE::resource(testName.c_str());
+            refHelp = Gio::Resource::lookup_data_global(testRes);
+        }
+        catch (const Glib::Error& ex) { // this may fail, so use en
+        }
     }
     if (!refHelp) {
         std::string helpRes = RESOURCE::resource("help.txt");
