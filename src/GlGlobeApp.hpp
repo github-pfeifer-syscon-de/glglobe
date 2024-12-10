@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2018 rpf
  *
@@ -29,6 +30,9 @@ public:
     void on_activate() override;
     void on_startup() override;
     void on_shutdown();
+protected:
+    void showMessage(const Glib::ustring& msg, Gtk::MessageType msgType);
+
 private:
     GlGlobeWindow* m_glglobeAppWindow;
 

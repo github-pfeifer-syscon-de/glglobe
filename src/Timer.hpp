@@ -44,6 +44,7 @@ protected:
     virtual bool updateTimer(int minute, int seconds) = 0;
     Gtk::Entry* m_timerValue{nullptr};
     Gtk::Entry* m_timeValue{nullptr};
+    void showMessage(const Glib::ustring& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
 
 private:
     bool m_timerRunning{false};

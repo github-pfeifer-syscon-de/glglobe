@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2018 rpf
  *
@@ -20,6 +21,9 @@
 #include <future>
 #include <GenericGlmCompat.hpp>
 #include <StringUtils.hpp>
+#include <filesystem>
+#include <psc_i18n.hpp>
+#include <psc_format.hpp>
 
 #include "GlGlobeWindow.hpp"
 #include "GlGlobeApp.hpp"
@@ -64,7 +68,7 @@ void
 GlGlobeWindow::save_config()
 {
     if (!m_config->save()) {
-        showMessage("Error saving config", Gtk::MessageType::MESSAGE_ERROR);
+        showMessage(_("Error saving config"), Gtk::MessageType::MESSAGE_ERROR);
     }
 }
 
@@ -114,13 +118,18 @@ GlGlobeWindow::on_action_about()
             abtdlg->hide();
         }
         else
-            std::cerr << std::source_location::current()
-                //<< " trace" << std::stacktract::current()
-                << " No \"abt-dlg\" object in abt-dlg.ui"
-                << std::endl;
+            showMessage(
+                psc::fmt::vformat(
+                      _("No \"{}\" object in {}")
+                    , psc::fmt::make_format_args("abt-dlg", "abt-dlg.ui"))
+                , Gtk::MessageType::MESSAGE_ERROR);
     }
     catch (const Glib::Error& ex) {
-        showMessage(Glib::ustring::sprintf("Error %s loading about-dlg", ex.what()), Gtk::MessageType::MESSAGE_ERROR);
+        showMessage(
+                psc::fmt::vformat(
+                      _("Error {} while loading {}")
+                    , psc::fmt::make_format_args(ex, "abt-dlg.ui"))
+                , Gtk::MessageType::MESSAGE_ERROR);
     }
 }
 
@@ -159,12 +168,19 @@ GlGlobeWindow::on_action_timer()
             delete timer; // keep running in background will not allow to hide after second show/run
         }
         else {
-            std::cerr << std::source_location::current()
-                      << ": No \"timer-dlg\" object in timer-dlg.ui" << std::endl;
+            showMessage(
+                    psc::fmt::vformat(
+                          _("No \"{}\" object in {}")
+                        , psc::fmt::make_format_args("timer-dlg", "timer-dlg.ui"))
+                    , Gtk::MessageType::MESSAGE_ERROR);
         }
     }
     catch (const Glib::Error& ex) {
-        showMessage(Glib::ustring::sprintf("Error %s loading timer-dlg", ex.what()), Gtk::MessageType::MESSAGE_ERROR);
+        showMessage(
+                psc::fmt::vformat(
+                      _("Error {} while loading {}")
+                    , psc::fmt::make_format_args(ex, "timer-dlg.ui"))
+                , Gtk::MessageType::MESSAGE_ERROR);
     }
 
 }

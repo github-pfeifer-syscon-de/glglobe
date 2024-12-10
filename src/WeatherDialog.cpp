@@ -18,6 +18,9 @@
 
 
 #include <StringUtils.hpp>
+#include <psc_format.hpp>
+#include <psc_i18n.hpp>
+#include <clocale>
 
 #include "Config.hpp"
 #include "GlSphereView.hpp"
@@ -83,19 +86,19 @@ WeatherDialog::WeatherDialog(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Bu
             sigc::mem_fun(*this, &WeatherDialog::on_action_save));
     m_btnSave->set_sensitive(false);
 
-    int col = m_productList->append_column("Name", m_weatherColumns.m_name);
+    int col = m_productList->append_column(_("Name"), m_weatherColumns.m_name);
     auto column = m_productList->get_column(col-1);
     column->set_fixed_width(300);       // don't allow to push other columns out of view
-    m_productList->append_column("Start", m_weatherColumns.m_dimStart);
-    m_productList->append_column("End", m_weatherColumns.m_dimEnd);
-    m_productList->append_column("Period", m_weatherColumns.m_dimPeriod);
+    m_productList->append_column(_("Start"), m_weatherColumns.m_dimStart);
+    m_productList->append_column(_("End"), m_weatherColumns.m_dimEnd);
+    m_productList->append_column(_("Period"), m_weatherColumns.m_dimPeriod);
     m_productModel = Gtk::ListStore::create(m_weatherColumns);
     m_productList->set_model(m_productModel);
     m_productList->get_selection()->signal_changed().connect(
             sigc::mem_fun(*this, &WeatherDialog::on_action_select));
-    m_protocolList->append_column("Date", m_protocolColumns.m_date);
-    m_protocolList->append_column("Level", m_protocolColumns.m_level);
-    m_protocolList->append_column("Message", m_protocolColumns.m_message);
+    m_protocolList->append_column(_("Date"), m_protocolColumns.m_date);
+    m_protocolList->append_column(_("Level"), m_protocolColumns.m_level);
+    m_protocolList->append_column(_("Message"), m_protocolColumns.m_message);
     m_protocolModel = Gtk::ListStore::create(m_protocolColumns);
     m_protocolList->set_model(m_protocolModel);
 
@@ -147,11 +150,21 @@ WeatherDialog::on_action_help()
     text->set_visible(true);
     text->set_editable(false);
     text->set_wrap_mode(Gtk::WrapMode::WRAP_WORD);
-    std::string helpRes = RESOURCE::resource("help.txt");
-    Glib::RefPtr<const Glib::Bytes> refHelp = Gio::Resource::lookup_data_global(helpRes);
+    Glib::RefPtr<const Glib::Bytes> refHelp;
+    std::string localeMsg = std::setlocale(LC_MESSAGES, nullptr);
+    if (localeMsg.length() >= 2) {  // try to find language
+        auto testName = "help_" + localeMsg.substr(0, 2) + ".txt";
+        std::string testRes = RESOURCE::resource(testName.c_str());
+        refHelp = Gio::Resource::lookup_data_global(testRes);
+    }
+    if (!refHelp) {
+        std::string helpRes = RESOURCE::resource("help.txt");
+        refHelp = Gio::Resource::lookup_data_global(helpRes);
+    }
     uint64_t size{0ul};
     gconstpointer gp = refHelp->get_data(size);
-    Glib::ustring helpText(static_cast<const char*>(gp), size);
+    // use string as the length is "bytes" (ustring expects utf-8 chars)!
+    std::string helpText(static_cast<const char*>(gp), size);
     text->get_buffer()->set_text(helpText);
     helpdialog.set_transient_for(*this);
     helpdialog.set_modal(false);
@@ -255,7 +268,10 @@ WeatherDialog::validate(Glib::ustring& newName, bool checkProducts)
     newName = m_entryName->get_text();
     StringUtils::trim(newName);
     if (newName.empty()) {
-        showMessage(Glib::ustring::sprintf("Please select a non empty name \"%s\".", newName));
+        showMessage(
+                psc::fmt::vformat(
+                    _("Please select a non empty name \"{}\".")
+                    , psc::fmt::make_format_args(newName)));
         return false;
     }
     auto services = m_config->getWebMapServices();
@@ -263,12 +279,14 @@ WeatherDialog::validate(Glib::ustring& newName, bool checkProducts)
         auto service = services[idx];
         if (idx != static_cast<uint32_t>(m_idx)
          && service->getName() == newName) {
-            showMessage(Glib::ustring::sprintf("Please select a unique name \"%s\" has been used.", newName));
+            showMessage(psc::fmt::vformat(
+                    _("Please select a unique name \"{}\" has already been used.")
+                    , psc::fmt::make_format_args(newName)));
             return false;
         }
     }
     if (checkProducts && m_productModel->children().empty()) {
-        showMessage(Glib::ustring::sprintf("Please try \"Refresh\" first."));
+        showMessage( _("Please try \"Refresh\" first."));
         return false;
     }
     return true;

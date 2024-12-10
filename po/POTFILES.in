@@ -1,0 +1,14 @@
+# List of source files which contain translatable strings.
+
+# Package source files
+src/GlGlobeApp.cpp
+src/GlGlobeWindow.cpp
+src/ConfigDialog.cpp
+src/GlSphereView.cpp
+src/WeatherDialog.cpp
+src/Timer.cpp
+res/abt-dlg.ui
+res/app-menu.ui
+res/timer-dlg.ui
+res/weather-dlg.ui
+res/cfg-dlg.ui

@@ -103,11 +103,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="formatLink">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
-                    <property name="label" translatable="yes">&lt;a href="https://gnome.pages.gitlab.gnome.org/glibmm/classGlib_1_1DateTime.html#a7795905c8db173a973f965a7f27c7f51"&gt;glib DateTime format&lt;/a&gt; and &lt;a href="https://cplusplus.com/reference/ctime/strftime/"&gt;strftime&lt;/a&gt;</property>
                     <property name="use-markup">True</property>
                     <property name="selectable">True</property>
                     <property name="track-visited-links">False</property>
@@ -474,8 +473,7 @@
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
                     <property name="margin-end">10</property>
-                    <property name="label" translatable="yes">Legend
-</property>
+                    <property name="label" translatable="yes">Legend</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -580,8 +578,7 @@
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
                     <property name="margin-end">10</property>
-                    <property name="label" translatable="yes">Bounds
-</property>
+                    <property name="label" translatable="yes">Bounds</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>

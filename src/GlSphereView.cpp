@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2018 rpf
  *
@@ -31,10 +32,9 @@
 #include <glm/trigonometric.hpp>  //radians
 #include <RealEarth.hpp>
 #include <WebMapService.hpp>
-#if __GNUC__ >= 13
-#include <format>
-#endif
 #include <StringUtils.hpp>
+#include <psc_i18n.hpp>
+#include <psc_format.hpp>
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
@@ -368,7 +368,7 @@ GlSphereView::refresh_weather_service()
               << " serviceId " << serviceId << std::endl;
     #endif
     m_log->log(psc::log::Level::Info, [&] {
-        return std::format("refresh serviceId {}", serviceId);
+        return psc::fmt::format("refresh serviceId {}", serviceId);
     });
     m_weather.reset();
     auto serviceConf = m_config->getActiveWebMapServiceConf();
@@ -390,7 +390,7 @@ GlSphereView::request_weather_product()
 {
     auto weatherProductId = m_config->getWeatherProductId();
     m_log->log(psc::log::Level::Info, [&] {
-        return std::format("request weather_product {}", weatherProductId);
+        return psc::fmt::format("request weather_product {}", weatherProductId);
     });
     m_weather_pix->fill(0x0);    // indicate something is going on by setting transp. black
     update_weather_tex();
@@ -458,7 +458,7 @@ GlSphereView::weather_image_notify(WeatherImageRequest& request)
             //std::cout << Weather::dump(pixdata, 64u) << std::endl;
             // copy to dest
             m_log->log(psc::log::Level::Info, [&] {
-                return std::format("weather_image_notify width {} height {} n_chan {} sampl {}", pix->get_width(), pix->get_height(), pix->get_n_channels(), pix->get_bits_per_sample());
+                return psc::fmt::format("weather_image_notify width {} height {} n_chan {} sampl {}", pix->get_width(), pix->get_height(), pix->get_n_channels(), pix->get_bits_per_sample());
             });
             request.mapping(pix, m_weather_pix);
             update_weather_tex();
@@ -576,7 +576,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     }
     else {
         m_log->log(psc::log::Level::Error, [&] {
-            return std::format("missing resource to display earth earth {} dayTex {} nightTex {} normTex {} spec {} weather {}"
+            return psc::fmt::format("missing resource to display earth earth {} dayTex {} nightTex {} normTex {} spec {} weather {}"
                     , learth.operator bool(), ldayTex.operator bool(), lnightTex.operator bool(), lnormalMapTex.operator bool(), lspeculatMapTex.operator bool(), lweatherTex.operator bool());
         });
     }
@@ -624,7 +624,7 @@ GlSphereView::draw(Gtk::GLArea *glArea, Matrix &projin, Matrix &view)
     }
     else {
         m_log->log(psc::log::Level::Error, [&] {
-            return std::format("missing resource to display moon {} tex {}"
+            return psc::fmt::format("missing resource to display moon {} tex {}"
                     , lmoon.operator bool(), lmoonTex.operator bool());
         });
     }
@@ -635,7 +635,7 @@ GlSphereView::hm(const double& timeM)
 {
 	int h = (int)timeM / 60;
 	int m = (int)timeM % 60;
-	Glib::ustring hm(Glib::ustring::sprintf("%02d:%02d", h, m));
+	Glib::ustring hm(psc::fmt::format("{:02d}:{:02d}", h, m));
 	return hm;
 }
 
@@ -645,8 +645,7 @@ GlSphereView::customize_time(Glib::ustring prepared)
 {
     auto pos = prepared.find("%D", 0);
     if (pos != Glib::ustring::npos) { // use std format with %D for declication
-        Glib::ustring fmt{"%.1f°"};
-        Glib::ustring d(Glib::ustring::sprintf(fmt, m_earth_declination_deg));
+        Glib::ustring d(psc::fmt::format("{:.1f}°", m_earth_declination_deg));
         prepared.replace(pos, 2, d);
     }
 	pos = prepared.find("%rise", 0);
@@ -751,7 +750,11 @@ GlSphereView::setDayTextureFile(std::string &dayTex)
             m_config->setDayTextureFile(dayTex);
         }
         catch (const Glib::Error &exc) {
-            show_error(exc.what());
+            showMessage(
+                    psc::fmt::vformat(
+                        _("Error {} setting {} texture")
+                        , psc::fmt::make_format_args(exc, "day"))
+                    , Gtk::MessageType::MESSAGE_ERROR);
         }
     }
     if (def) {
@@ -822,7 +825,11 @@ GlSphereView::setNightTextureFile(std::string &nightTex)
             m_config->setNightTexureFile(nightTex);
         }
         catch (const Glib::Error &exc) {
-            show_error(exc.what());
+            showMessage(
+                    psc::fmt::vformat(
+                        _("Error {} setting {} texture")
+                        , psc::fmt::make_format_args(exc, "night"))
+                    , Gtk::MessageType::MESSAGE_ERROR);
         }
     }
     if (def) {
@@ -840,16 +847,20 @@ GlSphereView::setGeoJsonFile(const Glib::ustring& file)
     if (!file.empty()) {
         Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(file);
         if (!f->query_exists()) {
-            auto msg = Glib::ustring::sprintf("The requested file %s does not exist.", file);
-            show_error(msg);
+            auto msg = psc::fmt::vformat(
+                _("The requested file {} does not exist.")
+                , psc::fmt::make_format_args(file));
+            showMessage(msg);
         }
         else {
             Glib::RefPtr<Gio::Cancellable> cancel = Gio::Cancellable::create();
             Glib::RefPtr<Gio::FileInfo> attr = f->query_info(cancel, "standard::*");
             if (attr->get_size() > GEO_FILE_SIZE_LIMIT) {
-                auto msg = Glib::ustring::sprintf("The requested file %s exceeds the size limit %d with %d.",
-                                         file, GEO_FILE_SIZE_LIMIT, attr->get_size());
-                show_error(msg);
+                auto size = attr->get_size();
+                auto msg = psc::fmt::vformat(
+                    _("The requested file {} exceeds the size limit {} with {}.")
+                        , psc::fmt::make_format_args(file, GEO_FILE_SIZE_LIMIT, size));
+                showMessage(msg);
             }
             else {
                 m_naviGlArea->make_current();
@@ -866,8 +877,11 @@ GlSphereView::setGeoJsonFile(const Glib::ustring& file)
                         ret = true;
                     }
                     catch (const JsonException& ex) {
-                        auto msg = ex.what();
-                        show_error(msg);
+                        auto err = ex.what();
+                        auto msg = psc::fmt::vformat(
+                                        _("Error {} loading json-file {}")
+                                        , psc::fmt::make_format_args(err, file));
+                        showMessage(msg);
                     }
                 }
             }
@@ -878,12 +892,11 @@ GlSphereView::setGeoJsonFile(const Glib::ustring& file)
 }
 
 void
-GlSphereView::show_error(const std::string& msg)
+GlSphereView::showMessage(const std::string& msg, Gtk::MessageType msgType)
 {
-    Gtk::MessageDialog* dialog = new Gtk::MessageDialog("Error", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-    dialog->set_secondary_text(msg);
-    dialog->run();
-    delete dialog;
+    Gtk::MessageDialog dialog(msg, false, msgType, Gtk::BUTTONS_CLOSE);
+    dialog.run();
+    dialog.hide();
 }
 
 
@@ -971,7 +984,7 @@ GlSphereView::calcuateMoonLight()
     //    auto phase = moonPhase(jd);
     //    auto phaseLega = moonPhaseLeagacy(jd);
     //    std::cout << std::source_location::current() << "::moonPhase"
-    //              << std::format(" i {:4d} jd {:18.3f} moonPh {:6.3f} leagacy {:6.3f} diff {:6.3f}",
+    //              << psc::fmt::format(" i {:4d} jd {:18.3f} moonPh {:6.3f} leagacy {:6.3f} diff {:6.3f}",
     //                             i, jd, phase, phaseLega, (phaseLega - phase))
     //              << std::endl;
     //    jd += 1.0;

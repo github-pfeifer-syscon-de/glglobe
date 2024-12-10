@@ -54,7 +54,6 @@ glglobe_SOURCES = \
 
 glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
-# -lstdc++_libbacktrace using stacktrace
 glglobe_LDADD = \
 	$(GEODATA_LIBS) \
 	$(GTHREAD_LIBS) \
@@ -64,3 +63,4 @@ glglobe_LDADD = \
 uninstall-local:
 	-rm -r $(pkgdatadir)
 
+EXTRA_DIST = m4/ChangeLog

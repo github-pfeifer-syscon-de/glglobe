@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2023 RPf <gpl3@pfeifer-syscon.de>
  *
@@ -16,6 +17,8 @@
  */
 
 #include <iostream>
+#include <psc_i18n.hpp>
+#include <psc_format.hpp>
 
 #include "ConfigDialog.hpp"
 #include "GlSphereView.hpp"
@@ -137,6 +140,13 @@ ConfigTextureGrid::nighttex_changed(Gtk::FileChooserButton* nightFcBtn)
 ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
+    Gtk::Label* pFormatLink{nullptr};
+    refBuilder->get_widget("formatLink", pFormatLink);
+    pFormatLink->set_label(psc::fmt::vformat(
+            _("<a href=\"{}\">glib DateTime format</a> and <a href=\"{}\">strftime</a>"),
+                psc::fmt::make_format_args(
+                    "https://gnome.pages.gitlab.gnome.org/glibmm/classGlib_1_1DateTime.html#a7795905c8db173a973f965a7f27c7f51"
+                  , "https://cplusplus.com/reference/ctime/strftime/")));
     auto config = m_sphereView->get_config();
     Gtk::Scale* pAmbient{nullptr};
     refBuilder->get_widget("ambient", pAmbient);
@@ -465,12 +475,19 @@ ConfigDialog::create(GlSphereView* sphereView)
             return cfgdlg;
         }
         else {
-            std::cerr << "ConfigDialog::create: No \"cfg-dlg\" object in cfg-dlg.ui"
-                << std::endl;
+            sphereView->showMessage(
+                psc::fmt::vformat(
+                      _("No \"{}\" object in {}")
+                    , psc::fmt::make_format_args("cfg-dlg", "cfg-dlg.ui"))
+                , Gtk::MessageType::MESSAGE_ERROR);
         }
     }
     catch (const Glib::Error& ex) {
-        std::cerr << "ConfigDialog::create " << ex.what() << std::endl;
+        sphereView->showMessage(
+                psc::fmt::vformat(
+                      _("Error {} while loading {}")
+                    , psc::fmt::make_format_args(ex, "cfg-dlg.ui"))
+                , Gtk::MessageType::MESSAGE_ERROR);
     }
     return nullptr;
 }

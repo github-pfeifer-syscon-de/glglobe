@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Provides the ability to calculate the local time for sunrise,
  * sunset, and moonrise at any point in time at any location in the world

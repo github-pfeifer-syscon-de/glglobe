@@ -1,0 +1,332 @@
+# German translations for glglobe package.
+# This file is put in the public domain.
+#  <glglobe@pfeifer-syscon.de>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: glglobe 0.1\n"
+"Report-Msgid-Bugs-To: glglobe@pfeifer-syscon.de\n"
+"POT-Creation-Date: 2024-12-09 15:42+0100\n"
+"PO-Revision-Date: 2024-12-05 15:05+0100\n"
+"Last-Translator: Roland Pfeifer <glglobe@pfeifer-syscon.de>\n"
+"Language-Team: de <glglobe@pfeifer-syscon.de>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/GlGlobeApp.cpp:98 src/GlGlobeWindow.cpp:123 src/GlGlobeWindow.cpp:173
+#: src/ConfigDialog.cpp:480 src/Timer.cpp:50
+#, c++-format
+msgid "No \"{}\" object in {}"
+msgstr "Kein \"{}\" Object in {}"
+
+#: src/GlGlobeApp.cpp:105 src/GlGlobeWindow.cpp:130 src/GlGlobeWindow.cpp:181
+#: src/ConfigDialog.cpp:488
+#, c++-format
+msgid "Error {} while loading {}"
+msgstr "Fehler {} beim laden von {}"
+
+#: src/GlGlobeWindow.cpp:71
+msgid "Error saving config"
+msgstr "Fehler beim speichern der Konfiguration"
+
+#: src/ConfigDialog.cpp:146
+#, c++-format
+msgid "<a href=\"{}\">glib DateTime format</a> and <a href=\"{}\">strftime</a>"
+msgstr ""
+"<a href=\"{}\">glib DateTime Formate</a> und <a href=\"{}\">strftime</a>"
+
+#: src/GlSphereView.cpp:755 src/GlSphereView.cpp:830
+#, c++-format
+msgid "Error {} setting {} texture"
+msgstr "Fehler {} beim setzen der {}-Textur"
+
+#: src/GlSphereView.cpp:851
+#, c++-format
+msgid "The requested file {} does not exist."
+msgstr "Die Datei {} existiert nicht."
+
+#: src/GlSphereView.cpp:861
+#, c++-format
+msgid "The requested file {} exceeds the size limit {} with {}."
+msgstr "Die Datei {} überschreitet das Limit {} mit {}."
+
+#: src/GlSphereView.cpp:882
+#, fuzzy, c++-format
+#| msgid "Error {} while loading {}"
+msgid "Error {} loading json-file {}"
+msgstr "Fehler {} beim laden der Json-Datei {}"
+
+#: src/WeatherDialog.cpp:89 res/weather-dlg.ui:105
+msgid "Name"
+msgstr "Name"
+
+#: src/WeatherDialog.cpp:92
+msgid "Start"
+msgstr "Start"
+
+#: src/WeatherDialog.cpp:93
+msgid "End"
+msgstr "Ende"
+
+#: src/WeatherDialog.cpp:94
+msgid "Period"
+msgstr "Periode"
+
+#: src/WeatherDialog.cpp:99
+msgid "Date"
+msgstr "Datum"
+
+#: src/WeatherDialog.cpp:100
+msgid "Level"
+msgstr "Ebene"
+
+#: src/WeatherDialog.cpp:101
+msgid "Message"
+msgstr "Nachricht"
+
+#: src/WeatherDialog.cpp:276
+#, c++-format
+msgid "Please select a non empty name \"{}\"."
+msgstr "Bitte verwenden sie keinen leeren Namen \"{}\"."
+
+#: src/WeatherDialog.cpp:286
+#, c++-format
+msgid "Please select a unique name \"{}\" has already been used."
+msgstr ""
+"Bitte verwenden Sie einen eindeutigen Name, \"{}\" wurde bereits verwendet."
+
+#: src/WeatherDialog.cpp:292
+msgid "Please try \"Refresh\" first."
+msgstr "Bitte verwenden Sie \"Aktualisieren\" um die Einstellung zu testen."
+
+#: src/Timer.cpp:104
+#, c++-format
+msgid ""
+"The value {} was not understood, please use 1:23 for a 1 minute and 23 "
+"seconds delay!"
+msgstr ""
+"Der Wert {} kann nicht verwendet werden, bitte verwenden Sie 1:23 für eine "
+"Erinnerung in 1 Minute und 23 Sekunden !"
+
+#: src/Timer.cpp:138
+#, c++-format
+msgid ""
+"The value {} was not understood, please use 11:45 for a reminder at 11 "
+"o'clock and 45 minutes!"
+msgstr ""
+"Der Wert {} kann nicht verwendet werden, bitte verwenden Sie 11:45 für eine "
+"Erinnerung um 11 Uhr und 45 Minuten!"
+
+#: src/Timer.cpp:162
+msgid "Timer expired!"
+msgstr "Timer abgelaufen!"
+
+#: src/Timer.cpp:170
+msgid "Time reached!"
+msgstr "Zeit erreicht"
+
+#: res/abt-dlg.ui:9
+msgid ""
+"R. Pfeifer 2018 \n"
+"Sun calculations: (GPL) 2015 Peter Buelow"
+msgstr ""
+"R. Pfeifer 2018 \n"
+"Positionsberrechnung Sonne: (GPL) 2015 Peter Buelow"
+
+#: res/app-menu.ui:7
+msgid "_Preferences"
+msgstr "_Einstellungen"
+
+#: res/app-menu.ui:11
+msgid "_About"
+msgstr "Über"
+
+#: res/app-menu.ui:15
+msgid "_Timer"
+msgstr "_Timer"
+
+#: res/app-menu.ui:19
+msgid "_Quit"
+msgstr "_Beenden"
+
+#: res/timer-dlg.ui:65
+msgid "Duration (e.g. min:sec)"
+msgstr "Dauer (z.B. min:sec)"
+
+#: res/timer-dlg.ui:76
+msgid "0:00"
+msgstr "0:00"
+
+#: res/timer-dlg.ui:96
+#, fuzzy
+#| msgid "_Timer"
+msgid "Timer"
+msgstr "_Timer"
+
+#: res/timer-dlg.ui:112
+msgid "At (e.g. hour:min)"
+msgstr "Um (z.B. Stunde:Minute)"
+
+#: res/timer-dlg.ui:144
+msgid "Reminder"
+msgstr "Erinnerung"
+
+#: res/weather-dlg.ui:70
+msgid "Type"
+msgstr "Typ"
+
+#: res/weather-dlg.ui:92
+msgid "WebMapService WMS, or RealEarth (which is non-generic)"
+msgstr "WebMapService WMS, oder RealEarth (nicht generisch)"
+
+#: res/weather-dlg.ui:127
+msgid "A unique name that helps to identifiy the service"
+msgstr "Ein eindeutiger Name um den Service zu identifizieren"
+
+#: res/weather-dlg.ui:140
+msgid "Address"
+msgstr "Adresse"
+
+#: res/weather-dlg.ui:162
+msgid "The base address or URL for the info request"
+msgstr "Die Basisadresse (URL) für die Infoanfrage"
+
+#: res/weather-dlg.ui:175
+msgid "Delay (min.)"
+msgstr "Verzügerung (Minuten)"
+
+#: res/weather-dlg.ui:198
+msgid "Use near current time"
+msgstr "Verwende nahe der aktuellen Zeit"
+
+#: res/weather-dlg.ui:214
+msgid "see Help"
+msgstr "siehe Hilfe"
+
+#: res/weather-dlg.ui:228
+msgid "Products"
+msgstr "Produkte"
+
+#: res/weather-dlg.ui:275 res/cfg-dlg.ui:500
+msgid "Description"
+msgstr "Beschreibung"
+
+#: res/weather-dlg.ui:307
+msgid "Free services use a delay (more infos see Help)"
+msgstr "Freie Services verwenden eine Verzögerung (siehe Hilfe)"
+
+#: res/weather-dlg.ui:321
+msgid "Protocol"
+msgstr "Protokoll"
+
+#: res/cfg-dlg.ui:46
+msgid "Longitude"
+msgstr "Längengrad"
+
+#: res/cfg-dlg.ui:70
+msgid "Latitude"
+msgstr "Breitengrad"
+
+#: res/cfg-dlg.ui:93
+msgid "Text"
+msgstr "Text"
+
+#: res/cfg-dlg.ui:136
+msgid "Coordinate"
+msgstr "Koordinate"
+
+#: res/cfg-dlg.ui:154
+msgid "Day"
+msgstr "Tag"
+
+#: res/cfg-dlg.ui:166
+msgid "Day texture"
+msgstr "Tagestextur"
+
+#: res/cfg-dlg.ui:175 res/cfg-dlg.ui:212
+msgid "Default"
+msgstr "Standard"
+
+#: res/cfg-dlg.ui:191
+msgid "Night"
+msgstr "Nacht"
+
+#: res/cfg-dlg.ui:203
+msgid "Night texture"
+msgstr "Nachttextur"
+
+#: res/cfg-dlg.ui:227
+msgid "Texture origin"
+msgstr "Texturursprung"
+
+#: res/cfg-dlg.ui:257
+msgid "Texture"
+msgstr "Textur"
+
+#: res/cfg-dlg.ui:276
+msgid "Twilight"
+msgstr "Zwielicht"
+
+#: res/cfg-dlg.ui:303
+msgid "Ambient"
+msgstr "Umgebungungslicht"
+
+#: res/cfg-dlg.ui:316
+msgid "Diffuse"
+msgstr "Diffus"
+
+#: res/cfg-dlg.ui:329
+msgid "Specular"
+msgstr ""
+
+#: res/cfg-dlg.ui:342
+msgid "Specular power"
+msgstr "Glanz potenz"
+
+#: res/cfg-dlg.ui:355
+msgid "Distance"
+msgstr "Entfernung"
+
+#: res/cfg-dlg.ui:456
+msgid "Lighting"
+msgstr "Beleuchtung"
+
+#: res/cfg-dlg.ui:476
+msgid "Legend"
+msgstr "Legende"
+
+#: res/cfg-dlg.ui:528
+msgid "Transparency"
+msgstr "Transparenz"
+
+#: res/cfg-dlg.ui:555
+msgid "Display"
+msgstr "Anzeige"
+
+#: res/cfg-dlg.ui:568
+msgid "Service"
+msgstr "Service"
+
+#: res/cfg-dlg.ui:581
+msgid "Bounds"
+msgstr "Begrenzung"
+
+#: res/cfg-dlg.ui:669
+msgid "Weather"
+msgstr "Wetter"
+
+#: res/cfg-dlg.ui:688
+msgid "File"
+msgstr "Datei"
+
+#: res/cfg-dlg.ui:709
+msgid "Clear"
+msgstr "Löschen"
+
+#: res/cfg-dlg.ui:737
+msgid "Geo.json"
+msgstr "Geo.json"
+

@@ -4,21 +4,14 @@
     <file preprocess="xml-stripblanks">app-menu.ui</file>
     <file preprocess="xml-stripblanks">cfg-dlg.ui</file>
     <file preprocess="xml-stripblanks">abt-dlg.ui</file>
-    <file preprocess="xml-stripblanks">import-dlg.ui</file>
     <file preprocess="xml-stripblanks">timer-dlg.ui</file>
     <file preprocess="xml-stripblanks">weather-dlg.ui</file>
     <file>help.txt</file>
+    <file>help_de.txt</file>
     <file>sphere-vertex.glsl</file>
     <file>sphere-fragment.glsl</file>
     <file>moon-vertex.glsl</file>
     <file>moon-fragment.glsl</file>
-    <!-- https://www.solarsystemscope.com/textures/ -->
-    <!-- load this from fs reduces resource usage slightly
-     file>2k_earth_daymap.jpg</file>
-    <file>2k_earth_nightmap.jpg</file>
-    <file>2k_earth_normal_map.tif</file>
-    <file>2k_earth_specular_map.tif</file>
-    <file>2k_moon.jpg</file -->
     <file>glglobe.png</file>
   </gresource>
 </gresources>

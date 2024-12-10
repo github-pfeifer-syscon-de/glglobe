@@ -3,10 +3,11 @@ dnl Process this file with autoconf to produce a configure script.
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_INIT([glglobe],[0.1],[glglobe@pfeifer-syscon.de])
+dnl point to unique-file-in-source-dir, for safety check
+AC_CONFIG_SRCDIR([src/GlGlobeApp.cpp])
+AM_INIT_AUTOMAKE
 
 AC_CONFIG_HEADERS([config.h])
-
-AM_INIT_AUTOMAKE([1.11])
 
 AM_SILENT_RULES([yes])
 
@@ -28,13 +29,15 @@ PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.4])
 
 dnl spec this as the version will most likely differ
 PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.3.1])
-PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.3.7])
+PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.4.0])
 
 dnl dont repeat dependencies from geodata
 dnl PKG_CHECK_MODULES(GLIBMM,glibmm-2.4)
 dnl PKG_CHECK_MODULES(GTKMM, [gtkmm-3.0 ])
 dnl PKG_CHECK_MODULES(LIBSOUP3, [libsoup-3.0])
 dnl PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
+
+AM_GNU_GETTEXT([external])
 
 AC_ARG_WITH([gles], AS_HELP_STRING([--with-gles], [use glesv3 (e.g. Raspi) otherweise fullgl, requires same use as with GenericGlm]))
 
@@ -55,5 +58,6 @@ AC_CONFIG_FILES([
 Makefile
 src/Makefile
 res/Makefile
+po/Makefile.in
 ])
 AC_OUTPUT

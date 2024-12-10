@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2018 rpf
  *
@@ -89,11 +90,11 @@ public:
     bool setGeoJsonFile(const Glib::ustring& file);
     std::shared_ptr<Weather> refresh_weather_service();
     void request_weather_product();
+    void showMessage(const std::string& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
     // as we have no Gis, so limit the complexity of usable files
     static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
     static constexpr auto SYNOD_MOON{29.530589};
 protected:
-    void show_error(const std::string& msg);
     Gdk::EventMask getAddEventMask() override;
     double julianDate();
     void calcuateEarthLight();

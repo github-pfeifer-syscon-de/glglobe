@@ -17,9 +17,8 @@
  */
 
 #include <iostream>
-#if __GNUC__ >= 13
-#include <format>
-#endif
+#include <psc_format.hpp>
+#include <psc_i18n.hpp>
 #include <ctime>
 
 #include "Config.hpp"
@@ -47,7 +46,10 @@ Timer::Timer(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuild
         });
     }
     else {
-        std::cout << "The expected startButton was not found!" << std::endl;
+        showMessage(psc::fmt::vformat(
+                      _("No \"{}\" object in {}")
+                    , psc::fmt::make_format_args("startButton", "timer-dlg.ui"))
+                    ,  Gtk::MessageType::MESSAGE_ERROR);
     }
     if (m_config) {
         m_timerValue->set_text(m_config->getTimerValue());
@@ -62,6 +64,15 @@ Timer::~Timer()
         m_timer.disconnect(); // No more updating
     }
 }
+
+void
+Timer::showMessage(const Glib::ustring& msg, Gtk::MessageType msgType)
+{
+    Gtk::MessageDialog messagedialog(msg, false, msgType);
+    messagedialog.run();
+    messagedialog.hide();
+}
+
 
 bool
 Timer::parseTimerValue()
@@ -89,9 +100,10 @@ Timer::parseTimerValue()
         }
     }
     catch (std::invalid_argument const& ex) {
-        Gtk::MessageDialog dialog = Gtk::MessageDialog("Invalid value", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text(Glib::ustring::sprintf("The value %s was not understood, please use 01:23 for a 1 minute and 23 seconds delay!", timeValue));
-        dialog.run();
+        showMessage(psc::fmt::vformat(
+                _("The value {} was not understood, please use 1:23 for a 1 minute and 23 seconds delay!")
+                , psc::fmt::make_format_args(timeValue))
+                ,  Gtk::MessageType::MESSAGE_ERROR);
     }
     return false;
 }
@@ -122,9 +134,10 @@ Timer::parseTimeValue()
         }
     }
     catch (std::invalid_argument const& ex) {
-        Gtk::MessageDialog dialog = Gtk::MessageDialog("Invalid value", false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-        dialog.set_secondary_text(Glib::ustring::sprintf("The value %s was not understood, please use 11:45 for a reminder at 11 o'clock and 45 minutes!", timeValue));
-        dialog.run();
+         showMessage(psc::fmt::vformat(
+                 _("The value {} was not understood, please use 11:45 for a reminder at 11 o'clock and 45 minutes!")
+                 , psc::fmt::make_format_args(timeValue))
+                 ,  Gtk::MessageType::MESSAGE_ERROR);
     }
     return false;
 }
@@ -146,9 +159,7 @@ Timer::timeout()
         if (!m_timerRunning) {
             m_timerValue->set_text(m_config->getTimerValue());
             get_window()->beep();
-            Gtk::MessageDialog dialog = Gtk::MessageDialog("Timeout", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE);
-            dialog.set_secondary_text("Timer expired!");
-            dialog.run();
+            showMessage(_("Timer expired!"));
         }
     }
     if (m_timeRunning) {
@@ -156,9 +167,7 @@ Timer::timeout()
         if (!m_timeRunning)  {
             m_timeValue->set_text(m_config->getTimeValue());
             get_window()->beep();
-            Gtk::MessageDialog dialog = Gtk::MessageDialog("Reminder", false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE);
-            dialog.set_secondary_text("Time reached!");
-            dialog.run();
+            showMessage(_("Time reached!"));
         }
     }
     if (m_timerRunning || m_timeRunning) {
@@ -190,10 +199,9 @@ TimerChrono::updateTime(int hours, int minutes)
     auto localZone = std::chrono::current_zone();   // as our input counts as local, need to adjust to utc
     m_time -= localZone->get_info(m_time).offset;
 #else
-    auto time = g_date_time_new_now_local();
-    auto offs = g_date_time_get_utc_offset(time);
+    Glib::DateTime dtnow = Glib::DateTime::create_now_local();
+    auto offs = dtnow.get_utc_offset();
     m_time -= chronoMicroSeconds(offs);
-    g_date_time_unref(time);
 #endif
     auto now = std::chrono::system_clock::now();
     if (now > m_time) {
@@ -219,14 +227,7 @@ TimerChrono::timeTimeout()
     auto m = minutes.count() - h * 60l;
     auto s = seconds.count() - minutes.count() * 60l;
     if (h > 0 || m > 0 ||s > 0) {
-        Glib::ustring remain;
-        #if __GNUC__ >= 13
-        // the benefit is, here we get some type safety!
-        std::format_to(std::back_inserter(remain), "{:02}:{:02}:{:02}", h, m, s);
-        #else
-        remain += Glib::ustring::sprintf("%02d:%02d:%02d"
-            , static_cast<int>(h), static_cast<int>(m), static_cast<int>(s));
-        #endif
+        Glib::ustring remain{psc::fmt::format("{}:{:02}:{:02}", h, m, s)};
         m_timeValue->set_text(remain);
         return true;
     }
@@ -252,16 +253,10 @@ TimerChrono::timerTimeout()
     //std::cout << __FILE__ << "::timerTimeout elapsed " << elapsed
     //          << " seconds " << seconds
     //          << " sec " << sec << std::endl;
-    Glib::ustring remain;
     auto minutes{sec / 60l};
     sec -= minutes * 60l;
     if (minutes > 0 || sec > 0) {
-        #if __GNUC__ >= 13
-        std::format_to(std::back_inserter(remain), "{:02}:{:02}", minutes, sec);
-        #else
-        remain += Glib::ustring::sprintf("%02d:%02d"
-                , static_cast<int>(minutes), static_cast<int>(sec));
-        #endif
+        Glib::ustring remain{std::format("{}:{:02}", minutes, sec)};
         m_timerValue->set_text(remain);
         return true;
     }
