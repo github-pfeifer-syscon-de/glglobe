@@ -32,7 +32,7 @@
 #    ifdef __WIN32__
 #  define USE_CHRONO_TZ
 #include <chrono>
-#include <format>
+#include <psc_format.hpp>
 #    endif
 #  endif
 #endif
@@ -126,7 +126,7 @@ Tz::Tz(const std::string &line)
         }
     }
     psc::log::Log::logAdd(psc::log::Level::Notice, [&] {
-        return std::format("Parsing Timezones unusable line \"{}\"", line);
+        return psc::fmt::format("Parsing Timezones unusable line \"{}\"", line);
     });
 }
 
@@ -251,7 +251,7 @@ Tz::updateTime()
     try {
         using namespace std::chrono;
         auto now = zoned_time{getName(), system_clock::now()};
-        tm = std::format("{:%R}", now);
+        tm = psc::fmt::format("{:%R}", now);
     }
     catch (const std::exception& ex) {
         if (!warned) {      // only report once
@@ -336,7 +336,7 @@ TimezoneInfo::TimezoneInfo()
         }
         else {
             psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
-                return std::format("Timezone reading {} not opened", name);
+                return psc::fmt::format("Timezone reading {} not opened", name);
             });
             //std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
         }
@@ -344,7 +344,7 @@ TimezoneInfo::TimezoneInfo()
     catch (const std::ios_base::failure &e) {
         if (!stat.eof()) {  // as we may hit eof while reading ...
             psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
-                return std::format("Timezone reading {} {}", name, e);
+                return psc::fmt::format("Timezone reading {} {}", name, e);
             });
         }
     }

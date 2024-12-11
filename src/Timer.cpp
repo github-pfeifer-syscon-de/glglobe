@@ -256,7 +256,7 @@ TimerChrono::timerTimeout()
     auto minutes{sec / 60l};
     sec -= minutes * 60l;
     if (minutes > 0 || sec > 0) {
-        Glib::ustring remain{std::format("{}:{:02}", minutes, sec)};
+        Glib::ustring remain{psc::fmt::format("{}:{:02}", minutes, sec)};
         m_timerValue->set_text(remain);
         return true;
     }

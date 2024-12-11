@@ -17,7 +17,7 @@
  */
 
 #include <iostream>
-#include <format>
+#include <psc_format.hpp>
 #include <Log.hpp>
 #include <StringUtils.hpp>
 #include <Weather.hpp>
@@ -40,7 +40,7 @@ Config::read()
             }
         }
         catch (const Glib::FileError& exc) {
-            Glib::ustring msg{std::format("Error {} loading config {}", exc.what(), cfg)};
+            Glib::ustring msg{psc::fmt::format("Error {} loading config {}", exc.what(), cfg)};
             psc::log::Log::logAdd(psc::log::Level::Error, msg);
         }
     }
@@ -126,7 +126,7 @@ Config::save()
             ret = m_config->save_to_file(cfg);
         }
         catch (const Glib::FileError& exc) {
-            Glib::ustring msg{std::format("Error {} saving config {}", exc.what(), cfg)};
+            Glib::ustring msg{psc::fmt::format("Error {} saving config {}", exc.what(), cfg)};
             psc::log::Log::logAdd(psc::log::Level::Error, msg);
         }
     }
@@ -512,7 +512,7 @@ Config::getService(WeatherConsumer* consumer,const std::shared_ptr<WebMapService
     }
     else {
         psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
-            return std::format("refresh serviceId typeStr {}", typeStr);
+            return psc::fmt::format("refresh serviceId typeStr {}", typeStr);
         });
     }
     return std::shared_ptr<Weather>();
