@@ -23,7 +23,6 @@
 #include <exception>
 #include <thread>
 #include <future>
-#include <filesystem>
 #include <clocale>
 
 #include "GlGlobeWindow.hpp"
@@ -114,13 +113,13 @@ main(int argc, char** argv) {
     //std::locale::global(std::locale("")); // Use the current user/system locale
     char* loc = std::setlocale(LC_ALL, "");  // this seems not to work with individual categories
     if (loc != nullptr) {
-        std::cout << "setlocale " << loc << std::endl;
+        //std::cout << "setlocale " << loc << std::endl;
+        // sync c++
+        std::locale::global(std::locale(loc));
     }
     else {
         std::cout << "error setlocale " << std::endl;
     }
-    // sync c++
-    std::locale::global(std::locale(std::setlocale(LC_ALL, nullptr)));
     bindtextdomain(PACKAGE, PACKAGE_LOCALE_DIR);
     textdomain(PACKAGE);
     Glib::init();
