@@ -291,28 +291,30 @@ Tz::setDotVisible(bool visible)
 
 TimezoneInfo::TimezoneInfo()
 {
-    char name[128];
-    snprintf(name, sizeof(name), "/usr/share/zoneinfo/zone1970.tab");
+    std::string name = PACKAGE_DATA_DIR "/../zoneinfo/zone1970.tab";
     struct stat sb;
-    int ret = stat(name, &sb);
-    //std::cout << name << " ret: " << ret << " mode: " << sb.st_mode << std::endl;
+    int ret = stat(name.c_str(), &sb);
+    //psc::log::Log::logAdd(psc::log::Level::Info,
+    //        psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} ret: {} mode: {}", name, ret, sb.st_mode ));
     if (ret == ENOENT
      || ret == -1) {
-        snprintf(name, sizeof(name), "/usr/share/zoneinfo/zone.tab");
-        ret = stat(name, &sb);
-        //std::cout << name << " ret: " << ret << " mode: " << sb.st_mode << std::endl;
+        name = PACKAGE_DATA_DIR "/../zoneinfo/zone.tab";
+        ret = stat(name.c_str(), &sb);
+        //psc::log::Log::logAdd(psc::log::Level::Info,
+        //        psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} ret: {} mode: {}", name, ret, sb.st_mode ));
         if (ret == ENOENT
          || ret == -1) {
+            psc::log::Log::logAdd(psc::log::Level::Error,
+                    psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} ret: {} mode: {} not timezone available.", name, ret, sb.st_mode ));
             // alternative: const gchar *reg_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones\\";
             //  if (RegQueryValueExA (key, "Std", nullptr, nullptr, (LPBYTE)&(tzi.StandardName), &size) != ERROR_SUCCESS)
             //  see https://github.com/GNOME/glib/blob/master/glib/gtimezone.c
             //  but this has no position info?
-            const char *msyshome = getenv("MSYS_HOME");
-            if (msyshome != nullptr) {
-                snprintf(name, sizeof(name), "%s/share/zoneinfo/zone1970.tab", msyshome);
-                ret = stat(name, &sb);
-            }
-            //std::cout << name << " ret: " << ret << " mode: " << sb.st_mode << std::endl;
+            //const char *msyshome = getenv("MSYS_HOME");
+            //if (msyshome != nullptr) {
+            //    name = psc::fmt::format("{}/share/zoneinfo/zone1970.tab", msyshome);
+            //    ret = stat(name.c_str(), &sb);
+            //}
         }
     }
 
