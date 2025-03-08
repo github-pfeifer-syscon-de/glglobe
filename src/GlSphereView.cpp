@@ -51,7 +51,6 @@ GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
 , m_fixView{1.0f}
 , m_light()
 , m_earth_declination_deg{0.0}
-, m_timezoneInfo{nullptr}
 , m_markContext{nullptr}
 , m_sunRise{0.0}
 , m_sunSet{0.0}
@@ -300,7 +299,7 @@ GlSphereView::init(Gtk::GLArea *glArea)
         ltext->setScale(0.020f);
         ltext->setPosition(pt);
     }
-    m_timezoneInfo = std::make_shared<TimezoneInfo>();
+    m_timezoneInfo = std::make_shared<TimezoneInfo>(m_config);
     m_timezoneInfo->createGeometry(m_markContext, m_textContext, m_font);
 
     setGeoJsonFile(m_config->getGeoJsonFile());

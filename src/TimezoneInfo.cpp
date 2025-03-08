@@ -23,8 +23,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <glm/trigonometric.hpp>  //radians
 #ifdef __GNUC__
@@ -289,23 +287,28 @@ Tz::setDotVisible(bool visible)
         lpoint->setSelfVisible(visible);
 }
 
-TimezoneInfo::TimezoneInfo()
+TimezoneInfo::TimezoneInfo(const std::shared_ptr<Config>& config)
 {
-    std::string name = PACKAGE_DATA_DIR "/../zoneinfo/zone1970.tab";
-    struct stat sb;
-    int ret = stat(name.c_str(), &sb);
+    auto tzDir = config->getTimezoneDir();
+    if (!tzDir || !tzDir->query_exists()) {
+#       ifdef __WIN32__
+        auto dataDir = Gio::File::create_for_path(PACKAGE_DATA_DIR);
+        tzDir = dataDir->resolve_relative_path("../zoneinfo");
+#       else
+        tzDir = Gio::File::create_for_path("/usr/share/zoneinfo");
+#       endif
+        config->setTimezoneDir(tzDir);
+    }
+    auto name = tzDir->get_child("zone1970.tab");
     //psc::log::Log::logAdd(psc::log::Level::Info,
     //        psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} ret: {} mode: {}", name, ret, sb.st_mode ));
-    if (ret == ENOENT
-     || ret == -1) {
-        name = PACKAGE_DATA_DIR "/../zoneinfo/zone.tab";
-        ret = stat(name.c_str(), &sb);
+    if (!name->query_exists()) {
+        name = tzDir->get_child("zone.tab");
         //psc::log::Log::logAdd(psc::log::Level::Info,
         //        psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} ret: {} mode: {}", name, ret, sb.st_mode ));
-        if (ret == ENOENT
-         || ret == -1) {
+        if (!name->query_exists()) {
             psc::log::Log::logAdd(psc::log::Level::Error,
-                    psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} ret: {} mode: {} not timezone available.", name, ret, sb.st_mode ));
+                    psc::fmt::format( "TimezoneInfo::TimezoneInfo name {} not timezone available.", name->get_path()));
             // alternative: const gchar *reg_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones\\";
             //  if (RegQueryValueExA (key, "Std", nullptr, nullptr, (LPBYTE)&(tzi.StandardName), &size) != ERROR_SUCCESS)
             //  see https://github.com/GNOME/glib/blob/master/glib/gtimezone.c
@@ -322,7 +325,7 @@ TimezoneInfo::TimezoneInfo()
     std::ios_base::iostate exceptionMask = stat.exceptions() | std::ios::failbit | std::ios::badbit | std::ios::eofbit;
     stat.exceptions(exceptionMask);
     try {
-        stat.open(name);        /* Open tz file  */
+        stat.open(name->get_path());        /* Open tz file  */
         if (stat.is_open()) {
             while (!stat.eof()) {
                 std::string str;
@@ -338,7 +341,7 @@ TimezoneInfo::TimezoneInfo()
         }
         else {
             psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
-                return psc::fmt::format("Timezone reading {} not opened", name);
+                return psc::fmt::format("Timezone reading {} not opened", name->get_path());
             });
             //std::cerr << name << " coud not be read, no timzone info will be available." << std::endl;
         }
@@ -346,7 +349,7 @@ TimezoneInfo::TimezoneInfo()
     catch (const std::ios_base::failure &e) {
         if (!stat.eof()) {  // as we may hit eof while reading ...
             psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
-                return psc::fmt::format("Timezone reading {} {}", name, e);
+                return psc::fmt::format("Timezone reading {} {}", name->get_path(), e);
             });
         }
     }

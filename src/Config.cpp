@@ -186,6 +186,23 @@ Config::setDayTextureFile(std::string dayTextureFile)
     m_config->set_string(GRP_MAIN, DAYTEX, dayTextureFile);
 }
 
+Glib::RefPtr<Gio::File>
+Config::getTimezoneDir()
+{
+    Glib::RefPtr<Gio::File> tzDirFile;
+    if (m_config->has_key(GRP_MAIN, TIMEZONE_DIR)) {
+        auto tzDir = m_config->get_string(GRP_MAIN, TIMEZONE_DIR);
+        tzDirFile = Gio::File::create_for_path(tzDir);
+    }
+    return tzDirFile;
+}
+
+void
+Config::setTimezoneDir(const Glib::RefPtr<Gio::File>& tzDir)
+{
+    m_config->set_string(GRP_MAIN, TIMEZONE_DIR, tzDir->get_path());
+}
+
 std::string
 Config::getNightTextureFile()
 {

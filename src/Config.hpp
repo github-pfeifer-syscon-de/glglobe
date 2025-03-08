@@ -76,6 +76,8 @@ public:
     std::shared_ptr<Weather> getService(WeatherConsumer* consumer,const std::shared_ptr<WebMapServiceConf>& serviceConf);
     std::shared_ptr<WebMapServiceConf> addWebMapService(const Glib::ustring& newName);
     int getWeatherImageSize();
+    Glib::RefPtr<Gio::File> getTimezoneDir();
+    void setTimezoneDir(const Glib::RefPtr<Gio::File>& tzDir);
 
     static constexpr auto WEATHER_REAL_EARTH_CONF{"RE"};
     static constexpr auto WEATHER_WMS_CONF{"WMS"};
@@ -117,6 +119,7 @@ protected:
     static constexpr auto TIME_VALUE{"timeValue"};
     static constexpr auto LOG_LEVEL{"logLevel"};
     static constexpr auto DEFAULT_LOG_LEVEL{"Info"};
+    static constexpr auto TIMEZONE_DIR{"timezoneDir"};
 
     static constexpr auto MIN_UPDATE_DELAY_SEC{5 * 60};
     static constexpr auto DEF_UPDATE_DELAY_SEC{30 * 60};

@@ -30,7 +30,7 @@ Localisation (at the moment de) was added if anything relatet
 to that area is missing "gettextisize" might help.
 But it will not show up, unless the  program is installed.
 
-## Costomizing
+## Customizing
 
 Additional formats:
 %D earth declination (for northern hemisphere)<br>
@@ -46,6 +46,17 @@ The function uses the shortest path between the given points,
 but as we live on a sphere (almost) that might hide some part of the lines (these cases should be rare,
 and i didn't try to bend the lines as i live in some aged country with "wrinkles" all over).
 
+The timezone display need a info where the major cities can be found.
+With linux there are files located in "/usr/share/zoneinfo"
+which are named "zone1970.tab" or "zone.tab".
+To make this work with msys2 the directory is
+derived from the application data dir.
+So if you choosen a non standard install dir,
+or want to customize the displayed cities,
+you can adapt the directory by
+setting "zimezoneDir" in the "globe"
+section of the config file (~/.config/glglobe.conf)
+if the settings were saved by opening & closing the preferences.
 
 ## Navigation
 

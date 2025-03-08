@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: glglobe 0.1\n"
 "Report-Msgid-Bugs-To: glglobe@pfeifer-syscon.de\n"
-"POT-Creation-Date: 2024-12-09 15:42+0100\n"
+"POT-Creation-Date: 2024-12-14 08:22+0100\n"
 "PO-Revision-Date: 2024-12-05 15:05+0100\n"
 "Last-Translator: Roland Pfeifer <glglobe@pfeifer-syscon.de>\n"
 "Language-Team: de <glglobe@pfeifer-syscon.de>\n"
@@ -16,13 +16,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/GlGlobeApp.cpp:98 src/GlGlobeWindow.cpp:123 src/GlGlobeWindow.cpp:173
+#: src/GlGlobeApp.cpp:97 src/GlGlobeWindow.cpp:123 src/GlGlobeWindow.cpp:173
 #: src/ConfigDialog.cpp:480 src/Timer.cpp:50
 #, c++-format
 msgid "No \"{}\" object in {}"
 msgstr "Kein \"{}\" Object in {}"
 
-#: src/GlGlobeApp.cpp:105 src/GlGlobeWindow.cpp:130 src/GlGlobeWindow.cpp:181
+#: src/GlGlobeApp.cpp:104 src/GlGlobeWindow.cpp:130 src/GlGlobeWindow.cpp:181
 #: src/ConfigDialog.cpp:488
 #, c++-format
 msgid "Error {} while loading {}"
@@ -87,18 +87,18 @@ msgstr "Ebene"
 msgid "Message"
 msgstr "Nachricht"
 
-#: src/WeatherDialog.cpp:276
+#: src/WeatherDialog.cpp:277
 #, c++-format
 msgid "Please select a non empty name \"{}\"."
 msgstr "Bitte verwenden sie keinen leeren Namen \"{}\"."
 
-#: src/WeatherDialog.cpp:286
+#: src/WeatherDialog.cpp:287
 #, c++-format
 msgid "Please select a unique name \"{}\" has already been used."
 msgstr ""
 "Bitte verwenden Sie einen eindeutigen Name, \"{}\" wurde bereits verwendet."
 
-#: src/WeatherDialog.cpp:292
+#: src/WeatherDialog.cpp:293
 msgid "Please try \"Refresh\" first."
 msgstr "Bitte verwenden Sie \"Aktualisieren\" um die Einstellung zu testen."
 
@@ -329,4 +329,3 @@ msgstr "Löschen"
 #: res/cfg-dlg.ui:737
 msgid "Geo.json"
 msgstr "Geo.json"
-

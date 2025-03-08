@@ -26,6 +26,7 @@
 #include "MarkContext.hpp"
 #include "TextContext.hpp"
 #include "Text2.hpp"
+#include "Config.hpp"
 
 class Hotspot
 : public psc::gl::Geom2
@@ -83,7 +84,7 @@ private:
 
 class TimezoneInfo {
 public:
-    TimezoneInfo();
+    TimezoneInfo(const std::shared_ptr<Config>& config);
     virtual ~TimezoneInfo();
 
     std::vector<Tz> &getZones();
