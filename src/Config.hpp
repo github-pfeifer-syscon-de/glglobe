@@ -89,8 +89,10 @@ public:
     static constexpr auto MAX_WEATHER_IMAGE_SIZE{4096};     // as above, higher values (e.g. 2048) lead to size limit exceeded so check with your prefered service
 protected:
     std::string get_config_name();
+    void migrateWeatherServices(uint32_t i);
 
     static constexpr auto GRP_MAIN{"globe"};
+    static constexpr auto GRP_WEATHER{"weather"};
     static constexpr auto LATITUDE{"lat"};
     static constexpr auto LONGITUDE{"lon"};
     static constexpr auto DAYTEX{"dayTex"};

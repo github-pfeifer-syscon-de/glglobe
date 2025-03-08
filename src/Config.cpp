@@ -48,30 +48,28 @@ Config::read()
         m_config->set_string(GRP_MAIN, LOG_LEVEL, DEFAULT_LOG_LEVEL);
     }
     for (uint32_t i = 0; i < MAX_WEATHER_SERVICES; ++i) {
+        migrateWeatherServices(i);
         std::shared_ptr<WebMapServiceConf> weatherService;
-        auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
-        auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
-        if (m_config->has_key(GRP_MAIN, addressKey)
-         && m_config->has_key(GRP_MAIN, nameKey)) {
-            auto weatherAddress = m_config->get_string(GRP_MAIN, addressKey);
-            auto weatherName = m_config->get_string(GRP_MAIN, nameKey);
-            auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
+        auto weatherGrp = Glib::ustring::sprintf("%s%d", GRP_WEATHER, i);
+        if (m_config->has_group(weatherGrp)
+         && m_config->has_key(weatherGrp, WEATHER_SERVICE_ADDRESS)
+         && m_config->has_key(weatherGrp, WEATHER_SERVICE_NAME)) {
+            auto weatherAddress = m_config->get_string(weatherGrp, WEATHER_SERVICE_ADDRESS);
+            auto weatherName = m_config->get_string(weatherGrp, WEATHER_SERVICE_NAME);
             int delay_sec = DEF_UPDATE_DELAY_SEC;
-            if (m_config->has_key(GRP_MAIN, delayKey)) {
-                delay_sec = m_config->get_integer(GRP_MAIN, delayKey);
+            if (m_config->has_key(weatherGrp, WEATHER_SERVICE_DELAY)) {
+                delay_sec = m_config->get_integer(weatherGrp, WEATHER_SERVICE_DELAY);
                 if (delay_sec < MIN_UPDATE_DELAY_SEC) {
                     delay_sec = MIN_UPDATE_DELAY_SEC;
                 }
             }
             Glib::ustring weatherType{WEATHER_WMS_CONF};
-            auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
-            if (m_config->has_key(GRP_MAIN, delayKey)) {
-                weatherType = m_config->get_string(GRP_MAIN, typeKey);
+            if (m_config->has_key(weatherGrp, WEATHER_SERVICE_TYPE)) {
+                weatherType = m_config->get_string(weatherGrp, WEATHER_SERVICE_TYPE);
             }
-            auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
             bool viewCurrentTime{false};
-            if (m_config->has_key(GRP_MAIN, localTimeKey)) {
-                viewCurrentTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
+            if (m_config->has_key(weatherGrp, WEATHER_SERVICE_LOCAL_TIME)) {
+                viewCurrentTime = m_config->get_boolean(weatherGrp, WEATHER_SERVICE_LOCAL_TIME);
             }
             weatherService = std::make_shared<WebMapServiceConf>(weatherName, weatherAddress, delay_sec, weatherType, viewCurrentTime);
         }
@@ -95,6 +93,44 @@ Config::read()
 
 }
 
+// the decision to put all config into the main-grp was questionable,
+//   so use put them into separate groups
+void
+Config::migrateWeatherServices(uint32_t i)
+{
+    std::shared_ptr<WebMapServiceConf> weatherService;
+    auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
+    auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
+    if (m_config->has_key(GRP_MAIN, addressKey)
+     && m_config->has_key(GRP_MAIN, nameKey)) {
+        auto weatherGrp = Glib::ustring::sprintf("%s%d", GRP_WEATHER, i);
+        auto weatherAddress = m_config->get_string(GRP_MAIN, addressKey);
+        m_config->remove_key(GRP_MAIN, addressKey);
+        m_config->set_string(weatherGrp, WEATHER_SERVICE_ADDRESS, weatherAddress);
+        auto weatherName = m_config->get_string(GRP_MAIN, nameKey);
+        m_config->remove_key(GRP_MAIN, nameKey);
+        m_config->set_string(weatherGrp, WEATHER_SERVICE_NAME, weatherName);
+        auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
+        if (m_config->has_key(GRP_MAIN, delayKey)) {
+            int delay_sec = m_config->get_integer(GRP_MAIN, delayKey);
+            m_config->remove_key(GRP_MAIN, delayKey);
+            m_config->set_integer(weatherGrp, WEATHER_SERVICE_DELAY, delay_sec);
+        }
+        auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
+        if (m_config->has_key(GRP_MAIN, typeKey)) {
+            Glib::ustring  weatherType = m_config->get_string(GRP_MAIN, typeKey);
+            m_config->remove_key(GRP_MAIN, typeKey);
+            m_config->set_string(weatherGrp, WEATHER_SERVICE_TYPE, weatherType);
+        }
+        auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
+        if (m_config->has_key(GRP_MAIN, localTimeKey)) {
+            bool viewCurrentTime = m_config->get_boolean(GRP_MAIN, localTimeKey);
+            m_config->remove_key(GRP_MAIN, localTimeKey);
+            m_config->set_boolean(weatherGrp, WEATHER_SERVICE_LOCAL_TIME, viewCurrentTime);
+        }
+    }
+}
+
 bool
 Config::save()
 {
@@ -109,16 +145,12 @@ Config::save()
         for (uint32_t i = 0; i < m_weatherServices.size(); ++i) {
             auto weatherService = m_weatherServices[i];
             if (weatherService) {
-                auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
-                m_config->set_string(GRP_MAIN, addressKey, weatherService->getAddress());
-                auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
-                m_config->set_string(GRP_MAIN, nameKey, weatherService->getName());
-                auto delayKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_DELAY, i);
-                m_config->set_integer(GRP_MAIN, delayKey, weatherService->getDelaySec());
-                auto typeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_TYPE, i);
-                m_config->set_string(GRP_MAIN, typeKey, weatherService->getType());
-                auto localTimeKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_LOCAL_TIME, i);
-                m_config->set_boolean(GRP_MAIN, localTimeKey, weatherService->isViewCurrentTime());
+                auto weatherGrp = Glib::ustring::sprintf("%s%d", GRP_WEATHER, i);
+                m_config->set_string(weatherGrp, WEATHER_SERVICE_ADDRESS, weatherService->getAddress());
+                m_config->set_string(weatherGrp, WEATHER_SERVICE_NAME, weatherService->getName());
+                m_config->set_integer(weatherGrp, WEATHER_SERVICE_DELAY, weatherService->getDelaySec());
+                m_config->set_string(weatherGrp, WEATHER_SERVICE_TYPE, weatherService->getType());
+                m_config->set_boolean(weatherGrp, WEATHER_SERVICE_LOCAL_TIME, weatherService->isViewCurrentTime());
             }
         }
         auto cfg = get_config_name();
