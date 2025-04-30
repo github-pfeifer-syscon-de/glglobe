@@ -94,11 +94,10 @@ Config::read()
 }
 
 // the decision to put all config into the main-grp was questionable,
-//   so use put them into separate groups
+//   so now move them into separate groups
 void
 Config::migrateWeatherServices(uint32_t i)
 {
-    std::shared_ptr<WebMapServiceConf> weatherService;
     auto addressKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_ADDRESS, i);
     auto nameKey = Glib::ustring::sprintf("%s%d", WEATHER_SERVICE_NAME, i);
     if (m_config->has_key(GRP_MAIN, addressKey)

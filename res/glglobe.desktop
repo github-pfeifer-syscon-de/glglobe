@@ -6,4 +6,4 @@ Name=GlGlobe
 Comment=Fancy desktop clock
 Categories=Application;Utility;
 Exec=glglobe
-Icon=@APP_ICON@
+Icon=glglobe
