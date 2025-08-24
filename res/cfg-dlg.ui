@@ -109,6 +109,7 @@
                     <property name="halign">end</property>
                     <property name="use-markup">True</property>
                     <property name="selectable">True</property>
+                    <property name="label" translatable="yes">Format (see &lt;a href='https://gnome.pages.gitlab.gnome.org/glibmm/classGlib_1_1DateTime.html#a7795905c8db173a973f965a7f27c7f51'&gt;glib DateTime format&lt;/a&gt; and &lt;a href='https://cplusplus.com/reference/ctime/strftime/'&gt;strftime&lt;/a&gt;)</property>
                     <property name="track-visited-links">False</property>
                   </object>
                   <packing>

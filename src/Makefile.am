@@ -4,6 +4,8 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)."\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
+	$(GENERICGLM_CFLAGS) \
+	$(GENERICIMG_CFLAGS) \
 	$(GEODATA_CFLAGS) \
 	$(GTHREAD_CFLAGS) \
 	$(EPOXY_CFLAGS)
@@ -54,7 +56,10 @@ glglobe_SOURCES = \
 
 glglobe_LDFLAGS = @EXTRA_LDFLAGS@
 
+# the generics are not be needed for linux, but on win&msys2 this will get link errors otherwise
 glglobe_LDADD = \
+	$(GENERICGLM_LIBS) \
+	$(GENERICIMG_LIBS) \
 	$(GEODATA_LIBS) \
 	$(GTHREAD_LIBS) \
 	$(EPOXY_LIBS)

@@ -26,9 +26,9 @@ Build for windows was integrated at least for msys2<br>
   look for "$host_os" = "mingw32"
 </pre>
 
-Localisation (at the moment de) was added if anything relatet
+Localisation (at the moment de) was added if anything related
 to that area is missing "gettextisize" might help.
-But it will not show up, unless the  program is installed.
+To start the program it is required to be installed, otherwise it will not show up.
 
 ## Customizing
 

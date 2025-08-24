@@ -140,13 +140,13 @@ ConfigTextureGrid::nighttex_changed(Gtk::FileChooserButton* nightFcBtn)
 ConfigLigthingGrid::ConfigLigthingGrid(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refBuilder, GlSphereView* sphereView)
 : BaseConfigGrid(cobject, refBuilder, sphereView)
 {
-    Gtk::Label* pFormatLink{nullptr};
-    refBuilder->get_widget("formatLink", pFormatLink);
-    pFormatLink->set_label(psc::fmt::vformat(
-            _("<a href=\"{}\">glib DateTime format</a> and <a href=\"{}\">strftime</a>"),
-                psc::fmt::make_format_args(
-                    "https://gnome.pages.gitlab.gnome.org/glibmm/classGlib_1_1DateTime.html#a7795905c8db173a973f965a7f27c7f51"
-                  , "https://cplusplus.com/reference/ctime/strftime/")));
+    //Gtk::Label* pFormatLink{nullptr};
+    //refBuilder->get_widget("formatLink", pFormatLink);
+    //pFormatLink->set_label(psc::fmt::vformat(
+    //        _("<a href=\"{}\">glib DateTime format</a> and <a href=\"{}\">strftime</a>"),
+    //            psc::fmt::make_format_args(
+    //                "https://gnome.pages.gitlab.gnome.org/glibmm/classGlib_1_1DateTime.html#a7795905c8db173a973f965a7f27c7f51"
+    //              , "https://cplusplus.com/reference/ctime/strftime/")));
     auto config = m_sphereView->get_config();
     Gtk::Scale* pAmbient{nullptr};
     refBuilder->get_widget("ambient", pAmbient);
