@@ -30,6 +30,7 @@
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
 #include "WeatherDialog.hpp"
+#include "PlotDialog.hpp"
 
 
 GlGlobeWindow::GlGlobeWindow()
@@ -46,6 +47,7 @@ GlGlobeWindow::GlGlobeWindow()
     add(*naviGlArea);
 
     add_action("timer", sigc::mem_fun(*this, &GlGlobeWindow::on_action_timer));
+    add_action("plot", sigc::mem_fun(*this, &GlGlobeWindow::on_action_plot));
     add_action("preferences", sigc::mem_fun(*this, &GlGlobeWindow::on_action_preferences));
     add_action("about", sigc::mem_fun(*this, &GlGlobeWindow::on_action_about));
     // radio actions are the best way to get a string parameter action, no radio involved
@@ -180,6 +182,37 @@ GlGlobeWindow::on_action_timer()
                 psc::fmt::vformat(
                       _("Error {} while loading {}")
                     , psc::fmt::make_format_args(ex, "timer-dlg.ui"))
+                , Gtk::MessageType::MESSAGE_ERROR);
+    }
+}
+
+void
+GlGlobeWindow::on_action_plot()
+{
+    auto refBuilder = Gtk::Builder::create();
+    try {
+        refBuilder->add_from_resource(RESOURCE::resource("plot-dlg.ui"));
+        PlotDialog* plotDialog;
+        refBuilder->get_widget_derived("PlotDialog", plotDialog);
+        if (plotDialog) {
+            plotDialog->set_transient_for(*this);
+            plotDialog->run();
+            plotDialog->hide();
+            delete plotDialog;
+        }
+        else {
+            showMessage(
+                    psc::fmt::vformat(
+                          _("No \"{}\" object in {}")
+                        , psc::fmt::make_format_args("plot-dlg", "plot-dlg.ui"))
+                    , Gtk::MessageType::MESSAGE_ERROR);
+        }
+    }
+    catch (const Glib::Error& ex) {
+        showMessage(
+                psc::fmt::vformat(
+                      _("Error {} while loading {}")
+                    , psc::fmt::make_format_args(ex, "plot-dlg.ui"))
                 , Gtk::MessageType::MESSAGE_ERROR);
     }
 

@@ -35,6 +35,7 @@ public:
     void on_action_about();
     void on_action_weather(const Glib::ustring& id, bool add);
     void on_action_timer();
+    void on_action_plot();
     void save_config();
     void showMessage(const Glib::ustring& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
 

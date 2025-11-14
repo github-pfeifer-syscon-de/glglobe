@@ -93,7 +93,6 @@ public:
     void showMessage(const std::string& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
     // as we have no Gis, so limit the complexity of usable files
     static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
-    static constexpr auto SYNOD_MOON{29.530589};
 protected:
     Gdk::EventMask getAddEventMask() override;
     double julianDate();
@@ -102,11 +101,6 @@ protected:
     void calcuateMoonLight();
     gboolean init_moon_shaders(Glib::Error &error);
     gboolean init_earth_shaders(Glib::Error &error);
-    double moonPhase(double jd);
-    constexpr static auto SEC_PER_JULIAN_YEAR = 86400.0;
-    constexpr static auto DAYS_PER_CENTURY = 36525.0;
-    constexpr static auto JULIAN_1970_OFFS = 2440587.5;
-    constexpr static auto MOON_J2000 = 2451545.0;
 private:
     std::shared_ptr<Config> m_config;
     Rotational get_rotation();

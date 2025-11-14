@@ -42,6 +42,7 @@
 #include "ConfigDialog.hpp"
 #include "SphereGlArea.hpp"
 #include "GeoJsonGeometryHandler.hpp"
+#include "Moon.hpp"
 
 GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
 : Scene()
@@ -941,60 +942,18 @@ GlSphereView::julianDate()
     return JD;
 }
 
-static double
-constrain(double d)
-{
-	double t = std::fmod(d, 360.0);
-	if (t < 0.0) {
-	    t += 360.0;
-	}
-    return t;
-}
-
-// 0 new ... PI full ... 2*PI new
-double
-GlSphereView::moonPhase(double jd)
-{
-
-    // complex algorithm as suggested by Greg Miller see https://celestialprogramming.com/
-    const double T = (jd - MOON_J2000) / DAYS_PER_CENTURY;  // epoch centuries
-	const double T2 = T * T;
-	const double T3 = T2 * T;
-	const double T4 = T3 * T;
-	double D = glm::radians(constrain(297.8501921 + 445267.1114034*T - 0.0018819*T2 + 1.0/545868.0*T3 - 1.0/113065000.0*T4)); //47.2
-	double M = glm::radians(constrain(357.5291092 + 35999.0502909*T - 0.0001536*T2 + 1.0/24490000.0*T3)); //47.3
-	double Mp = glm::radians(constrain(134.9633964 + 477198.8675055*T + 0.0087414*T2 + 1.0/69699.0*T3 - 1.0/14712000.0*T4)); //47.4
-	//48.4
-	double i = glm::radians(constrain(180.0 + glm::degrees(D) - 6.289 * std::sin(Mp) + 2.1 * std::sin(M) -1.274 * std::sin(2.0*D - Mp) -0.658 * std::sin(2*D) -0.214 * std::sin(2*Mp) -0.11 * std::sin(D)));
-    // the default semantic with 180.0 -... was:
-    //  0 -> full
-    // PI -> new
-    // 2PI ->full
-    i = std::fmod(i + glm::pi<double>(), 2.0 * glm::pi<double>());
-    return i;
-}
 
 void
 GlSphereView::calcuateMoonLight()
 {
     Glib::DateTime  now = Glib::DateTime::create_now_utc();
-    //double jd = ((static_cast<double>(now.to_unix()) / S_PER_JULIAN_YEAR) + JULIAN_1970_OFFS);
-    //for (int i = 0; i < 30; ++i) {
-    //    auto phase = moonPhase(jd);
-    //    auto phaseLega = moonPhaseLeagacy(jd);
-    //    std::cout << std::source_location::current() << "::moonPhase"
-    //              << psc::fmt::format(" i {:4d} jd {:18.3f} moonPh {:6.3f} leagacy {:6.3f} diff {:6.3f}",
-    //                             i, jd, phase, phaseLega, (phaseLega - phase))
-    //              << std::endl;
-    //    jd += 1.0;
-    //}
-    double jd = ((static_cast<double>(now.to_unix()) / SEC_PER_JULIAN_YEAR) + JULIAN_1970_OFFS);
-    double moonPh = moonPhase(jd);    // the simple stuff is sufficient for our display
-
-    float r = (moonPh);
-    float x = -std::sin(r);
+    auto jd = Moon::asJulianDate(now);
+    auto r = static_cast<float>(Moon::moonPhase(jd));
+    // -sin,cos results in: 0 new, pi/2 half, pi full
+    // sin,-cos  results in: 0 full, pi/2 half, pi new
+    float x = std::sin(r);
     float y = 0.0f;
-    float z = std::cos(r);
+    float z = -std::cos(r);
     m_moonLight = Vector(x, y, z);
 }
 

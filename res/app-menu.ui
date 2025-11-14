@@ -16,6 +16,9 @@
         <attribute name="action">win.timer</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">_Moon phase</attribute>
+        <attribute name="action">win.plot</attribute>
+      </item>      <item>
         <attribute name="label" translatable="yes">_Quit</attribute>
         <attribute name="action">app.quit</attribute>
       </item>

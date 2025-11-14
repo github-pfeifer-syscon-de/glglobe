@@ -51,6 +51,10 @@ glglobe_SOURCES = \
 	WeatherDialog.hpp \
 	Timer.cpp \
 	Timer.hpp \
+	PlotDialog.cpp \
+	PlotDialog.hpp \
+	Moon.cpp \
+	Moon.hpp \
 	TimezoneInfo.cpp \
 	TimezoneInfo.hpp
 

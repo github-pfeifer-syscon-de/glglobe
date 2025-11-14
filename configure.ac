@@ -29,7 +29,7 @@ PKG_CHECK_MODULES([GEODATA], [geodata >= 0.1.4])
 
 dnl spec this as the version will most likely differ
 PKG_CHECK_MODULES([GENERICGLM], [genericglm >= 0.3.1])
-PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.4.0])
+PKG_CHECK_MODULES([GENERICIMG], [genericimg >= 0.4.6])
 
 dnl dont repeat dependencies from geodata
 dnl PKG_CHECK_MODULES(GLIBMM,glibmm-2.4)
