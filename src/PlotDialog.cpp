@@ -143,7 +143,6 @@ PlotExpression::showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
         now = now.add_days(n);
         auto lbl = now.format("%x"); // Glib::ustring::sprintf("%d.%d", now.get_day_of_month(), now.get_month());
         ctx->show_text(lbl);
-        }
     }
 }
 
