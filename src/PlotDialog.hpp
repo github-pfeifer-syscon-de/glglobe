@@ -23,14 +23,19 @@
 #include <map>
 #include <functional>
 
+
 class PlotExpression
 : public psc::ui::PlotDiscrete
+, public psc::ui::PlotGrid
 {
 public:
     PlotExpression(const Glib::ustring& lbl, std::vector<double> values);
     ~PlotExpression() = default;
 
-    Glib::ustring getLabel(size_t idx) override;
+    void showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , psc::ui::PlotDrawing* plotDrawing
+                       , psc::ui::PlotAxis& majorAxis
+                       , psc::ui::PlotAxis& minorAxis);
 
 protected:
     Glib::ustring m_lbl;

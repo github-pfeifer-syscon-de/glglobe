@@ -61,6 +61,7 @@ PlotDialog::apply()
         });
         exprPhase->setPlotColor(m_col1->get_rgba());
         views.push_back(exprPhase);
+        m_drawing->getXAxis().setGrid(exprPhase);
 
         auto exprIllum = createExpression("Illum", min, max, [](double jd) -> double
         {
@@ -122,18 +123,28 @@ PlotExpression::PlotExpression(const Glib::ustring& lbl, std::vector<double> val
 : psc::ui::PlotDiscrete(values)
 , m_lbl{lbl}
 {
-
 }
 
-Glib::ustring
-PlotExpression::getLabel(size_t idx)
+void
+PlotExpression::showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , psc::ui::PlotDrawing* plotDrawing
+                       , psc::ui::PlotAxis& majorAxis
+                       , psc::ui::PlotAxis& minorAxis)
 {
-    Glib::ustring r;
-    if ((idx % 10) == 0) {
-        Glib::DateTime now = Glib::DateTime::create_now_local();
-        now = now.add_days(idx);
-        r = now.format("%x"); // Glib::ustring::sprintf("%d.%d", now.get_day_of_month(), now.get_month());
+    Glib::DateTime now = Glib::DateTime::create_now_local();
+    for (size_t n = 0; n < m_values.size(); ++n) {
+        if ((n % 10) == 0) {
+            auto xPix = majorAxis.toPixel(static_cast<double>(n));
+            ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
+            ctx->move_to(xPix, 0.0);
+            ctx->line_to(xPix, minorAxis.getPixel());
+            ctx->stroke();
+            ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
+            ctx->move_to(xPix, minorAxis.getPixel());
+            auto lbl = now.format("%x"); // Glib::ustring::sprintf("%d.%d", now.get_day_of_month(), now.get_month());
+            ctx->show_text(lbl);
+        }
+        now = now.add_days(1);
     }
-    return r;
 }
 
