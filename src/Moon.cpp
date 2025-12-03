@@ -63,12 +63,6 @@ Moon::moonPhase(double jd)
 double
 Moon::getIlluminated(double i)
 {
-    // to me that looks a bit strange
-    // return (1.0 + std::cos(i)) / 2.0;
-    auto offs = 0.0;
-    if (i >= glm::pi<double>()) {
-        offs = 0.5;
-    }
-    // try to model waxing and waning with soft transition
-    return offs + ((1.0 - std::cos(std::fmod(i, glm::pi<double>()))) / 4.0);
+    return (1.0 + std::cos(i)) / 2.0;
+
 }
