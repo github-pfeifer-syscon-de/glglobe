@@ -64,5 +64,4 @@ double
 Moon::getIlluminated(double i)
 {
     return (1.0 + std::cos(i)) / 2.0;
-
 }
