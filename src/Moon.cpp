@@ -56,7 +56,7 @@ Moon::moonPhase(double jd)
 	double M = glm::radians(constrain(357.5291092 + 35999.0502909*T - 0.0001536*T2 + 1.0/24490000.0*T3)); //47.3
 	double Mp = glm::radians(constrain(134.9633964 + 477198.8675055*T + 0.0087414*T2 + 1.0/69699.0*T3 - 1.0/14712000.0*T4)); //47.4
 	//48.4
-	double i = glm::radians(constrain(180.0 + glm::degrees(D) - 6.289 * std::sin(Mp) + 2.1 * std::sin(M) -1.274 * std::sin(2.0*D - Mp) -0.658 * std::sin(2*D) -0.214 * std::sin(2*Mp) -0.11 * std::sin(D)));
+	double i = glm::radians(constrain(180.0 - glm::degrees(D) - 6.289 * std::sin(Mp) + 2.1 * std::sin(M) -1.274 * std::sin(2.0*D - Mp) -0.658 * std::sin(2*D) -0.214 * std::sin(2*Mp) -0.11 * std::sin(D)));
     return i;
 }
 

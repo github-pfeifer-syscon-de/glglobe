@@ -949,11 +949,9 @@ GlSphereView::calcuateMoonLight()
     Glib::DateTime  now = Glib::DateTime::create_now_utc();
     auto jd = Moon::asJulianDate(now);
     auto r = static_cast<float>(Moon::moonPhase(jd));
-    // -sin,cos results in: 0 new, pi/2 half, pi full
-    // sin,-cos  results in: 0 full, pi/2 half, pi new
-    float x = std::sin(r);
+    float x = -std::sin(r);
     float y = 0.0f;
-    float z = -std::cos(r);
+    float z = std::cos(r);
     m_moonLight = Vector(x, y, z);
 }
 
