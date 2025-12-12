@@ -951,7 +951,7 @@ GlSphereView::calcuateMoonLight()
     auto r = static_cast<float>(Moon::moonPhase(jd));
     float x = -std::sin(r);
     float y = 0.0f;
-    float z = std::cos(r);
+    float z = -std::cos(r);
     m_moonLight = Vector(x, y, z);
 }
 
