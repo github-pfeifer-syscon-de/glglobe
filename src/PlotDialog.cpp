@@ -16,10 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glm/trigonometric.hpp>
 #include <iostream>
-#include <charconv>
-#include <optional>
-#include <system_error>
 #include <StringUtils.hpp>
 #include <psc_i18n.hpp>
 #include <psc_format.hpp>
@@ -27,6 +25,7 @@
 
 #include "PlotDialog.hpp"
 #include "Moon.hpp"
+#include "SunSet.hpp"
 
 PlotDialog::PlotDialog(BaseObjectType* cobject
                     , const Glib::RefPtr<Gtk::Builder>& builder)
@@ -42,6 +41,7 @@ PlotDialog::PlotDialog(BaseObjectType* cobject
     builder->get_widget_derived<psc::ui::PlotDrawing>("drawing", m_drawing);
 
     m_apply->signal_clicked().connect(sigc::mem_fun(*this, &PlotDialog::apply));
+    m_max->signal_changed().connect(sigc::mem_fun(*this, &PlotDialog::apply));
     apply();
 }
 
@@ -56,7 +56,7 @@ PlotDialog::apply()
     try {
         auto exprPhase = createExpression("Phase", min, max, [](double jd) -> double
         {
-            auto p = Moon::moonPhase(jd);
+            auto p = glm::degrees(Moon::moonPhase(jd) - glm::pi<double>());
             return p;
         });
         exprPhase->setPlotColor(m_col1->get_rgba());
@@ -66,19 +66,31 @@ PlotDialog::apply()
         auto exprIllum = createExpression("Illum", min, max, [](double jd) -> double
         {
             auto i = Moon::moonPhase(jd);
-            return Moon::getIlluminated(i) * 2.0 * glm::pi<double>();   // scale to angular values
+            return (Moon::getIlluminated(i) - 0.5) * 360.0;   // scale to angular values
         });
         exprIllum->setPlotColor(m_col2->get_rgba());
         views.push_back(exprIllum);
 
-        //auto expr = createExpression("Legacy", min, max, [](double jd) -> double
-        //{
-        //    auto i = Moon::moonPhase(jd);
-        //    auto p = std::fmod(i + glm::pi<double>(), 2.0 * glm::pi<double>());
-        //    return (p);
-        //});
-        //expr->setPlotColor(m_col3->get_rgba());
-        //views.push_back(expr);
+        auto exprDec = createExpression("Declination", min, max, [](double jd) -> double
+        {
+            //Glib::DateTime dateLocal = Glib::DateTime::create_now_local();
+            //Glib::TimeSpan timeSpan = dateLocal.get_utc_offset();
+            //double offsetUtcH = (double)(timeSpan) / (1.0e6 * 3600.0); // us -> h
+            //std::cout << "offsetUtcH " << offsetUtcH << std::endl;
+            //Glib::DateTime dateUtc = Glib::DateTime::create_now_utc();
+            //float t = (float)(dateUtc.get_hour() * 60 + dateUtc.get_minute()) / (24.0f * 60.0f);
+            //float d = (float)dateUtc.get_day_of_year();   // approximate season
+            //std::cout <<  "s: " << s << " t: " << t << std::endl;
+            //std::cout <<  "dayOfYear: " << d << " utcHour: " << date.get_hour() << std::endl;
+            //float r =  - t * 2.0f * (float)M_PI;
+            SunSet sunSet; // (config->getLatitude(), config->getLongitude(), offsetUtcH);
+            //sunSet.setCurrentDate(dateLocal.get_year(), dateLocal.get_month(), dateLocal.get_day_of_month());
+            auto t = sunSet.calcTimeJulianCent(jd);
+            auto declination = sunSet.calcSunDeclination(t);    // keep at actual value
+            return declination;
+        });
+        exprDec->setPlotColor(m_col3->get_rgba());
+        views.push_back(exprDec);
 
         m_drawing->setPlot(views);
         m_drawing->refresh();

@@ -220,7 +220,7 @@ double SunSet::calcSunDeclination() const
 {
     double t = calcTimeJulianCent(m_julianDate);
     double solarDec = calcSunDeclination(t);
-	return solarDec;
+    return solarDec;
 }
 
 double SunSet::calcSunDeclination(double t) const

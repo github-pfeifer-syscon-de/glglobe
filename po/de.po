@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: glglobe 0.1\n"
 "Report-Msgid-Bugs-To: glglobe@pfeifer-syscon.de\n"
-"POT-Creation-Date: 2024-12-14 08:22+0100\n"
+"POT-Creation-Date: 2025-12-12 18:40+0100\n"
 "PO-Revision-Date: 2024-12-05 15:05+0100\n"
 "Last-Translator: Roland Pfeifer <glglobe@pfeifer-syscon.de>\n"
 "Language-Team: de <glglobe@pfeifer-syscon.de>\n"
@@ -16,27 +16,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/GlGlobeApp.cpp:97 src/GlGlobeWindow.cpp:123 src/GlGlobeWindow.cpp:173
-#: src/ConfigDialog.cpp:480 src/Timer.cpp:50
+#: src/GlGlobeApp.cpp:97 src/GlGlobeWindow.cpp:125 src/GlGlobeWindow.cpp:175
+#: src/GlGlobeWindow.cpp:206 src/ConfigDialog.cpp:480 src/Timer.cpp:50
 #, c++-format
 msgid "No \"{}\" object in {}"
 msgstr "Kein \"{}\" Object in {}"
 
-#: src/GlGlobeApp.cpp:104 src/GlGlobeWindow.cpp:130 src/GlGlobeWindow.cpp:181
-#: src/ConfigDialog.cpp:488
+#: src/GlGlobeApp.cpp:104 src/GlGlobeWindow.cpp:132 src/GlGlobeWindow.cpp:183
+#: src/GlGlobeWindow.cpp:214 src/ConfigDialog.cpp:488
 #, c++-format
 msgid "Error {} while loading {}"
 msgstr "Fehler {} beim laden von {}"
 
-#: src/GlGlobeWindow.cpp:71
+#: src/GlGlobeWindow.cpp:73
 msgid "Error saving config"
 msgstr "Fehler beim speichern der Konfiguration"
-
-#: src/ConfigDialog.cpp:146
-#, c++-format
-msgid "<a href=\"{}\">glib DateTime format</a> and <a href=\"{}\">strftime</a>"
-msgstr ""
-"<a href=\"{}\">glib DateTime Formate</a> und <a href=\"{}\">strftime</a>"
 
 #: src/GlSphereView.cpp:755 src/GlSphereView.cpp:830
 #, c++-format
@@ -149,6 +143,10 @@ msgid "_Timer"
 msgstr "_Timer"
 
 #: res/app-menu.ui:19
+msgid "_Moon phase"
+msgstr "Mondphase"
+
+#: res/app-menu.ui:22
 msgid "_Quit"
 msgstr "_Beenden"
 
@@ -210,7 +208,7 @@ msgstr "siehe Hilfe"
 msgid "Products"
 msgstr "Produkte"
 
-#: res/weather-dlg.ui:275 res/cfg-dlg.ui:500
+#: res/weather-dlg.ui:275 res/cfg-dlg.ui:501
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -234,98 +232,141 @@ msgstr "Breitengrad"
 msgid "Text"
 msgstr "Text"
 
-#: res/cfg-dlg.ui:136
+#: res/cfg-dlg.ui:112
+msgid ""
+"Format (see <a href='https://gnome.pages.gitlab.gnome.org/glibmm/"
+"classGlib_1_1DateTime.html#a7795905c8db173a973f965a7f27c7f51'>glib DateTime "
+"format</a> and <a href='https://cplusplus.com/reference/ctime/"
+"strftime/'>strftime</a>)"
+msgstr ""
+
+#: res/cfg-dlg.ui:137
 msgid "Coordinate"
 msgstr "Koordinate"
 
-#: res/cfg-dlg.ui:154
+#: res/cfg-dlg.ui:155
 msgid "Day"
 msgstr "Tag"
 
-#: res/cfg-dlg.ui:166
+#: res/cfg-dlg.ui:167
 msgid "Day texture"
 msgstr "Tagestextur"
 
-#: res/cfg-dlg.ui:175 res/cfg-dlg.ui:212
+#: res/cfg-dlg.ui:176 res/cfg-dlg.ui:213
 msgid "Default"
 msgstr "Standard"
 
-#: res/cfg-dlg.ui:191
+#: res/cfg-dlg.ui:192
 msgid "Night"
 msgstr "Nacht"
 
-#: res/cfg-dlg.ui:203
+#: res/cfg-dlg.ui:204
 msgid "Night texture"
 msgstr "Nachttextur"
 
-#: res/cfg-dlg.ui:227
+#: res/cfg-dlg.ui:228
 msgid "Texture origin"
 msgstr "Texturursprung"
 
-#: res/cfg-dlg.ui:257
+#: res/cfg-dlg.ui:258
 msgid "Texture"
 msgstr "Textur"
 
-#: res/cfg-dlg.ui:276
+#: res/cfg-dlg.ui:277
 msgid "Twilight"
 msgstr "Zwielicht"
 
-#: res/cfg-dlg.ui:303
+#: res/cfg-dlg.ui:304
 msgid "Ambient"
 msgstr "Umgebungungslicht"
 
-#: res/cfg-dlg.ui:316
+#: res/cfg-dlg.ui:317
 msgid "Diffuse"
 msgstr "Diffus"
 
-#: res/cfg-dlg.ui:329
+#: res/cfg-dlg.ui:330
 msgid "Specular"
 msgstr ""
 
-#: res/cfg-dlg.ui:342
+#: res/cfg-dlg.ui:343
 msgid "Specular power"
 msgstr "Glanz potenz"
 
-#: res/cfg-dlg.ui:355
+#: res/cfg-dlg.ui:356
 msgid "Distance"
 msgstr "Entfernung"
 
-#: res/cfg-dlg.ui:456
+#: res/cfg-dlg.ui:457
 msgid "Lighting"
 msgstr "Beleuchtung"
 
-#: res/cfg-dlg.ui:476
+#: res/cfg-dlg.ui:477
 msgid "Legend"
 msgstr "Legende"
 
-#: res/cfg-dlg.ui:528
+#: res/cfg-dlg.ui:529
 msgid "Transparency"
 msgstr "Transparenz"
 
-#: res/cfg-dlg.ui:555
+#: res/cfg-dlg.ui:556
 msgid "Display"
 msgstr "Anzeige"
 
-#: res/cfg-dlg.ui:568
+#: res/cfg-dlg.ui:569
 msgid "Service"
 msgstr "Service"
 
-#: res/cfg-dlg.ui:581
+#: res/cfg-dlg.ui:582
 msgid "Bounds"
 msgstr "Begrenzung"
 
-#: res/cfg-dlg.ui:669
+#: res/cfg-dlg.ui:670
 msgid "Weather"
 msgstr "Wetter"
 
-#: res/cfg-dlg.ui:688
+#: res/cfg-dlg.ui:689
 msgid "File"
 msgstr "Datei"
 
-#: res/cfg-dlg.ui:709
+#: res/cfg-dlg.ui:710
 msgid "Clear"
 msgstr "Löschen"
 
-#: res/cfg-dlg.ui:737
+#: res/cfg-dlg.ui:738
 msgid "Geo.json"
 msgstr "Geo.json"
+
+#: res/plot-dlg.ui:14
+#, fuzzy
+#| msgid "_Moon phase"
+msgid "Moon phase"
+msgstr "Mondphase"
+
+#: res/plot-dlg.ui:74
+msgid "Phase (angular deg., +/-180=full, 0=new) "
+msgstr "Phase (Winkel Grad, +/-180=Voll, 0=Neu) "
+
+#: res/plot-dlg.ui:100
+msgid "Maximum"
+msgstr "Maximum"
+
+#: res/plot-dlg.ui:145
+msgid "Illuminated "
+msgstr "Beleuchtet"
+
+#: res/plot-dlg.ui:159
+msgid "Declination"
+msgstr "Deklination"
+
+#: res/plot-dlg.ui:173
+msgid "Phase color"
+msgstr "Farbe phase"
+
+#: res/plot-dlg.ui:186
+msgid "Illuminated color"
+msgstr "Farbe Beleuchtet"
+
+#: res/plot-dlg.ui:199
+
+msgid "Declination color"
+msgstr "Farbe Deklination"

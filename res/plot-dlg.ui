@@ -4,7 +4,7 @@
   <requires lib="gtk+" version="3.22"/>
   <object class="GtkAdjustment" id="ma">
     <property name="lower">7</property>
-    <property name="upper">100</property>
+    <property name="upper">400</property>
     <property name="value">42</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
@@ -71,7 +71,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="xpad">10</property>
-                <property name="label" translatable="yes">Phase (angular rad., 0=full, pi=new) </property>
+                <property name="label" translatable="yes">Phase (angular deg., +/-180=full, 0=new) </property>
                 <property name="xalign">1</property>
               </object>
               <packing>
@@ -156,6 +156,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="xpad">10</property>
+                <property name="label" translatable="yes">Declination</property>
                 <property name="xalign">1</property>
               </object>
               <packing>
@@ -169,7 +170,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="title" translatable="yes">y1 color</property>
+                <property name="title" translatable="yes">Phase color</property>
                 <property name="rgba">rgb(0,0,255)</property>
               </object>
               <packing>
@@ -182,7 +183,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="title" translatable="yes">y2 color</property>
+                <property name="title" translatable="yes">Illuminated color</property>
                 <property name="rgba">rgb(0,255,0)</property>
               </object>
               <packing>
@@ -195,6 +196,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="title" translatable="yes">Declination color</property>
                 <property name="rgba">rgb(255,0,0)</property>
               </object>
               <packing>

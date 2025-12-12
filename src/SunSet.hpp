@@ -98,6 +98,8 @@ public:
     int moonPhase(int) const;
     int moonPhase() const;
     double calcSunDeclination() const;
+    double calcSunDeclination(double) const;
+    double calcTimeJulianCent(double) const;
 private:
     double degToRad(double) const;
     double radToDeg(double) const;
@@ -107,10 +109,8 @@ private:
     double calcEccentricityEarthOrbit(double) const;
     double calcGeomMeanAnomalySun(double) const;
     double calcEquationOfTime(double) const;
-    double calcTimeJulianCent(double) const;
     double calcSunTrueLong(double) const;
     double calcSunApparentLong(double) const;
-    double calcSunDeclination(double) const;
     double calcHourAngleSunrise(double, double, double) const;
     double calcHourAngleSunset(double, double, double) const;
     double calcJD(int,int,int) const;
