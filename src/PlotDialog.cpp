@@ -41,7 +41,7 @@ PlotDialog::PlotDialog(BaseObjectType* cobject
     builder->get_widget_derived<psc::ui::PlotDrawing>("drawing", m_drawing);
 
     m_apply->signal_clicked().connect(sigc::mem_fun(*this, &PlotDialog::apply));
-    m_max->signal_changed().connect(sigc::mem_fun(*this, &PlotDialog::apply));
+    m_max->signal_value_changed().connect(sigc::mem_fun(*this, &PlotDialog::apply));
     apply();
 }
 
