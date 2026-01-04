@@ -1,9 +1,9 @@
 PKGCONFIG = pkgconf
 GLIB_COMPILE_RESOURCES = $(shell $(PKGCONFIG) --variable=glib_compile_resources gio-2.0)
 
-GLGLOBE_RESOURCE_XML=glglobeapp.gresource.xml
-GLGLOBE_RESOURCES=$(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=. --generate-dependencies $(GLGLOBE_RESOURCE_XML))
-resources_c=../src/resources.c
+GLGLOBE_RESOURCE_XML=$(srcdir)/glglobeapp.gresource.xml
+GLGLOBE_RESOURCES=$(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(GLGLOBE_RESOURCE_XML))
+resources_c=$(top_srcdir)/src/resources.c
 
 all:$(resources_c)
 
