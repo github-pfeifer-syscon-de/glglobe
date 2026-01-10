@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_INIT([glglobe],[0.1],[glglobe@pfeifer-syscon.de])
+AC_INIT([glglobe],[0.1],[RolandPf67@googlemail.com])
 dnl point to unique-file-in-source-dir, for safety check
 AC_CONFIG_SRCDIR([src/GlGlobeApp.cpp])
 AM_INIT_AUTOMAKE
