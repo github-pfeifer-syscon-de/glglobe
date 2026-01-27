@@ -253,7 +253,7 @@ ConfigWeatherGrid::ConfigWeatherGrid(BaseObjectType* cobject, const Glib::RefPtr
         m_weatherServiceCombo->signal_changed().connect(
                     sigc::mem_fun(*this, &ConfigWeatherGrid::weather_service_changed));
     }
-    refBuilder->get_widget_derived("weatherBounds", m_boundsDisplay);
+    refBuilder->get_widget_derived("weatherBounds", m_boundsDisplay, sphereView);
     refBuilder->get_widget("weatherEdit", m_weatherEdit);
     m_weatherEdit->signal_clicked().connect([&] {
         auto appl = Glib::RefPtr<Gtk::Application>::cast_dynamic(Gtk::Application::get_default());

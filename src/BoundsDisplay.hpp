@@ -22,13 +22,15 @@
 #include <atomic>
 #include <GeoCoordinate.hpp>
 
+class GlSphereView;
+
 #undef BOUNDS_DEBUG
 
 class BoundsDisplay
 : public Gtk::DrawingArea
 {
 public:
-    BoundsDisplay(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
+    BoundsDisplay(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder, GlSphereView* glSphereView);
     explicit BoundsDisplay(const BoundsDisplay& orig) = delete;
     virtual ~BoundsDisplay() = default;
 

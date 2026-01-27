@@ -33,12 +33,12 @@
 #include "PlotDialog.hpp"
 
 
-GlGlobeWindow::GlGlobeWindow()
+GlGlobeWindow::GlGlobeWindow(Glib::StdStringView exec)
 : Gtk::ApplicationWindow()
 , m_config{std::make_shared<Config>()}
 {
     m_config->read();
-    m_sphereView = new GlSphereView(m_config);
+    m_sphereView = new GlSphereView(m_config, exec);
     auto naviGlArea = Gtk::manage(new SphereGlArea(m_sphereView));
 	#ifdef USE_GLES
     //naviGlArea->set_required_version (3, 0);

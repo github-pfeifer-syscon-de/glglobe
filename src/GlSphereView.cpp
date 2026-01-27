@@ -35,6 +35,7 @@
 #include <StringUtils.hpp>
 #include <psc_i18n.hpp>
 #include <psc_format.hpp>
+#include <psc_Files.hpp>
 
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
@@ -44,9 +45,12 @@
 #include "GeoJsonGeometryHandler.hpp"
 #include "Moon.hpp"
 
-GlSphereView::GlSphereView(const std::shared_ptr<Config>& config)
+GlSphereView::GlSphereView(
+      const std::shared_ptr<Config>& config
+    , Glib::StdStringView exec)
 : Scene()
 , m_config{config}
+, m_exec{exec}
 , m_earthContext{nullptr}
 , m_textContext{nullptr}
 , m_fixView{1.0f}
@@ -282,8 +286,8 @@ GlSphereView::init(Gtk::GLArea *glArea)
         auto nightTex = m_config->getNightTextureFile();
         setNightTextureFile(nightTex);
         // take images from file should safe some memory
-        m_normalMapTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_normal_map.tif");
-        m_speculatMapTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_specular_map.tif");
+        m_normalMapTex = psc::gl::Tex2::fromFile(findFile("2k_earth_normal_map.tif"));
+        m_speculatMapTex = psc::gl::Tex2::fromFile(findFile("2k_earth_specular_map.tif"));
         m_weather_pix = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, true, 8, get_weather_image_size(), get_weather_image_size());
         m_weather_pix->fill(0x00);  // transp. black
         m_weatherTex = psc::mem::make_active<psc::gl::Tex2>();
@@ -324,7 +328,7 @@ GlSphereView::init(Gtk::GLArea *glArea)
         lmoon->setRotation(rotT);
         psc::gl::checkError("add createVao moon");
     }
-    m_moonTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_moon.jpg");
+    m_moonTex = psc::gl::Tex2::fromFile(findFile("2k_moon.jpg"));
 }
 
 void
@@ -758,8 +762,7 @@ GlSphereView::setDayTextureFile(std::string &dayTex)
         }
     }
     if (def) {
-        m_dayTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_daymap.jpg");
-		//m_dayTex = Tex::fromResource(RESOURCE::resource("2k_earth_daymap.jpg"));
+        m_dayTex = psc::gl::Tex2::fromFile(findFile("2k_earth_daymap.jpg"));
         m_config->setDayTextureFile("");
     }
     m_naviGlArea->queue_draw();
@@ -833,7 +836,7 @@ GlSphereView::setNightTextureFile(std::string &nightTex)
         }
     }
     if (def) {
-        m_nightTex = psc::gl::Tex2::fromFile(PACKAGE_DATA_DIR "/2k_earth_nightmap.jpg");
+        m_nightTex = psc::gl::Tex2::fromFile(findFile("2k_earth_nightmap.jpg"));
 		//m_nightTex = Tex::fromResource(RESOURCE::resource("2k_earth_nightmap.jpg"));
         m_config->setNightTexureFile("");
     }
@@ -954,6 +957,27 @@ GlSphereView::calcuateMoonLight()
     float z = -std::cos(r);
     m_moonLight = Vector(x, y, z);
 }
+
+std::string
+GlSphereView::findFile(const std::string& name)
+{
+    auto globalDir = Gio::File::create_for_path(PACKAGE_DATA_DIR);
+    auto resFile = globalDir->get_child(name);
+    if (resFile->query_exists()) {
+        return resFile->get_path();
+    }
+    auto resDir = psc::util::Files::getSrcRelativeDir(m_exec, PACKAGE_SRC_DIR);
+    auto resFDir = Gio::File::create_for_path(resDir);
+    resFile = resFDir->get_child(name);
+    if (!resFile->query_exists()) {
+        std::cout << "GlSphereView::findFile file"
+                  << name << " not found"
+                  << " globalDir " << globalDir->get_path()
+                  << " resDir " << resDir << std::endl;
+    }
+    return resFile->get_path();
+}
+
 
 std::string
 RESOURCE::resource(const char *file)

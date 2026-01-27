@@ -38,18 +38,20 @@
 #include "TimezoneInfo.hpp"
 #include "MoonContext.hpp"
 #include "Config.hpp"
+#include "GlGlobeWindow.hpp"
 #include "Weather.hpp"
 
 
 class ConfigDialog;
 class SphereGlArea;
+class GlGlobeWindow;
 
 class GlSphereView
 : public Scene
 , public WeatherConsumer
 {
 public:
-    GlSphereView(const std::shared_ptr<Config>& config);
+    GlSphereView(const std::shared_ptr<Config>& config, Glib::StdStringView exec);
     virtual ~GlSphereView();
     Matrix getLookAt(Vector &position, Vector &direction, Vector &up) override;
     Position getIntialPosition() override;
@@ -93,6 +95,8 @@ public:
     void showMessage(const std::string& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
     // as we have no Gis, so limit the complexity of usable files
     static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
+    std::string findFile(const std::string& name);
+
 protected:
     Gdk::EventMask getAddEventMask() override;
     double julianDate();
@@ -103,6 +107,7 @@ protected:
     gboolean init_earth_shaders(Glib::Error &error);
 private:
     std::shared_ptr<Config> m_config;
+    Glib::StdStringView m_exec;
     Rotational get_rotation();
     SphereContext *m_earthContext;
     TextContext *m_textContext;

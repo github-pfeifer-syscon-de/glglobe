@@ -26,9 +26,12 @@
 #include "Config.hpp"
 #include "Timer.hpp"
 
+class GlSphereView;
+class ConfigDialog;
+
 class GlGlobeWindow : public Gtk::ApplicationWindow {
 public:
-    GlGlobeWindow();
+    GlGlobeWindow(Glib::StdStringView exec);
     virtual ~GlGlobeWindow() = default;
 
     void on_action_preferences();
@@ -41,7 +44,7 @@ public:
 
 private:
     void closeConfigDlg();
-    GlSphereView *m_sphereView;
+    GlSphereView* m_sphereView;
     std::shared_ptr<Config> m_config;
-    ConfigDialog *m_cfgdlg{nullptr};
+    ConfigDialog* m_cfgdlg{nullptr};
 };

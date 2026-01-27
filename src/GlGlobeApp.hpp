@@ -35,6 +35,6 @@ protected:
 
 private:
     GlGlobeWindow* m_glglobeAppWindow;
-
+    Glib::StdStringView m_exec;
     void on_action_quit();
 };

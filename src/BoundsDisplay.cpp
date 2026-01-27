@@ -21,15 +21,15 @@
 #include <atomic>
 
 #include "BoundsDisplay.hpp"
+#include "GlSphereView.hpp"
 
 
-
-BoundsDisplay::BoundsDisplay(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder)
+BoundsDisplay::BoundsDisplay(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder, GlSphereView* glSphereView)
 : Gtk::DrawingArea(cobject)
 {
     m_Dispatcher.connect(sigc::mem_fun(*this, &BoundsDisplay::notify));
     //std::thread t([=] {
-        Glib::ustring file(PACKAGE_DATA_DIR "/2k_earth_daymap.jpg");
+        Glib::ustring file(glSphereView->findFile("2k_earth_daymap.jpg"));
         Glib::RefPtr<Gdk::Pixbuf> fullPix = Gdk::Pixbuf::create_from_file(file);
         m_width = fullPix->get_width() / 4;
         m_height = fullPix->get_height() / 4;

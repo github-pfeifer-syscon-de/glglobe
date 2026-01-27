@@ -33,6 +33,7 @@
 GlGlobeApp::GlGlobeApp(int argc, char **argv)
 : Gtk::Application{argc, argv, "de.pfeifer_syscon.glglobe"}
 , m_glglobeAppWindow{nullptr}
+, m_exec{argv[0]}
 {
 }
 
@@ -76,7 +77,7 @@ void
 GlGlobeApp::on_startup() {
     // Call the base class's implementation.
     Gtk::Application::on_startup();
-    m_glglobeAppWindow = new GlGlobeWindow();
+    m_glglobeAppWindow = new GlGlobeWindow(m_exec);
     signal_shutdown().connect(sigc::mem_fun(*this, &GlGlobeApp::on_shutdown));
 
     // Add actions and keyboard accelerators for the application menu.
