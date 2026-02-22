@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: glglobe 0.1\n"
-"Report-Msgid-Bugs-To: glglobe@pfeifer-syscon.de\n"
-"POT-Creation-Date: 2025-12-12 18:40+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-27 15:42+0100\n"
 "PO-Revision-Date: 2024-12-05 15:05+0100\n"
 "Last-Translator: Roland Pfeifer <glglobe@pfeifer-syscon.de>\n"
 "Language-Team: de <glglobe@pfeifer-syscon.de>\n"
@@ -16,13 +16,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/GlGlobeApp.cpp:97 src/GlGlobeWindow.cpp:125 src/GlGlobeWindow.cpp:175
+#: src/GlGlobeApp.cpp:98 src/GlGlobeWindow.cpp:125 src/GlGlobeWindow.cpp:175
 #: src/GlGlobeWindow.cpp:206 src/ConfigDialog.cpp:480 src/Timer.cpp:50
 #, c++-format
 msgid "No \"{}\" object in {}"
 msgstr "Kein \"{}\" Object in {}"
 
-#: src/GlGlobeApp.cpp:104 src/GlGlobeWindow.cpp:132 src/GlGlobeWindow.cpp:183
+#: src/GlGlobeApp.cpp:105 src/GlGlobeWindow.cpp:132 src/GlGlobeWindow.cpp:183
 #: src/GlGlobeWindow.cpp:214 src/ConfigDialog.cpp:488
 #, c++-format
 msgid "Error {} while loading {}"
@@ -32,24 +32,23 @@ msgstr "Fehler {} beim laden von {}"
 msgid "Error saving config"
 msgstr "Fehler beim speichern der Konfiguration"
 
-#: src/GlSphereView.cpp:755 src/GlSphereView.cpp:830
+#: src/GlSphereView.cpp:759 src/GlSphereView.cpp:833
 #, c++-format
 msgid "Error {} setting {} texture"
 msgstr "Fehler {} beim setzen der {}-Textur"
 
-#: src/GlSphereView.cpp:851
+#: src/GlSphereView.cpp:854
 #, c++-format
 msgid "The requested file {} does not exist."
 msgstr "Die Datei {} existiert nicht."
 
-#: src/GlSphereView.cpp:861
+#: src/GlSphereView.cpp:864
 #, c++-format
 msgid "The requested file {} exceeds the size limit {} with {}."
 msgstr "Die Datei {} überschreitet das Limit {} mit {}."
 
-#: src/GlSphereView.cpp:882
+#: src/GlSphereView.cpp:885
 #, fuzzy, c++-format
-#| msgid "Error {} while loading {}"
 msgid "Error {} loading json-file {}"
 msgstr "Fehler {} beim laden der Json-Datei {}"
 
@@ -160,7 +159,6 @@ msgstr "0:00"
 
 #: res/timer-dlg.ui:96
 #, fuzzy
-#| msgid "_Timer"
 msgid "Timer"
 msgstr "_Timer"
 
@@ -338,7 +336,6 @@ msgstr "Geo.json"
 
 #: res/plot-dlg.ui:14
 #, fuzzy
-#| msgid "_Moon phase"
 msgid "Moon phase"
 msgstr "Mondphase"
 
@@ -367,6 +364,5 @@ msgid "Illuminated color"
 msgstr "Farbe Beleuchtet"
 
 #: res/plot-dlg.ui:199
-
 msgid "Declination color"
 msgstr "Farbe Deklination"

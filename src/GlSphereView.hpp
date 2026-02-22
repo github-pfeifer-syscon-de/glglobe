@@ -28,13 +28,13 @@
 #include <Geom2.hpp>
 #include <Text2.hpp>
 #include <Matrix.hpp>
-#include <SphereContext.hpp>
 #include <TextContext.hpp>
 #include <Font2.hpp>
 #include <NaviGlArea.hpp>
 #include <Scene.hpp>
 #include <MarkContext.hpp>
 
+#include "SphereContext.hpp"
 #include "TimezoneInfo.hpp"
 #include "MoonContext.hpp"
 #include "Config.hpp"

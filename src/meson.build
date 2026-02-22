@@ -1,0 +1,23 @@
+
+configure_file(output : meson.project_name() + '_config.h'
+               , configuration : conf)
+
+sources = files(
+     'Config.cpp'
+    ,'GlGlobeApp.cpp'
+    ,'GlGlobeWindow.cpp'
+    ,'GlSphereView.cpp'
+    ,'MoonContext.cpp'
+    ,'SphereGlArea.cpp'
+    ,'SphereContext.cpp'
+    ,'SunSet.cpp'
+    ,'ConfigDialog.cpp'
+    ,'BoundsDisplay.cpp'
+    ,'GeoJsonGeometryHandler.cpp'
+    ,'WeatherDialog.cpp'
+    ,'Timer.cpp'
+    ,'PlotDialog.cpp'
+    ,'Moon.cpp'
+    ,'TimezoneInfo.cpp'
+    )
+
