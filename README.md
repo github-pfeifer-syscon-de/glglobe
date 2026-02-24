@@ -1,9 +1,10 @@
 # Glglobe
 
-A nice desktop clock in earth shape, with
+A nice desktop clock with
+- earth illumination
 - moon-phase
-- with worldtime
-- Satellite images
+- worldtimes
+- satellite images
 - geo.json display
 
 ![Glglobe](glglobe.png "glglobe")
@@ -15,16 +16,11 @@ see genericImg, genericGlm, geodata
 ## Build
 
 The directory res requires some images, i didn't add here for the possible licence issues.
-They are download when build with curl, so if you are sensitve to licence issue, or want to use a different download-tool see res/Makefile.am.
+They are download when build with curl, so if you are sensitve to licence issue, or want to use a different download-tool see res/meson.build.
 
-configure:
-     allow --with-gles using GL ES 3 e.g. useful on Raspi's (requires same use on GenericGlm)
-
+The option to use Open-GLES is set with genericGlm and used here accordingly.   
 
 Build for windows was integrated at least for msys2<br>
-<pre>
-  look for "$host_os" = "mingw32"
-</pre>
 
 Localisation (at the moment de) was added if anything related
 to that area is missing "gettextisize" might help.
@@ -32,7 +28,7 @@ To start the program it is required to be installed, otherwise it will not show 
 
 ## Customizing
 
-Additional formats:
+Additional formats for Text:
 %D earth declination (for northern hemisphere)<br>
 %rise sun rise for the location setup by latitude / longitude<br>
 %set sun set<br>
@@ -51,7 +47,7 @@ With linux there are files located in "/usr/share/zoneinfo"
 which are named "zone1970.tab" or "zone.tab".
 To make this work with msys2 the directory is
 derived from the application data dir.
-So if you choosen a non standard install dir,
+So if you choose a non standard install dir,
 or want to customize the displayed cities,
 you can adapt the directory by
 setting "zimezoneDir" in the "globe"

@@ -966,7 +966,8 @@ GlSphereView::findFile(const std::string& name)
     if (resFile->query_exists()) {
         return resFile->get_path();
     }
-    auto resDir = psc::util::Files::getSrcRelativeDir(m_exec, PACKAGE_SRC_DIR);
+    // locate file when run from build
+    auto resDir = psc::util::Files::getSrcRelativeDir(m_exec, "res");
     auto resFDir = Gio::File::create_for_path(resDir);
     resFile = resFDir->get_child(name);
     if (!resFile->query_exists()) {

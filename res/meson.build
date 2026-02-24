@@ -36,9 +36,6 @@ foreach texture_file : texture_files
         build_by_default   : true
         , command          : [curl_exec, url, '-o', '@OUTPUT@']
         , output           : texture_file
-        )
+        , install           : true
+        , install_dir      : pkgdatadir)
 endforeach
-
-install_data(
-      texture_files
-    , install_dir: pkgdatadir)
