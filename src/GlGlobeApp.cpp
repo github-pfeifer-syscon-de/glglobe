@@ -125,7 +125,6 @@ main(int argc, char** argv) {
     textdomain(PACKAGE);
     Glib::init();
 
-    g_log_writer_default_set_use_stderr(true);
     auto app = GlGlobeApp(argc, argv);
 
     return app.run();
