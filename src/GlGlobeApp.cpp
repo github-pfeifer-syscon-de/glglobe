@@ -28,7 +28,7 @@
 #include "GlGlobeWindow.hpp"
 #include "GlGlobeApp.hpp"
 #include "GlSphereView.hpp"
-
+#include "glglobe_config.h"
 
 GlGlobeApp::GlGlobeApp(int argc, char **argv)
 : Gtk::Application{argc, argv, "de.pfeifer_syscon.glglobe"}

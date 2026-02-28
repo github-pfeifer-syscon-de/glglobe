@@ -22,6 +22,7 @@ add_project_arguments('-DPACKAGE_LOCALE_DIR="' + pkglocaledir + '"', language: [
 
 disable_flags = [
     '-Wno-unused-parameter' # limit the compiler noisiness
+    ,'-Wno-overlength-strings'  # this matters only if you are pedantic
 ]
 cc = meson.get_compiler('c')
 foreach cflag : disable_flags
@@ -31,7 +32,9 @@ foreach cflag : disable_flags
 endforeach
 
 conf = configuration_data()
-conf.set_quoted('VERSION', meson.project_version())     # Surround the version in quotes to make it a C string
+conf.set_quoted('GLGLOBE_VERSION', meson.project_version())     # Surround the version in quotes to make it a C string
+conf_file = configure_file(output : meson.project_name() + '_config.h'
+               , configuration : conf)
 
 thread_deps     = dependency('threads')
 genericimg_deps = dependency('genericimg', version :'>= 0.4.8')
@@ -48,9 +51,11 @@ subdir('src')
 subdir('res')
 sources += app_resources
 
+inc_dirs = include_directories(fs.parent(conf_file))
 project_targt = executable(meson.project_name()
     , sources
     , dependencies: deps
+    , include_directories: inc_dirs
     , install: true
     , win_subsystem: 'windows'  # disable this to see console output for windows
     )
