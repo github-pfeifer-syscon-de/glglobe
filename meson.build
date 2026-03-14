@@ -50,6 +50,7 @@ subdir('po')
 subdir('src')
 subdir('res')
 sources += app_resources
+sources += win_res_file 
 
 inc_dirs = include_directories(fs.parent(conf_file))
 project_targt = executable(meson.project_name()
