@@ -165,7 +165,7 @@ WeatherDialog::on_action_help()
         std::string helpRes = RESOURCE::resource("help.txt");
         refHelp = Gio::Resource::lookup_data_global(helpRes);
     }
-    uint64_t size{0ul};
+    gsize size{0ul};
     gconstpointer gp = refHelp->get_data(size);
     // use string as the length is "bytes" (ustring expects utf-8 chars)!
     std::string helpText(static_cast<const char*>(gp), size);

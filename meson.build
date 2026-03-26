@@ -23,6 +23,7 @@ add_project_arguments('-DPACKAGE_LOCALE_DIR="' + pkglocaledir + '"', language: [
 disable_flags = [
     '-Wno-unused-parameter' # limit the compiler noisiness
     ,'-Wno-overlength-strings'  # this matters only if you are pedantic
+    ,'-Wno-psabi'           # since these warnings are targeted for ancient versions -> stick to same compiler version
 ]
 cc = meson.get_compiler('c')
 foreach cflag : disable_flags
