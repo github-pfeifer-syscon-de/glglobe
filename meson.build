@@ -40,7 +40,7 @@ conf_file = configure_file(output : meson.project_name() + '_config.h'
 thread_deps     = dependency('threads')
 genericimg_deps = dependency('genericimg', version :'>= 0.4.8')
 genericglm_deps = dependency('genericglm', version :'>= 0.3.1')
-geodata_deps = dependency('geodata', version :'>= 0.1.4')
+geodata_deps = dependency('geodata', version :'>= 0.2.0')
 deps = [
       genericimg_deps
     , genericglm_deps
