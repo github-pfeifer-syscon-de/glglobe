@@ -32,6 +32,7 @@
 #include <Font2.hpp>
 #include <NaviGlArea.hpp>
 #include <Scene.hpp>
+#include <WeatherConfigGrid.hpp>
 #include <MarkContext.hpp>
 
 #include "SphereContext.hpp"
@@ -49,6 +50,7 @@ class GlGlobeWindow;
 class GlSphereView
 : public Scene
 , public WeatherConsumer
+, public BaseConfigListener
 {
 public:
     GlSphereView(const std::shared_ptr<Config>& config, Glib::StdStringView exec);
@@ -64,7 +66,7 @@ public:
     void draw(Gtk::GLArea *glArea, Matrix &proj, Matrix &view) override;
     Glib::ustring customize_time(Glib::ustring prepared);
     psc::gl::aptrGeom2 on_click_select(GdkEventButton* event, float mx, float my) override;
-    std::shared_ptr<Config> get_config() {
+    std::shared_ptr<WeatherConfig> get_config() {
         return m_config;
     }
     std::shared_ptr<Weather> get_weather() {
@@ -152,7 +154,7 @@ private:
 };
 
 struct RESOURCE {
-    static constexpr const char * const PREFIX = "/de/pfeifer_syscon/glsceneapp/";
+    static constexpr const char * const PREFIX = "/de/pfeifer_syscon/glglobe/";
 
     static std::string resource(const char *file);
 };
