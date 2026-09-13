@@ -29,7 +29,7 @@ class Config
 : public WeatherConfig
 {
 public:
-    Config() = default;
+    Config();
     virtual ~Config() = default;
 
 
@@ -64,8 +64,8 @@ public:
     Glib::RefPtr<Gio::File> getTimezoneDir();
     void setTimezoneDir(const Glib::RefPtr<Gio::File>& tzDir);
 protected:
-    std::string get_config_name() override;
     std::string get_main_config_group() override;
+    static constexpr auto CONF_FILENAME = "glglobe.conf";
     static constexpr auto GRP_MAIN{"globe"};
     static constexpr auto LATITUDE{"lat"};
     static constexpr auto LONGITUDE{"lon"};

@@ -27,12 +27,9 @@
 
 #include "Config.hpp"
 
-std::string
-Config::get_config_name()
+Config::Config()
+: WeatherConfig(CONF_FILENAME)
 {
-    std::string fullPath = g_canonicalize_filename("glglobe.conf", Glib::get_user_config_dir().c_str());
-    //std::cout << "using config " << fullPath << std::endl;
-    return fullPath;
 }
 
 std::string
