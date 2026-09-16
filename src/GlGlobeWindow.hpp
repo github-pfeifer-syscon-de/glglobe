@@ -41,9 +41,9 @@ public:
     void on_action_plot();
     void save_config();
     void showMessage(const Glib::ustring& msg, Gtk::MessageType msgType = Gtk::MessageType::MESSAGE_INFO);
+    void closeConfigDlg();
 
 private:
-    void closeConfigDlg();
     GlSphereView* m_sphereView;
     std::shared_ptr<Config> m_config;
     ConfigDialog* m_cfgdlg{nullptr};

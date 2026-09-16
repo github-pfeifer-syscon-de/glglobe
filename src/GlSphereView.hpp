@@ -39,7 +39,6 @@
 #include "TimezoneInfo.hpp"
 #include "MoonContext.hpp"
 #include "Config.hpp"
-#include "GlGlobeWindow.hpp"
 #include "Weather.hpp"
 
 
@@ -53,7 +52,7 @@ class GlSphereView
 , public BaseConfigListener
 {
 public:
-    GlSphereView(const std::shared_ptr<Config>& config, Glib::StdStringView exec);
+    GlSphereView(const std::shared_ptr<Config>& config, Glib::StdStringView exec, GlGlobeWindow* glGlobeWindow);
     virtual ~GlSphereView();
     Matrix getLookAt(Vector &position, Vector &direction, Vector &up) override;
     Position getIntialPosition() override;
@@ -98,6 +97,9 @@ public:
     // as we have no Gis, so limit the complexity of usable files
     static constexpr goffset GEO_FILE_SIZE_LIMIT{200*1024};
     std::string findFile(const std::string& name);
+    void closeConfigDlg() override;
+    void save_config() override;
+    void on_action_preferences() override;    // reopen config
 
 protected:
     Gdk::EventMask getAddEventMask() override;
@@ -151,6 +153,7 @@ private:
     static constexpr auto EARTH_DIST_CENTER{50.0f};
 
     std::shared_ptr<psc::log::Log> m_log;
+    GlGlobeWindow* m_glGlobeWindow;
 };
 
 struct RESOURCE {

@@ -38,7 +38,7 @@ GlGlobeWindow::GlGlobeWindow(Glib::StdStringView exec)
 , m_config{std::make_shared<Config>()}
 {
     m_config->read();
-    m_sphereView = new GlSphereView(m_config, exec);
+    m_sphereView = new GlSphereView(m_config, exec, this);
     auto naviGlArea = Gtk::manage(new SphereGlArea(m_sphereView));
 	#ifdef USE_GLES
     //naviGlArea->set_required_version (3, 0);
@@ -51,12 +51,12 @@ GlGlobeWindow::GlGlobeWindow(Glib::StdStringView exec)
     add_action("preferences", sigc::mem_fun(*this, &GlGlobeWindow::on_action_preferences));
     add_action("about", sigc::mem_fun(*this, &GlGlobeWindow::on_action_about));
     // radio actions are the best way to get a string parameter action, no radio involved
-    add_action_radio_string("weatherEdit",
-                    sigc::bind(
-                        sigc::mem_fun(*this, &GlGlobeWindow::on_action_weather), false), "");
-    add_action_radio_string("weatherAdd",
-                    sigc::bind(
-                        sigc::mem_fun(*this, &GlGlobeWindow::on_action_weather), true), "");
+    //add_action_radio_string("weatherEdit",
+    //                sigc::bind(
+    //                    sigc::mem_fun(*this, &GlGlobeWindow::on_action_weather), false), "");
+    //add_action_radio_string("weatherAdd",
+    //                sigc::bind(
+    //                    sigc::mem_fun(*this, &GlGlobeWindow::on_action_weather), true), "");
 
     Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create_from_resource(RESOURCE::resource("glglobe.png"));
     set_icon(icon);
@@ -132,26 +132,6 @@ GlGlobeWindow::on_action_about()
                       _("Error {} while loading {}")
                     , psc::fmt::make_format_args(ex, "abt-dlg.ui"))
                 , Gtk::MessageType::MESSAGE_ERROR);
-    }
-}
-
-void
-GlGlobeWindow::on_action_weather(const Glib::ustring& idStr, bool add)
-{
-    //std::cout << "GlGlobeWindow::on_action_weather id" << idStr << std::endl;
-    // to simplify the overall handling
-    //   close weather dialog here and reopen when weather setup is done
-    closeConfigDlg();
-    auto weatherDlg = WeatherDialog::create(m_config, idStr, add);
-    if (weatherDlg) {
-        weatherDlg->set_transient_for(*this);
-        int ret = weatherDlg->run();
-        weatherDlg->hide();
-        if (ret == Gtk::RESPONSE_OK) {
-            save_config();
-            on_action_preferences();    // reopen config
-        }
-        delete weatherDlg;      // cleanup
     }
 }
 

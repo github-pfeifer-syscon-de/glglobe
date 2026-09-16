@@ -37,6 +37,7 @@
 #include <psc_format.hpp>
 #include <psc_Files.hpp>
 
+
 #include "GlSphereView.hpp"
 #include "SunSet.hpp"
 #include "GeoJson.hpp"
@@ -44,10 +45,12 @@
 #include "SphereGlArea.hpp"
 #include "GeoJsonGeometryHandler.hpp"
 #include "Moon.hpp"
+#include "GlGlobeWindow.hpp"
 
 GlSphereView::GlSphereView(
       const std::shared_ptr<Config>& config
-    , Glib::StdStringView exec)
+    , Glib::StdStringView exec
+    , GlGlobeWindow* glGlobeWindow)
 : Scene()
 , m_config{config}
 , m_exec{exec}
@@ -61,6 +64,7 @@ GlSphereView::GlSphereView(
 , m_sunSet{0.0}
 , m_moonContext{nullptr}
 , m_log{psc::log::Log::create("glglobe")}
+, m_glGlobeWindow{glGlobeWindow}
 {
     m_log->setLevel(psc::log::Log::getLevel(m_config->getLogLevel()));
 }
@@ -979,6 +983,22 @@ GlSphereView::findFile(const std::string& name)
     return resFile->get_path();
 }
 
+void
+GlSphereView::closeConfigDlg()
+{
+    m_glGlobeWindow->closeConfigDlg();
+}
+
+void GlSphereView::save_config()
+{
+    m_glGlobeWindow->save_config();
+}
+
+void
+GlSphereView::on_action_preferences()
+{
+    m_glGlobeWindow->on_action_preferences();
+}
 
 std::string
 RESOURCE::resource(const char *file)
