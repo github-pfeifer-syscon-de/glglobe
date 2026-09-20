@@ -111,12 +111,12 @@ GlGlobeApp::on_startup() {
 int
 main(int argc, char** argv) {
 
-    //std::locale::global(std::locale("")); // Use the current user/system locale
     char* loc = std::setlocale(LC_ALL, "");  // this seems not to work with individual categories
     if (loc != nullptr) {
-        //std::cout << "setlocale " << loc << std::endl;
-        // sync c++
+#       ifndef __MINGW32__
+        // this breaks for windows/msys2, so it might be a good idea to not use it anyway
         std::locale::global(std::locale(loc));
+#       endif
     }
     else {
         std::cout << "error setlocale " << std::endl;
