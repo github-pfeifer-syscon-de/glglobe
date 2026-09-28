@@ -39,6 +39,8 @@ public:
     void addShape(JsonArray* shape) override;
     void endShape() override;
     void addCoord(JsonArray* coord, bool last) override;
+    void addPoint(JsonArray* coord) override {};
+    void addProperties(JsonObject* geo) override {};
     int getPointsLimit();
     void setPointsLimit(int points);
 private:
